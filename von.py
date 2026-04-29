@@ -324,4 +324,4 @@ async def handle_owner_command(message):
         hours = int(elapsed // 3600)
         minutes = int((elapsed % 3600) // 60)
         
-        await message.channel.send(f"""
+        stats_msg = f"""
