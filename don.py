@@ -1,42 +1,28 @@
 import discord
 import asyncio
-import time
 
-TOKEN = input("🔑 توكن البوت: ")
+# طلب التوكن عند التشغيل
+TOKEN = input("🔑 أدخل توكن البوت: ")
+
 SERVER_LINK = "https://discord.gg/k3P8kWQag"
 
-MESSAGE = f"""👹 **ПРИВЕТ ИЗ АДА** 👹
-
-Твой ад ждёт тебя: {SERVER_LINK}"""
-
-class UltraFastBot(discord.Client):
+class Bot(discord.Client):
     async def on_ready(self):
         print(f"✅ شغال: {self.user}")
         
-        # تشغيل 200 مهمة متزامنة
-        tasks = []
-        for guild in self.guilds:
-            for member in guild.members:
-                if not member.bot:
-                    tasks.append(self.send_dm(member))
-                    
-                    # كل 200 مهمة ننفذها فوراً
-                    if len(tasks) >= 200:
-                        await asyncio.gather(*tasks)
-                        tasks = []
+        members = []
+        for g in self.guilds:
+            await g.chunk()
+            members.extend([m for m in g.members if not m.bot])
         
-        if tasks:
-            await asyncio.gather(*tasks)
+        print(f"🚀 إرسال إلى {len(members)} عضو...")
         
-        print("✅ تم الانتهاء!")
+        tasks = [m.send(f"👹 {SERVER_LINK}") for m in members]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        success = sum(1 for r in results if not isinstance(r, Exception))
+        print(f"✅ تم: {success} | ❌ فشل: {len(members)-success}")
         await self.close()
-    
-    async def send_dm(self, user):
-        try:
-            await user.send(MESSAGE)
-            print(f"✅ {user.name}")
-        except:
-            pass
 
-bot = UltraFastBot(intents=discord.Intents.default())
+bot = Bot(intents=discord.Intents.all())
 bot.run(TOKEN)
